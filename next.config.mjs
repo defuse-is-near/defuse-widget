@@ -18,6 +18,7 @@ const nextConfig = {
     baseChainId: process.env.BASE_CHAIN_ID,
     environment: process.env.ENVIRONMENT,
     turnOffApps: process.env.NEXT_PUBLIC_TURN_OFF_APPS,
+    NEAR_ENV: process.env.NEAR_ENV,
   },
   images: {
     remotePatterns: [

@@ -15,6 +15,7 @@ import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
 import { NetworkToken } from "@src/types/interfaces"
 import { ModalSelectAssetsPayload } from "@src/components/Modal/ModalSelectAssets"
+import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
 
 type FormValues = {
   tokenIn: string
@@ -33,6 +34,7 @@ export default function Swap() {
   const { setModalType, payload } = useModalStore((state) => state)
   const { onChangeInputToken, onChangeOutputToken, callRequestIntent } =
     useSwap({ selector, accountId })
+  const { getSwapEstimateBot } = useSwapEstimateBot()
 
   const handleResetToken = (
     token: NetworkToken,
@@ -112,6 +114,13 @@ export default function Swap() {
           price={selectTokenIn?.balanceToUds}
           balance={selectTokenIn?.balance}
           selected={selectTokenIn}
+          handleChange={(e) =>
+            getSwapEstimateBot({
+              tokenIn: selectTokenIn!.address as string,
+              tokenOut: selectTokenOut!.address as string,
+              amountIn: e.target.value,
+            })
+          }
           handleSelect={() => handleSelect("tokenIn")}
           handleSetMax={handleSetMax}
           className="border rounded-t-xl"

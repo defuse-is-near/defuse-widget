@@ -17,6 +17,7 @@ interface Props<T extends FieldValues> {
   handleSetMax?: (e: React.MouseEvent<HTMLButtonElement>) => void
   selected?: NetworkToken
   handleSelect?: () => void
+  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   className?: string
 }
 
@@ -31,6 +32,7 @@ const FieldComboInput = <T extends FieldValues>({
   handleSetMax,
   selected,
   handleSelect,
+  handleChange,
   className,
 }: Props<T>) => {
   if (!register) {
@@ -55,6 +57,7 @@ const FieldComboInput = <T extends FieldValues>({
       <input
         {...register(fieldName, { required })}
         placeholder={placeholder}
+        onChange={handleChange}
         className={clsx(
           "grow flex-1 bg-gray-50 max-w-[140px] md:min-w-[calc(100%-210px)] text-3xl font-medium placeholder-black border-transparent focus:border-transparent focus:ring-0"
         )}
