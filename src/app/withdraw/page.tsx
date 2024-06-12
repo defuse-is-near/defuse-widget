@@ -1,6 +1,6 @@
 "use client"
 
-import { FieldValues } from "react-hook-form"
+import { FieldValues, useForm } from "react-hook-form"
 import React from "react"
 
 import Paper from "@src/components/Paper"
@@ -15,15 +15,21 @@ type FormValues = {
 }
 
 export default function Withdraw() {
-  const handleSubmit = (values: FieldValues) => {
+  const { handleSubmit, register } = useForm<FormValues>()
+
+  const onSubmit = (values: FieldValues) => {
     console.log(values, "form submit")
   }
+
   const handleSetMax = () => {
     console.log("form set max")
   }
   return (
     <Paper title="Withdraw">
-      <Form<FormValues> onSubmit={handleSubmit}>
+      <Form<FormValues>
+        handleSubmit={handleSubmit(onSubmit)}
+        register={register}
+      >
         <FieldComboInput<FormValues>
           fieldName="tokenIn"
           label="You’re sending"
@@ -39,8 +45,8 @@ export default function Withdraw() {
           placeholder="Enter wallet address"
         />
         <div className="h-[20px]"></div>
-        <Button type="submit" size="lg" fullWidth>
-          Send
+        <Button type="submit" size="lg" fullWidth disabled>
+          Coming soon
         </Button>
       </Form>
     </Paper>

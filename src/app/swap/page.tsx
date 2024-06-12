@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
-import { FieldValues } from "react-hook-form"
+import React, { useEffect, useRef, useState } from "react"
+import { FieldValues, useForm } from "react-hook-form"
 
 import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
@@ -16,6 +16,7 @@ import { ModalType } from "@src/stores/modalStore"
 import { NetworkToken } from "@src/types/interfaces"
 import { ModalSelectAssetsPayload } from "@src/components/Modal/ModalSelectAssets"
 import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
+import { DataEstimateRequest } from "@src/libs/de-sdk/types/interfaces"
 
 type FormValues = {
   tokenIn: string
@@ -23,18 +24,20 @@ type FormValues = {
 }
 
 export default function Swap() {
+  const { handleSubmit, register, watch, setValue, getValues } =
+    useForm<FormValues>()
   const [selectTokenIn, setSelectTokenIn] = useState<NetworkToken | undefined>(
     LIST_NETWORKS_TOKENS[0]
   )
   const [selectTokenOut, setSelectTokenOut] = useState<
     NetworkToken | undefined
   >(LIST_NETWORKS_TOKENS[1])
-
   const { selector, accountId } = useWalletSelector()
   const { setModalType, payload } = useModalStore((state) => state)
   const { onChangeInputToken, onChangeOutputToken, callRequestIntent } =
     useSwap({ selector, accountId })
   const { getSwapEstimateBot } = useSwapEstimateBot()
+  const isProgrammaticUpdate = useRef(false)
 
   const handleResetToken = (
     token: NetworkToken,
@@ -48,6 +51,65 @@ export default function Swap() {
       setSelectToken(undefined)
     }
   }
+
+  const onSubmit = async (values: FieldValues) => {
+    await callRequestIntent({
+      inputAmount: values.tokenIn,
+    })
+  }
+
+  const handleSwitch = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    const tempTokenInCopy = Object.assign({}, selectTokenIn)
+    setSelectTokenIn(selectTokenOut)
+    setSelectTokenOut(tempTokenInCopy)
+
+    // Use isProgrammaticUpdate as true to prevent unnecessary estimate
+    const tempValueTokenInCopy = getValues("tokenIn")
+    isProgrammaticUpdate.current = true
+    setValue("tokenIn", getValues("tokenOut"))
+    isProgrammaticUpdate.current = true
+    setValue("tokenOut", tempValueTokenInCopy)
+  }
+
+  const handleSetMax = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    console.log("form set max")
+  }
+
+  const handleSelect = (fieldName: string) => {
+    setModalType(ModalType.MODAL_SELECT_ASSETS, { fieldName })
+  }
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (isProgrammaticUpdate.current) {
+        isProgrammaticUpdate.current = false
+        return
+      }
+
+      if (name === "tokenIn") {
+        getSwapEstimateBot({
+          tokenIn: selectTokenIn!.address,
+          tokenOut: selectTokenOut!.address,
+          amountIn: value.tokenIn,
+        } as DataEstimateRequest).then((estimatedAmountOut) => {
+          isProgrammaticUpdate.current = true
+          setValue("tokenOut", estimatedAmountOut)
+        })
+      } else if (name === "tokenOut") {
+        getSwapEstimateBot({
+          tokenIn: selectTokenOut!.address,
+          tokenOut: selectTokenIn!.address,
+          amountIn: value.tokenOut,
+        } as DataEstimateRequest).then((estimatedAmountIn) => {
+          isProgrammaticUpdate.current = true
+          setValue("tokenIn", estimatedAmountIn)
+        })
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [watch, selectTokenIn, selectTokenOut, getSwapEstimateBot, setValue])
 
   useEffect(() => {
     if (
@@ -81,46 +143,20 @@ export default function Swap() {
     }
   }, [payload, selectTokenIn, selectTokenOut])
 
-  const handleSubmit = async (values: FieldValues) => {
-    await callRequestIntent({
-      inputAmount: values.tokenIn,
-    })
-  }
-
-  const handleSwitch = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    const tempCopy = Object.assign({}, selectTokenIn)
-    setSelectTokenIn(selectTokenOut)
-    setSelectTokenOut(tempCopy)
-  }
-
-  const handleSetMax = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    console.log("form set max")
-  }
-
-  const handleSelect = (fieldName: string) => {
-    setModalType(ModalType.MODAL_SELECT_ASSETS, { fieldName })
-  }
-
   return (
     <Paper
       title="Swap"
       description="Cross-chain swap across any network, any token."
     >
-      <Form<FormValues> onSubmit={handleSubmit}>
+      <Form<FormValues>
+        handleSubmit={handleSubmit(onSubmit)}
+        register={register}
+      >
         <FieldComboInput<FormValues>
           fieldName="tokenIn"
-          price={selectTokenIn?.balanceToUds}
-          balance={selectTokenIn?.balance}
-          selected={selectTokenIn}
-          handleChange={(e) =>
-            getSwapEstimateBot({
-              tokenIn: selectTokenIn!.address as string,
-              tokenOut: selectTokenOut!.address as string,
-              amountIn: e.target.value,
-            })
-          }
+          price={selectTokenIn?.balanceToUds as string}
+          balance={selectTokenIn?.balance as string}
+          selected={selectTokenIn as NetworkToken}
           handleSelect={() => handleSelect("tokenIn")}
           handleSetMax={handleSetMax}
           className="border rounded-t-xl"
@@ -128,8 +164,8 @@ export default function Swap() {
         <Switch onClick={handleSwitch} />
         <FieldComboInput<FormValues>
           fieldName="tokenOut"
-          price={selectTokenOut?.balanceToUds}
-          selected={selectTokenOut}
+          price={selectTokenOut?.balanceToUds as string}
+          selected={selectTokenOut as NetworkToken}
           handleSelect={() => handleSelect("tokenOut")}
           className="border rounded-b-xl mb-5"
         />

@@ -9,8 +9,12 @@ const useSwapEstimateBot = (externalProviders: unknown[] = []) => {
 
   setSettings({ providerIds })
 
-  const getSwapEstimateBot = async (data: DataEstimateRequest) => {
-    return await concurrentEstimateSwap(data)
+  const getSwapEstimateBot = async (
+    data: DataEstimateRequest
+  ): Promise<string> => {
+    const estimate = await concurrentEstimateSwap(data)
+    console.log(estimate, "Estimate response")
+    return "2"
   }
 
   return {

@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { FieldValues } from "react-hook-form"
+import { FieldValues, useForm } from "react-hook-form"
 import Image from "next/image"
 
 import Paper from "@src/components/Paper"
@@ -17,7 +17,9 @@ type FormValues = {
 }
 
 export default function Deposit() {
-  const handleSubmit = (values: FieldValues) => {
+  const { handleSubmit, register } = useForm<FormValues>()
+
+  const onSubmit = (values: FieldValues) => {
     console.log(values, "form submit")
   }
   const handleSwitch = () => {
@@ -28,7 +30,10 @@ export default function Deposit() {
   }
   return (
     <Paper title="Deposit">
-      <Form<FormValues> onSubmit={handleSubmit}>
+      <Form<FormValues>
+        handleSubmit={handleSubmit(onSubmit)}
+        register={register}
+      >
         <FieldComboInput<FormValues>
           fieldName="tokenIn"
           label="You pay"
@@ -60,8 +65,8 @@ export default function Deposit() {
             </>
           }
         />
-        <Button type="submit" size="lg" fullWidth>
-          Buy
+        <Button type="submit" size="lg" fullWidth disabled>
+          Coming soon
         </Button>
       </Form>
     </Paper>
