@@ -10,6 +10,7 @@ import {
   init_env,
   getPoolByIds,
 } from "@ref-finance/ref-sdk"
+import { formatUnits } from "viem"
 
 import {
   DataEstimateRequest,
@@ -19,13 +20,11 @@ import {
 // Forcing to use network
 // init_env("testnet")
 
-const REGISTRAR_NAME = "ref.finance"
+const REGISTRAR_ID = "ref.finance"
 
-const swapEstimateRefFinanceProvider = async (
+export const swapEstimateRefFinanceProvider = async (
   data: DataEstimateRequest
 ): Promise<SwapEstimateProviderResponse> => {
-  // const tokenInWithMeta = await ftGetTokenMetadata(tokenIn)
-  // const tokenOutWithMeta = await ftGetTokenMetadata(tokenOut)
   const { ratedPools, unRatedPools, simplePools } = await fetchAllPools(200)
   const stablePools: Pool[] = unRatedPools.concat(ratedPools)
   const stablePoolsDetail: StablePool[] = await getStablePools(stablePools)
@@ -38,20 +37,34 @@ const swapEstimateRefFinanceProvider = async (
 
   const pools = await getPoolByIds([1, 2, 20])
 
-  const tokenIn = await ftGetTokenMetadata("ref.fakes.testnet")
-  const tokenOut = await ftGetTokenMetadata("wrap.testnet")
+  const tokenInWithMeta = await ftGetTokenMetadata(data.tokenIn)
+  const tokenOutWithMeta = await ftGetTokenMetadata(data.tokenOut)
+
+  const formattedAmountOut = formatUnits(
+    BigInt(data.amountIn),
+    tokenInWithMeta.decimals
+  )
 
   const swapTodos: EstimateSwapView[] = await estimateSwap({
-    tokenIn: tokenIn,
-    tokenOut: tokenOut,
-    amountIn: "1",
+    tokenIn: tokenInWithMeta,
+    tokenOut: tokenOutWithMeta,
+    amountIn: formattedAmountOut,
     simplePools,
   })
 
-  return {
-    registrarName: REGISTRAR_NAME,
-    data: swapTodos,
-  } as unknown as SwapEstimateProviderResponse
-}
+  if (!swapTodos.length) {
+    return {
+      registrarId: `${REGISTRAR_ID}:`,
+      estimateOut: "0",
+    } as SwapEstimateProviderResponse
+  }
 
-export default swapEstimateRefFinanceProvider
+  const getSortedList = swapTodos.sort(
+    (a, b) => Number(b.estimate) - Number(a.estimate)
+  )
+  console.log("swapEstimateRefFinanceProvider:", getSortedList)
+  return {
+    registrarId: `${REGISTRAR_ID}:${getSortedList[0].pool.id}`,
+    estimateOut: getSortedList[0].estimate as string,
+  } as SwapEstimateProviderResponse
+}

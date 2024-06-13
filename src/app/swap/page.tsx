@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { FieldValues, useForm } from "react-hook-form"
+import { parseUnits } from "viem"
 
 import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
@@ -17,6 +18,7 @@ import { NetworkToken } from "@src/types/interfaces"
 import { ModalSelectAssetsPayload } from "@src/components/Modal/ModalSelectAssets"
 import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
 import { DataEstimateRequest } from "@src/libs/de-sdk/types/interfaces"
+import { debounce } from "@src/utils/debounce"
 
 type FormValues = {
   tokenIn: string
@@ -81,6 +83,24 @@ export default function Swap() {
     setModalType(ModalType.MODAL_SELECT_ASSETS, { fieldName })
   }
 
+  const debouncedGetSwapEstimateBot = debounce(
+    async (data: DataEstimateRequest) => {
+      const estimatedAmountOut = await getSwapEstimateBot(data)
+      isProgrammaticUpdate.current = true
+      setValue("tokenOut", estimatedAmountOut)
+    },
+    2000
+  )
+
+  const debouncedGetSwapEstimateBotReverse = debounce(
+    async (data: DataEstimateRequest) => {
+      const estimatedAmountIn = await getSwapEstimateBot(data)
+      isProgrammaticUpdate.current = true
+      setValue("tokenIn", estimatedAmountIn)
+    },
+    2000
+  )
+
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (isProgrammaticUpdate.current) {
@@ -88,24 +108,27 @@ export default function Swap() {
         return
       }
 
+      const unitsTokenIn = parseUnits(
+        String(value.tokenIn),
+        selectTokenIn?.decimals as number
+      ).toString()
+      const unitsTokenOut = parseUnits(
+        String(value.tokenOut),
+        selectTokenOut?.decimals as number
+      ).toString()
+
       if (name === "tokenIn") {
-        getSwapEstimateBot({
+        debouncedGetSwapEstimateBot({
           tokenIn: selectTokenIn!.address,
           tokenOut: selectTokenOut!.address,
-          amountIn: value.tokenIn,
-        } as DataEstimateRequest).then((estimatedAmountOut) => {
-          isProgrammaticUpdate.current = true
-          setValue("tokenOut", estimatedAmountOut)
-        })
+          amountIn: unitsTokenIn,
+        } as DataEstimateRequest)
       } else if (name === "tokenOut") {
-        getSwapEstimateBot({
+        debouncedGetSwapEstimateBotReverse({
           tokenIn: selectTokenOut!.address,
           tokenOut: selectTokenIn!.address,
-          amountIn: value.tokenOut,
-        } as DataEstimateRequest).then((estimatedAmountIn) => {
-          isProgrammaticUpdate.current = true
-          setValue("tokenIn", estimatedAmountIn)
-        })
+          amountIn: unitsTokenOut,
+        } as DataEstimateRequest)
       }
     })
     return () => subscription.unsubscribe()

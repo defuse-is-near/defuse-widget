@@ -65,16 +65,16 @@ export const TOKENS: Token = {
 }
 
 export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
-  {
-    chainName: "NEAR",
-    chainId: "1313161554",
-    address: "",
-    name: "NEAR",
-    symbol: "NEAR",
-    chainIcon: "/static/icons/network/near.svg",
-    icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
-    decimals: 24,
-  },
+  // {
+  //   chainName: "NEAR",
+  //   chainId: "1313161554",
+  //   address: "0x1",
+  //   name: "NEAR",
+  //   symbol: "NEAR",
+  //   chainIcon: "/static/icons/network/near.svg",
+  //   icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
+  //   decimals: 24,
+  // },
   {
     chainName: "NEAR",
     chainId: "1313161554",
