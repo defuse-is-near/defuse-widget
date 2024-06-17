@@ -6,8 +6,13 @@ import React, {
   cloneElement,
   isValidElement,
   ReactElement,
+  FormEventHandler,
 } from "react"
-import { useForm, UseFormRegister, FieldValues } from "react-hook-form"
+import {
+  UseFormRegister,
+  FieldValues,
+  UseFormHandleSubmit,
+} from "react-hook-form"
 
 // Define an interface for components that accept register as a prop
 interface RegisterProps<T extends FieldValues> {
@@ -15,12 +20,15 @@ interface RegisterProps<T extends FieldValues> {
 }
 
 interface Props<T extends FieldValues> extends PropsWithChildren {
-  onSubmit: (props: T) => void
+  register: UseFormRegister<T>
+  handleSubmit: UseFormHandleSubmit<T> | FormEventHandler<T> | undefined
 }
 
-const Form = <T extends FieldValues>({ children, onSubmit }: Props<T>) => {
-  const { handleSubmit, register } = useForm<T>()
-
+const Form = <T extends FieldValues>({
+  children,
+  handleSubmit,
+  register,
+}: Props<T>) => {
   const childrenWithProps = Children.map(children, (child) => {
     if (isValidElement(child)) {
       // Ensure that the child is a ReactElement and pass the register prop correctly
@@ -31,7 +39,8 @@ const Form = <T extends FieldValues>({ children, onSubmit }: Props<T>) => {
     return child
   })
 
-  return <form onSubmit={handleSubmit(onSubmit)}>{childrenWithProps}</form>
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
+  return <form onSubmit={handleSubmit as any}>{childrenWithProps}</form>
 }
 
 export default Form

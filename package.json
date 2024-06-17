@@ -51,6 +51,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.51.5",
     "rxjs": "^7.8.1",
+    "uuid": "^10.0.0",
     "viem": "^2.13.2",
     "zustand": "^4.5.2"
   },
@@ -62,6 +63,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.10.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",

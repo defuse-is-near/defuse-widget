@@ -9,14 +9,6 @@ export interface DataEstimateRequest {
 }
 
 export interface SwapEstimateProviderResponse {
-  registrarName: string
-  data: (data: DataEstimateRequest) => Promise<{
-    estimate: string
-    inputToken: string
-    outputToken: string
-    providerId: string
-    pool: {
-      id: number
-    }
-  }>
+  registrarId: string
+  estimateOut: string
 }

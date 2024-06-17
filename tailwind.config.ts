@@ -80,6 +80,10 @@ const config: Config = {
           400: "rgba(204, 78, 0, 0.77)",
           100: "rgba(255, 156, 0, 0.16)",
         },
+        green: {
+          100: "rgba(0, 164, 51, 0.1)",
+          DEFAULT: "rgba(0, 113, 63, 0.87)",
+        },
         primary: {
           DEFAULT: "rgba(247, 107, 21, 1)",
         },

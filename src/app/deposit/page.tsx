@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { FieldValues } from "react-hook-form"
+import { FieldValues, useForm } from "react-hook-form"
 import Image from "next/image"
 
 import Paper from "@src/components/Paper"
@@ -10,6 +10,7 @@ import FieldComboInput from "@src/components/Form/FieldComboInput"
 import Switch from "@src/components/Switch"
 import Accordion from "@src/components/Accordion"
 import Button from "@src/components/Button"
+import { NetworkToken } from "@src/types/interfaces"
 
 type FormValues = {
   tokenIn: string
@@ -17,7 +18,9 @@ type FormValues = {
 }
 
 export default function Deposit() {
-  const handleSubmit = (values: FieldValues) => {
+  const { handleSubmit, register } = useForm<FormValues>()
+
+  const onSubmit = (values: FieldValues) => {
     console.log(values, "form submit")
   }
   const handleSwitch = () => {
@@ -28,18 +31,21 @@ export default function Deposit() {
   }
   return (
     <Paper title="Deposit">
-      <Form<FormValues> onSubmit={handleSubmit}>
+      <Form<FormValues>
+        handleSubmit={handleSubmit(onSubmit)}
+        register={register}
+      >
         <FieldComboInput<FormValues>
           fieldName="tokenIn"
           label="You pay"
           handleSetMax={handleSetMax}
-          selected={{ name: "USD" }}
+          selected={{ name: "USD" } as NetworkToken}
         />
         <Switch onClick={handleSwitch} />
         <FieldComboInput<FormValues>
           fieldName="tokenOut"
           label="You receive"
-          selected={{ name: "AURORA" }}
+          selected={{ name: "AURORA" } as NetworkToken}
         />
         <Accordion
           leftHeaderElement={
@@ -60,8 +66,8 @@ export default function Deposit() {
             </>
           }
         />
-        <Button type="submit" size="lg" fullWidth>
-          Buy
+        <Button type="submit" size="lg" fullWidth disabled>
+          Coming soon
         </Button>
       </Form>
     </Paper>
