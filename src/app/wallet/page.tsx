@@ -39,14 +39,6 @@ export default function Wallet() {
           <CardTokenList list={otherTokenList} />
         </div>
       </div>
-      <div className="w-full mx-auto max-w-5xl">
-        <Grid gap="1">
-          <Text as="div" weight="bold" size="2" mb="1">
-            Theme Mode Feedback
-          </Text>
-          <TextArea placeholder="Write your feedback…" />
-        </Grid>
-      </div>
     </div>
   )
 }

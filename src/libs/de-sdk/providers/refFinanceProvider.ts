@@ -17,15 +17,16 @@ import {
   SwapEstimateProviderResponse,
 } from "../types/interfaces"
 
-// Forcing to use network
-// init_env("testnet")
+const environment = process.env.environment
+init_env(environment === "production" ? "mainnet" : "testnet")
 
 const REGISTRAR_ID = "ref.finance"
 
 export const swapEstimateRefFinanceProvider = async (
   data: DataEstimateRequest
 ): Promise<SwapEstimateProviderResponse> => {
-  const { ratedPools, unRatedPools, simplePools } = await fetchAllPools(200)
+  const { ratedPools, unRatedPools, simplePools } = await fetchAllPools()
+
   const stablePools: Pool[] = unRatedPools.concat(ratedPools)
   const stablePoolsDetail: StablePool[] = await getStablePools(stablePools)
 

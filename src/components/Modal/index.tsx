@@ -1,6 +1,7 @@
 "use client"
 
 import { useModalStore } from "@src/providers/ModalStoreProvider"
+import ModalReviewSwap from "@src/components/Modal/ModalReviewSwap"
 
 import { ModalType } from "../../stores/modalStore"
 
@@ -12,6 +13,8 @@ const Modal = () => {
   switch (modalType) {
     case ModalType.MODAL_SELECT_ASSETS:
       return <ModalSelectAssets />
+    case ModalType.MODAL_REVIEW_SWAP:
+      return <ModalReviewSwap />
   }
 }
 

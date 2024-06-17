@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios"
 import { v4 } from "uuid"
+import { formatUnits } from "viem"
 
 import {
   DataEstimateRequest,
@@ -61,7 +62,7 @@ const convertTokenToTokenSolver = (
 
 const quoteAssetPrices = (
   data: SolverQuoteRequest
-): Promise<SolverBaseResponse & SolverResult<SolverQuoteResponse>> => {
+): Promise<SolverBaseResponse & SolverResult<SolverQuoteResponse[]>> => {
   const config: AxiosRequestConfig = {
     headers: {
       "Content-Type": "application/json",
@@ -95,9 +96,24 @@ export const swapEstimateSolver0Provider = async (
     amount_in: data.amountIn,
   })
 
+  if (!getQuoteAssetPrices.result.length) {
+    return {
+      registrarId: `${REGISTRAR_ID}:`,
+      estimateOut: "0",
+    } as SwapEstimateProviderResponse
+  }
+
+  const getSortedList = getQuoteAssetPrices.result.sort(
+    (a, b) => Number(b.amount_out) - Number(a.amount_out)
+  )
+  console.log("swapEstimateSolver0Provider:", getSortedList)
+
   return {
-    registrarId: `${REGISTRAR_ID}:${getQuoteAssetPrices.result?.solver_id || ""}`,
-    estimateOut: getQuoteAssetPrices.result?.amount_out || "0",
+    registrarId: `${REGISTRAR_ID}:${getSortedList[0].solver_id}`,
+    estimateOut: formatUnits(
+      BigInt(getSortedList[0].amount_out),
+      getTokenOutToFormat.result.tokens[0].decimals
+    ).toString(),
   } as SwapEstimateProviderResponse
 }
 

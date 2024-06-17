@@ -10,6 +10,7 @@ import FieldComboInput from "@src/components/Form/FieldComboInput"
 import Switch from "@src/components/Switch"
 import Accordion from "@src/components/Accordion"
 import Button from "@src/components/Button"
+import { NetworkToken } from "@src/types/interfaces"
 
 type FormValues = {
   tokenIn: string
@@ -38,13 +39,13 @@ export default function Deposit() {
           fieldName="tokenIn"
           label="You pay"
           handleSetMax={handleSetMax}
-          selected={{ name: "USD" }}
+          selected={{ name: "USD" } as NetworkToken}
         />
         <Switch onClick={handleSwitch} />
         <FieldComboInput<FormValues>
           fieldName="tokenOut"
           label="You receive"
-          selected={{ name: "AURORA" }}
+          selected={{ name: "AURORA" } as NetworkToken}
         />
         <Accordion
           leftHeaderElement={

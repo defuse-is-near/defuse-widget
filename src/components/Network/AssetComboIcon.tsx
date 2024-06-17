@@ -7,7 +7,7 @@ const AssetComboIcon = ({
   name,
   chainIcon,
   chainName,
-}: Omit<NetworkToken, "balance" | "balanceToUds">) => {
+}: Omit<Partial<NetworkToken>, "balance" | "balanceToUds">) => {
   return (
     <div className="relative inline-block">
       <div className="relative overflow-hidden w-[36px] h-[36px] flex justify-center items-center border border-silver-100 rounded-full">

@@ -4,11 +4,13 @@ type Props = {
   query: string
   setQuery: (value: string) => void
   placeholder?: string
+  handleOverrideCancel?: () => void
 }
 
 const SearchBar = ({
   query,
   setQuery,
+  handleOverrideCancel,
   placeholder = "Search name or paste address",
 }: Props) => {
   return (
@@ -25,7 +27,11 @@ const SearchBar = ({
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
-      <button onClick={() => setQuery("")}>
+      <button
+        onClick={() => {
+          handleOverrideCancel ? handleOverrideCancel() : setQuery("")
+        }}
+      >
         <Image
           src="/static/icons/close.svg"
           alt="Search Icon"

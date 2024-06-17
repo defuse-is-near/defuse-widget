@@ -9,6 +9,7 @@ interface Props<T extends FieldValues>
   variant?: "primary" | "secondary" | "base"
   size?: "sm" | "base" | "lg"
   fullWidth?: boolean
+  isLoading?: boolean
   register?: UseFormRegister<T>
 }
 
@@ -19,6 +20,7 @@ const CustomButton = <T extends FieldValues>({
   fullWidth,
   register,
   disabled,
+  isLoading,
   ...rest
 }: Props<T>) => {
   const buttonBaseStyle = "cursor-pointer whitespace-nowrap"
@@ -60,7 +62,7 @@ const CustomButton = <T extends FieldValues>({
   const buttonStyle = clsx(
     buttonBaseStyle,
     buttonSizeStyle,
-    disabled && "pointer-events-none",
+    (disabled || isLoading) && "pointer-events-none",
     fullWidth && "w-full block"
   )
 
@@ -69,7 +71,7 @@ const CustomButton = <T extends FieldValues>({
       variant={buttonVariantStyle}
       className={buttonStyle}
       color={buttonColorStyle}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       {...rest}
     >
       <Text size={buttonTextSizeStyle}>{children}</Text>

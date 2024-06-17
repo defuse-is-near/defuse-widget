@@ -1,5 +1,7 @@
 import { NetworkToken } from "@src/types/interfaces"
 
+const environment = process.env.environment || "production"
+
 enum TOKENS_MAINNET {
   NEAR = "",
   wNEAR = "wrap",
@@ -16,7 +18,6 @@ enum TOKENS_TESTNET {
   USDt = "usdtt.fakes.testnet",
 }
 
-const environment = process.env.environment || "production"
 export const SUPPORTED_TOKENS: typeof TOKENS_MAINNET | typeof TOKENS_TESTNET =
   environment === "development" ? TOKENS_TESTNET : TOKENS_MAINNET
 
@@ -64,8 +65,10 @@ export const TOKENS: Token = {
   },
 }
 
-export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
+const listNetworksTokensDevnet = [
   // {
+  //   defuse_asset_id: "near:testnet:0x1"
+  //   blockchain: "near",
   //   chainName: "NEAR",
   //   chainId: "1313161554",
   //   address: "0x1",
@@ -76,9 +79,11 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
   //   decimals: 24,
   // },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:wrap.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "wrap.testnet",
+    chainName: "NEAR",
     name: "Wrapped NEAR fungible token",
     symbol: "wNEAR",
     chainIcon: "/static/icons/network/near.svg",
@@ -86,9 +91,11 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
     decimals: 24,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:aurora.fakes.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "aurora.fakes.testnet",
+    chainName: "NEAR",
     name: "Aurora",
     symbol: "AURORA",
     chainIcon: "/static/icons/network/near.svg",
@@ -96,9 +103,11 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
     decimals: 18,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:usdt.fakes.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "usdt.fakes.testnet",
+    chainName: "NEAR",
     name: "Tether USD",
     symbol: "USDT.e",
     chainIcon: "/static/icons/network/near.svg",
@@ -106,9 +115,11 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
     decimals: 6,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:usdc.fakes.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "usdc.fakes.testnet",
+    chainName: "NEAR",
     name: "USD Coin",
     symbol: "USDC",
     chainIcon: "/static/icons/network/near.svg",
@@ -116,19 +127,24 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
     decimals: 6,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:wbtc.fakes.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "wbtc.fakes.testnet",
+    chainName: "NEAR",
     name: "Wrapped BTC",
-    symbol: "WBTC",
+    symbol: "wBTC",
     chainIcon: "/static/icons/network/near.svg",
     icon: "https://assets.coingecko.com/coins/images/7598/standard/wrapped_bitcoin_wbtc.png?1696507857",
     decimals: 8,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id:
+      "near:testnet:14b2bc0c-32bc-4ac0-8eab-416c700d7c3d.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "14b2bc0c-32bc-4ac0-8eab-416c700d7c3d.testnet",
+    chainName: "NEAR",
     name: "Sweat",
     symbol: "SWEAT",
     chainIcon: "/static/icons/network/near.svg",
@@ -136,9 +152,11 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
     decimals: 18,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:ref.fakes.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "ref.fakes.testnet",
+    chainName: "NEAR",
     name: "Ref Finance Token",
     symbol: "REF",
     chainIcon: "/static/icons/network/near.svg",
@@ -146,9 +164,11 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
     decimals: 18,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:blackdragon.fakes.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "blackdragon.fakes.testnet",
+    chainName: "NEAR",
     name: "Black Dragon",
     symbol: "BLACKDRAGON",
     chainIcon: "/static/icons/network/near.svg",
@@ -156,26 +176,72 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] = [
     decimals: 16,
   },
   {
-    chainName: "NEAR",
-    chainId: "1313161554",
+    defuse_asset_id: "near:testnet:deltalonk.testnet",
+    blockchain: "near",
+    chainId: "testnet",
     address: "deltalonk.testnet",
+    chainName: "NEAR",
     name: "LONK fungible token",
     symbol: "LONK",
     chainIcon: "/static/icons/network/near.svg",
     icon: "https://assets.coingecko.com/coins/images/36497/standard/Logo_Long_square.png?1717541650",
     decimals: 8,
   },
-  // ######################################################
-  // # NEAR MAINNET LIST                                  #
-  // ######################################################
+]
+
+const listNetworksTokensProduction = [
   {
+    defuse_asset_id: "near:mainnet:wrap.near",
+    blockchain: "near",
+    chainId: "mainnet",
+    address: "wrap.near",
     chainName: "NEAR",
-    chainId: "1313161554",
+    name: "Wrapped NEAR fungible token",
+    symbol: "wNEAR",
+    chainIcon: "/static/icons/network/near.svg",
+    icon: "https://assets.coingecko.com/coins/images/18280/standard/EX4mrWMW_400x400.jpg?1696517773",
+    decimals: 24,
+  },
+  {
+    defuse_asset_id: "near:mainnet:aurora",
+    blockchain: "near",
+    chainId: "mainnet",
+    address: "aurora",
+    chainName: "NEAR",
+    name: "Aurora",
+    symbol: "AURORA",
+    chainIcon: "/static/icons/network/near.svg",
+    icon: "https://assets.coingecko.com/coins/images/20582/standard/aurora.jpeg?1696519989",
+    decimals: 18,
+  },
+  {
+    defuse_asset_id: "near:mainnet:usm.tkn.near",
+    blockchain: "near",
+    chainId: "mainnet",
     address: "usm.tkn.near",
+    chainName: "NEAR",
     name: "USMeme",
     symbol: "USM",
     chainIcon: "/static/icons/network/near.svg",
     icon: "https://assets.coingecko.com/coins/images/38114/standard/usmeme.jpeg?1716536863",
     decimals: 18,
   },
+  {
+    defuse_asset_id:
+      "near:mainnet:2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near",
+    blockchain: "near",
+    chainId: "mainnet",
+    address: "2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near",
+    chainName: "NEAR",
+    name: "Wrapped BTC",
+    symbol: "wBTC",
+    chainIcon: "/static/icons/network/near.svg",
+    icon: "https://assets.coingecko.com/coins/images/7598/standard/wrapped_bitcoin_wbtc.png",
+    decimals: 18,
+  },
 ]
+
+export const LIST_NETWORKS_TOKENS: NetworkToken[] =
+  environment === "development"
+    ? listNetworksTokensDevnet
+    : listNetworksTokensProduction

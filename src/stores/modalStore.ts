@@ -4,6 +4,7 @@ import { createStore } from "zustand/vanilla"
 
 export enum ModalType {
   MODAL_SELECT_ASSETS = "modalSelectAssets",
+  MODAL_REVIEW_SWAP = "modalReviewSwap",
 }
 
 export type ModalState = {

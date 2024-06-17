@@ -8,6 +8,7 @@ import Form from "@src/components/Form"
 import FieldComboInput from "@src/components/Form/FieldComboInput"
 import FieldTextInput from "@src/components/Form/FieldTextInput"
 import Button from "@src/components/Button"
+import { NetworkToken } from "@src/types/interfaces"
 
 type FormValues = {
   tokenIn: string
@@ -36,7 +37,7 @@ export default function Withdraw() {
           price="58.95"
           balance="515.22"
           handleSetMax={handleSetMax}
-          selected={{ name: "AURORA" }}
+          selected={{ name: "AURORA" } as NetworkToken}
         />
         <div className="h-[10px]"></div>
         <FieldTextInput

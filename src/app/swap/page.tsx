@@ -25,58 +25,81 @@ type FormValues = {
   tokenOut: string
 }
 
+type SelectToken = NetworkToken | undefined
+
+type EstimateSwap = {
+  tokenIn: string
+  tokenOut: string
+  name: string
+  selectTokenIn: SelectToken
+  selectTokenOut: SelectToken
+}
+
 export default function Swap() {
-  const { handleSubmit, register, watch, setValue, getValues } =
-    useForm<FormValues>()
-  const [selectTokenIn, setSelectTokenIn] = useState<NetworkToken | undefined>(
+  const [selectTokenIn, setSelectTokenIn] = useState<SelectToken>(
     LIST_NETWORKS_TOKENS[0]
   )
-  const [selectTokenOut, setSelectTokenOut] = useState<
-    NetworkToken | undefined
-  >(LIST_NETWORKS_TOKENS[1])
+  const [selectTokenOut, setSelectTokenOut] = useState<SelectToken>(
+    LIST_NETWORKS_TOKENS[1]
+  )
+
+  const { handleSubmit, register, watch, setValue, getValues } =
+    useForm<FormValues>()
   const { selector, accountId } = useWalletSelector()
-  const { setModalType, payload } = useModalStore((state) => state)
-  const { onChangeInputToken, onChangeOutputToken, callRequestIntent } =
-    useSwap({ selector, accountId })
-  const { getSwapEstimateBot } = useSwapEstimateBot()
+  const { setModalType, payload, onCloseModal } = useModalStore(
+    (state) => state
+  )
+  const { onChangeInputToken, onChangeOutputToken } = useSwap({
+    selector,
+    accountId,
+  })
+  const { getSwapEstimateBot, isFetching } = useSwapEstimateBot()
   const isProgrammaticUpdate = useRef(false)
 
   const handleResetToken = (
     token: NetworkToken,
     checkToken: NetworkToken,
     setSelectToken: (value?: NetworkToken) => void
-  ) => {
+  ): boolean => {
     if (
       token.address === checkToken?.address &&
       token.chainId === checkToken?.chainId
     ) {
       setSelectToken(undefined)
+      return true
     }
+    return false
   }
 
   const onSubmit = async (values: FieldValues) => {
-    await callRequestIntent({
-      inputAmount: values.tokenIn,
+    setModalType(ModalType.MODAL_REVIEW_SWAP, {
+      tokenIn: values.tokenIn,
+      selectedTokenIn: selectTokenIn,
+      selectedTokenOut: selectTokenOut,
     })
   }
 
   const handleSwitch = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
+    if (isFetching) {
+      return
+    }
     const tempTokenInCopy = Object.assign({}, selectTokenIn)
     setSelectTokenIn(selectTokenOut)
     setSelectTokenOut(tempTokenInCopy)
 
     // Use isProgrammaticUpdate as true to prevent unnecessary estimate
-    const tempValueTokenInCopy = getValues("tokenIn")
+    const valueTokenIn = getValues("tokenIn")
+    const valueTokenOut = getValues("tokenOut")
     isProgrammaticUpdate.current = true
-    setValue("tokenIn", getValues("tokenOut"))
+    setValue("tokenIn", valueTokenOut)
     isProgrammaticUpdate.current = true
-    setValue("tokenOut", tempValueTokenInCopy)
+    setValue("tokenOut", valueTokenIn)
   }
 
   const handleSetMax = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    console.log("form set max")
+    // TODO Set Max available from balance value
   }
 
   const handleSelect = (fieldName: string) => {
@@ -101,35 +124,57 @@ export default function Swap() {
     2000
   )
 
+  const handleEstimateSwap = ({
+    tokenIn,
+    tokenOut,
+    name,
+    selectTokenIn,
+    selectTokenOut,
+  }: EstimateSwap) => {
+    if (
+      (name === "tokenIn" && !parseFloat(tokenIn)) ||
+      (name === "tokenOut" && !parseFloat(tokenOut))
+    ) {
+      return
+    }
+
+    const unitsTokenIn = parseUnits(
+      tokenIn,
+      selectTokenIn!.decimals as number
+    ).toString()
+    const unitsTokenOut = parseUnits(
+      tokenOut,
+      selectTokenOut!.decimals as number
+    ).toString()
+
+    if (name === "tokenIn") {
+      debouncedGetSwapEstimateBot({
+        tokenIn: selectTokenIn!.address,
+        tokenOut: selectTokenOut!.address,
+        amountIn: unitsTokenIn,
+      } as DataEstimateRequest)
+    } else if (name === "tokenOut") {
+      debouncedGetSwapEstimateBotReverse({
+        tokenIn: selectTokenOut!.address,
+        tokenOut: selectTokenIn!.address,
+        amountIn: unitsTokenOut,
+      } as DataEstimateRequest)
+    }
+  }
+
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (isProgrammaticUpdate.current) {
         isProgrammaticUpdate.current = false
         return
       }
-
-      const unitsTokenIn = parseUnits(
-        String(value.tokenIn),
-        selectTokenIn?.decimals as number
-      ).toString()
-      const unitsTokenOut = parseUnits(
-        String(value.tokenOut),
-        selectTokenOut?.decimals as number
-      ).toString()
-
-      if (name === "tokenIn") {
-        debouncedGetSwapEstimateBot({
-          tokenIn: selectTokenIn!.address,
-          tokenOut: selectTokenOut!.address,
-          amountIn: unitsTokenIn,
-        } as DataEstimateRequest)
-      } else if (name === "tokenOut") {
-        debouncedGetSwapEstimateBotReverse({
-          tokenIn: selectTokenOut!.address,
-          tokenOut: selectTokenIn!.address,
-          amountIn: unitsTokenOut,
-        } as DataEstimateRequest)
-      }
+      handleEstimateSwap({
+        tokenIn: String(value.tokenIn),
+        tokenOut: String(value.tokenOut),
+        name: name as string,
+        selectTokenIn,
+        selectTokenOut,
+      })
     })
     return () => subscription.unsubscribe()
   }, [watch, selectTokenIn, selectTokenOut, getSwapEstimateBot, setValue])
@@ -147,22 +192,43 @@ export default function Swap() {
         case "tokenIn":
           setSelectTokenIn(token)
           onChangeInputToken(token)
-          handleResetToken(
+          const isSelectTokenOutReset = handleResetToken(
             token,
             selectTokenOut as NetworkToken,
             setSelectTokenOut
           )
+          isSelectTokenOutReset && setValue("tokenOut", "")
+          !isSelectTokenOutReset &&
+            handleEstimateSwap({
+              tokenIn: getValues("tokenIn"),
+              tokenOut: "",
+              name: "tokenIn",
+              selectTokenIn: token,
+              selectTokenOut,
+            })
+          isProgrammaticUpdate.current = false
           break
         case "tokenOut":
           setSelectTokenOut(token)
           onChangeOutputToken(token)
-          handleResetToken(
+          const isSelectTokenInReset = handleResetToken(
             token,
             selectTokenIn as NetworkToken,
             setSelectTokenIn
           )
+          isSelectTokenInReset && setValue("tokenIn", "")
+          !isSelectTokenInReset &&
+            handleEstimateSwap({
+              tokenIn: "",
+              tokenOut: getValues("tokenOut"),
+              name: "tokenOut",
+              selectTokenIn,
+              selectTokenOut: token,
+            })
+          isProgrammaticUpdate.current = false
           break
       }
+      onCloseModal(undefined)
     }
   }, [payload, selectTokenIn, selectTokenOut])
 
@@ -192,7 +258,7 @@ export default function Swap() {
           handleSelect={() => handleSelect("tokenOut")}
           className="border rounded-b-xl mb-5"
         />
-        <Button type="submit" size="lg" fullWidth>
+        <Button type="submit" size="lg" fullWidth isLoading={isFetching}>
           Swap
         </Button>
       </Form>

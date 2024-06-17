@@ -56,7 +56,7 @@ const FieldComboInput = <T extends FieldValues>({
         {...register(fieldName, { required })}
         placeholder={placeholder}
         className={clsx(
-          "grow flex-1 bg-gray-50 max-w-[140px] md:min-w-[calc(100%-210px)] text-3xl font-medium placeholder-black border-transparent focus:border-transparent focus:ring-0"
+          "grow flex-1 bg-gray-50 max-w-[140px] md:max-w-[none] md:min-w-[calc(100%-210px)] text-3xl font-medium placeholder-black border-transparent focus:border-transparent focus:ring-0"
         )}
       />
       {price && (
@@ -64,7 +64,7 @@ const FieldComboInput = <T extends FieldValues>({
           ~${price}
         </span>
       )}
-      <div className="grow flex-1 flex justify-end items-center">
+      <div className="flex justify-end items-center">
         <AssetsSelect selected={selected} handleSelect={handleSelect} />
       </div>
       {balance && (
