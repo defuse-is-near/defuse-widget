@@ -20,14 +20,14 @@ export const useHistoryCollector = (collectorHooks: CollectorHook[]) => {
   const { data, updateHistory } = useHistoryStore((state) => state)
 
   useEffect(() => {
-    const historyFromStore = Array.from(data)
-    if (!historyFromStore.length) {
+    if (!data.size) {
       return
     }
-
+    const getHistoryFromStore: HistoryData[] = []
+    data.forEach((value) => getHistoryFromStore.push(value))
     localStorage.setItem(
       NEAR_COLLECTOR_KEY,
-      JSON.stringify({ data: historyFromStore })
+      JSON.stringify({ data: getHistoryFromStore })
     )
   }, [data])
 
@@ -53,8 +53,8 @@ export const useHistoryCollector = (collectorHooks: CollectorHook[]) => {
           ]
         }
       }
-
       const history = [...getHistoryFromStore, ...getTransactionHistories]
+      console.log("Data before store to the history: ", history)
       updateHistory(history)
 
       setIsFetching(false)

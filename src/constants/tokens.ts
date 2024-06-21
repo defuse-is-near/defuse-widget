@@ -240,6 +240,18 @@ const listNetworksTokensMainnet = [
     icon: "https://assets.coingecko.com/coins/images/18279/standard/ref.png?1696517772",
     decimals: 18,
   },
+  {
+    defuse_asset_id: "near:mainnet:aurora",
+    blockchain: "near",
+    chainId: "mainnet",
+    address: "aurora",
+    chainName: "NEAR",
+    name: "ETH",
+    symbol: "ETH",
+    chainIcon: "/static/icons/network/near.svg",
+    icon: "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
+    decimals: 18,
+  },
 ]
 
 export const LIST_NETWORKS_TOKENS: NetworkToken[] =

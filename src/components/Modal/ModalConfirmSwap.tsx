@@ -90,6 +90,7 @@ const ModalConfirmSwap = () => {
     }
 
     historyData.forEach((value, key) => {
+      debugger
       if (key === inputs.defuseClientId) {
         const isNextQueueDone = value.logs.includes(
           "Memo: Execute intent: NEP-141 to NEP-141"

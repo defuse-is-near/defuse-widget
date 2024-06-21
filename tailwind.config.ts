@@ -53,6 +53,8 @@ const config: Config = {
           500: "rgba(28, 32, 36, 1)",
           400: "rgba(33, 32, 28, 1)",
           300: "rgba(4, 20, 23, 1)",
+          200: "rgba(130, 130, 124, 1)",
+          100: "rgba(232, 232, 232, 1)",
         },
         gray: {
           ...colors.gray,
@@ -96,6 +98,11 @@ const config: Config = {
           "0px 12px 62px 0px rgba(0, 0, 0, 0.15), 0px 12px 32px -16px rgba(31, 24, 0, 0.13)",
         "select-token":
           "0px 0px 0px 0.5px rgba(0, 0, 0, 0.05), 0px 1px 4px 0px rgba(31, 21, 0, 0.1), 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 3px 0px rgba(0, 0, 0, 0.05)",
+        "home-paper": "0px -28px 40px 0px rgba(0, 0, 0, 0.08)",
+        "card-multi":
+          "0px 12px 32px -16px rgba(31, 24, 0, 0.13), 0px 12px 60px 0px rgba(0, 0, 0, 0.15)",
+        "card-history":
+          "0px 16px 36px -20px rgba(25, 20, 0, 0.21), 0px 16px 64px 0px rgba(37, 37, 0, 0.03), 0px 12px 60px 0px rgba(0, 0, 0, 0.15)",
       },
       scale: {
         103: "1.03",

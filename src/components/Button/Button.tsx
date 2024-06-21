@@ -6,7 +6,7 @@ import { Button, Text, ButtonProps, TextProps } from "@radix-ui/themes"
 interface Props<T extends FieldValues>
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "color"> {
   children?: ReactNode
-  variant?: "primary" | "secondary" | "base"
+  variant?: "primary" | "secondary" | "base" | "soft"
   size?: "sm" | "base" | "lg"
   fullWidth?: boolean
   isLoading?: boolean

@@ -23,7 +23,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <main className="flex md:flex-1">{children}</main>
       <Footer />
       <NavbarMobile />
-      <PageBackground />
+      {/*<PageBackground />*/}
       {isAppsPath && <History />}
     </div>
   )
