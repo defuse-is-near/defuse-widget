@@ -7,11 +7,9 @@ import { parseUnits } from "viem"
 import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
 import FieldComboInput from "@src/components/Form/FieldComboInput"
-import Button from "@src/components/Button"
-import Switch from "@src/components/Switch"
-import { useSwap } from "@src/hooks/useSwap"
+import Button from "@src/components/Button/Button"
+import ButtonSwitch from "@src/components/Button/ButtonSwitch"
 import { LIST_NETWORKS_TOKENS } from "@src/constants/tokens"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
 import { NetworkToken } from "@src/types/interfaces"
@@ -19,6 +17,7 @@ import { ModalSelectAssetsPayload } from "@src/components/Modal/ModalSelectAsset
 import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
 import { DataEstimateRequest } from "@src/libs/de-sdk/types/interfaces"
 import { debounce } from "@src/utils/debounce"
+import { useModalSearchParams } from "@src/hooks/useModalSearchParams"
 
 type FormValues = {
   tokenIn: string
@@ -45,16 +44,12 @@ export default function Swap() {
 
   const { handleSubmit, register, watch, setValue, getValues } =
     useForm<FormValues>()
-  const { selector, accountId } = useWalletSelector()
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
   )
-  const { onChangeInputToken, onChangeOutputToken } = useSwap({
-    selector,
-    accountId,
-  })
   const { getSwapEstimateBot, isFetching } = useSwapEstimateBot()
   const isProgrammaticUpdate = useRef(false)
+  useModalSearchParams()
 
   const handleResetToken = (
     token: NetworkToken,
@@ -74,6 +69,7 @@ export default function Swap() {
   const onSubmit = async (values: FieldValues) => {
     setModalType(ModalType.MODAL_REVIEW_SWAP, {
       tokenIn: values.tokenIn,
+      tokenOut: values.tokenOut,
       selectedTokenIn: selectTokenIn,
       selectedTokenOut: selectTokenOut,
     })
@@ -191,7 +187,6 @@ export default function Swap() {
       switch (fieldName) {
         case "tokenIn":
           setSelectTokenIn(token)
-          onChangeInputToken(token)
           const isSelectTokenOutReset = handleResetToken(
             token,
             selectTokenOut as NetworkToken,
@@ -210,7 +205,6 @@ export default function Swap() {
           break
         case "tokenOut":
           setSelectTokenOut(token)
-          onChangeOutputToken(token)
           const isSelectTokenInReset = handleResetToken(
             token,
             selectTokenIn as NetworkToken,
@@ -248,17 +242,22 @@ export default function Swap() {
           selected={selectTokenIn as NetworkToken}
           handleSelect={() => handleSelect("tokenIn")}
           handleSetMax={handleSetMax}
-          className="border rounded-t-xl"
+          className="border rounded-t-xl max-w-[472px]"
+          required
         />
-        <Switch onClick={handleSwitch} />
+        <div className="relative w-full">
+          <ButtonSwitch onClick={handleSwitch} />
+        </div>
         <FieldComboInput<FormValues>
           fieldName="tokenOut"
           price={selectTokenOut?.balanceToUds as string}
           selected={selectTokenOut as NetworkToken}
           handleSelect={() => handleSelect("tokenOut")}
-          className="border rounded-b-xl mb-5"
+          className="border rounded-b-xl mb-5 max-w-[472px]"
+          required
         />
-        <Button type="submit" size="lg" fullWidth isLoading={isFetching}>
+        {/* Rollback isLoading */}
+        <Button type="submit" size="lg" fullWidth>
           Swap
         </Button>
       </Form>

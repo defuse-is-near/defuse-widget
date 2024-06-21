@@ -10,7 +10,6 @@ interface Props<T extends FieldValues>
   size?: "sm" | "base" | "lg"
   fullWidth?: boolean
   isLoading?: boolean
-  register?: UseFormRegister<T>
 }
 
 const CustomButton = <T extends FieldValues>({
@@ -18,7 +17,6 @@ const CustomButton = <T extends FieldValues>({
   variant = "primary",
   size = "base",
   fullWidth,
-  register,
   disabled,
   isLoading,
   ...rest

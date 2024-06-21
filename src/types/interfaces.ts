@@ -26,3 +26,7 @@ export interface NetworkToken extends Partial<TokenInfo>, DefuseBaseIds {
   chainIcon?: string
   chainName?: string
 }
+
+export interface NetworkTokenWithSwapRoute extends NetworkToken {
+  swapRoute?: string
+}

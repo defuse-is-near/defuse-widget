@@ -1,4 +1,4 @@
-import { NetworkToken } from "@src/types/interfaces"
+import { NetworkToken, NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 
 const environment = process.env.environment || "production"
 
@@ -65,19 +65,7 @@ export const TOKENS: Token = {
   },
 }
 
-const listNetworksTokensDevnet = [
-  // {
-  //   defuse_asset_id: "near:testnet:0x1"
-  //   blockchain: "near",
-  //   chainName: "NEAR",
-  //   chainId: "1313161554",
-  //   address: "0x1",
-  //   name: "NEAR",
-  //   symbol: "NEAR",
-  //   chainIcon: "/static/icons/network/near.svg",
-  //   icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
-  //   decimals: 24,
-  // },
+const listNetworksTokensTestnet = [
   {
     defuse_asset_id: "near:testnet:wrap.testnet",
     blockchain: "near",
@@ -189,7 +177,7 @@ const listNetworksTokensDevnet = [
   },
 ]
 
-const listNetworksTokensProduction = [
+const listNetworksTokensMainnet = [
   {
     defuse_asset_id: "near:mainnet:wrap.near",
     blockchain: "near",
@@ -203,10 +191,11 @@ const listNetworksTokensProduction = [
     decimals: 24,
   },
   {
-    defuse_asset_id: "near:mainnet:aurora",
+    defuse_asset_id:
+      "near:mainnet:aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
     blockchain: "near",
     chainId: "mainnet",
-    address: "aurora",
+    address: "aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
     chainName: "NEAR",
     name: "Aurora",
     symbol: "AURORA",
@@ -239,9 +228,57 @@ const listNetworksTokensProduction = [
     icon: "https://assets.coingecko.com/coins/images/7598/standard/wrapped_bitcoin_wbtc.png",
     decimals: 18,
   },
+  {
+    defuse_asset_id: "near:mainnet:token.v2.ref-finance.near",
+    blockchain: "near",
+    chainId: "mainnet",
+    address: "token.v2.ref-finance.near",
+    chainName: "NEAR",
+    name: "Ref Finance Token",
+    symbol: "REF",
+    chainIcon: "/static/icons/network/near.svg",
+    icon: "https://assets.coingecko.com/coins/images/18279/standard/ref.png?1696517772",
+    decimals: 18,
+  },
 ]
 
 export const LIST_NETWORKS_TOKENS: NetworkToken[] =
   environment === "development"
-    ? listNetworksTokensDevnet
-    : listNetworksTokensProduction
+    ? listNetworksTokensTestnet
+    : listNetworksTokensMainnet
+
+const listNativeTokensTestnet = [
+  {
+    defuse_asset_id: "near:testnet:0x1",
+    blockchain: "near",
+    chainName: "NEAR",
+    chainId: "1313161554",
+    address: "0x1",
+    name: "NEAR",
+    symbol: "NEAR",
+    chainIcon: "/static/icons/network/near.svg",
+    icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
+    decimals: 24,
+    swapRoute: "wrap.testnet",
+  },
+]
+const listNativeTokensMainnet = [
+  {
+    defuse_asset_id: "near:mainnet:0x1",
+    blockchain: "near",
+    chainName: "NEAR",
+    chainId: "1313161554",
+    address: "0x1",
+    name: "NEAR",
+    symbol: "NEAR",
+    chainIcon: "/static/icons/network/near.svg",
+    icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
+    decimals: 24,
+    swapRoute: "wrap.near",
+  },
+]
+
+export const LIST_NATIVE_TOKENS: NetworkTokenWithSwapRoute[] =
+  environment === "development"
+    ? listNativeTokensTestnet
+    : listNativeTokensMainnet

@@ -7,7 +7,7 @@ import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
 import FieldComboInput from "@src/components/Form/FieldComboInput"
 import FieldTextInput from "@src/components/Form/FieldTextInput"
-import Button from "@src/components/Button"
+import Button from "@src/components/Button/Button"
 import { NetworkToken } from "@src/types/interfaces"
 
 type FormValues = {

@@ -9,6 +9,8 @@ interface Props<T extends FieldValues> {
   label?: string
 }
 
+export const FieldTextInputRegistryName = "FieldTextInput"
+
 const FieldTextInput = <T extends FieldValues>({
   fieldName,
   register,
@@ -42,5 +44,7 @@ const FieldTextInput = <T extends FieldValues>({
     </div>
   )
 }
+
+FieldTextInput.displayName = FieldTextInputRegistryName
 
 export default FieldTextInput

@@ -2,6 +2,7 @@
 
 import type {
   AccountState,
+  NetworkId,
   Wallet,
   WalletSelector,
 } from "@near-wallet-selector/core"
@@ -56,6 +57,8 @@ interface WalletSelectorContextValue {
 import { Loading } from "@src/components/Loading"
 import { CONTRACTS_REGISTER } from "@src/constants/contracts"
 
+const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
+
 export const WalletSelectorContext =
   createContext<WalletSelectorContextValue | null>(null)
 
@@ -69,7 +72,7 @@ export const WalletSelectorProvider: React.FC<{
 
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
-      network: "testnet",
+      network: NEAR_ENV as NetworkId,
       debug: true,
       modules: [
         setupMyNearWallet(),
@@ -92,7 +95,7 @@ export const WalletSelectorProvider: React.FC<{
         }),
         setupXDEFI(),
         setupWalletConnect({
-          projectId: "c4f79cc...",
+          projectId: "", // Example c4f79cc...
           metadata: {
             name: "NEAR Wallet Selector",
             description: "Example dApp used by NEAR Wallet Selector",
@@ -102,7 +105,7 @@ export const WalletSelectorProvider: React.FC<{
         }),
         setupNearMobileWallet(),
         setupMintbaseWallet({
-          contractId: "guest-book.testnet",
+          contractId: "", // Example guest-book.testnet
         }) as WalletModuleFactory<Wallet>,
       ],
     })

@@ -1,10 +1,9 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import clsx from "clsx"
 
 import { Navigation } from "@src/constants/routes"
-import Button from "@src/components/Button"
+import Button from "@src/components/Button/Button"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
