@@ -8,7 +8,6 @@ import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
 import { ModalStoreProvider } from "@src/providers/ModalStoreProvider"
 import Modal from "@src/components/Modal"
-
 import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
 import "@near-wallet-selector/account-export/styles.css"
@@ -16,11 +15,11 @@ import "../styles/global.scss"
 
 const DEV_MODE = process?.env?.ENVIRONMENT === "development" ?? false
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: Readonly<{
-  children: React.ReactNode
-}>) {
+  children?: React.ReactNode
+}>) => {
   // CONTEXT: Could be used to share global concerns, theme
   //          like the current theme etc.
   return (
@@ -45,3 +44,5 @@ export default function RootLayout({
     </html>
   )
 }
+
+export default RootLayout

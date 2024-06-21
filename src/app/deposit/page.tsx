@@ -7,9 +7,9 @@ import Image from "next/image"
 import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
 import FieldComboInput from "@src/components/Form/FieldComboInput"
-import Switch from "@src/components/Switch"
+import ButtonSwitch from "@src/components/Button/ButtonSwitch"
 import Accordion from "@src/components/Accordion"
-import Button from "@src/components/Button"
+import Button from "@src/components/Button/Button"
 import { NetworkToken } from "@src/types/interfaces"
 
 type FormValues = {
@@ -41,7 +41,7 @@ export default function Deposit() {
           handleSetMax={handleSetMax}
           selected={{ name: "USD" } as NetworkToken}
         />
-        <Switch onClick={handleSwitch} />
+        <ButtonSwitch onClick={handleSwitch} />
         <FieldComboInput<FormValues>
           fieldName="tokenOut"
           label="You receive"

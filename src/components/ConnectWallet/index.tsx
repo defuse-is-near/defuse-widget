@@ -9,6 +9,7 @@ import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import type { Account } from "@src/types/interfaces"
 import { useGetAccount } from "@src/hooks/useGetAccount"
 import Themes from "@src/types/themes"
+import useShortAccountId from "@src/hooks/useShortAccountId"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
@@ -18,6 +19,7 @@ const ConnectWallet = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [account, setAccount] = useState<Account | null>(null)
   const { theme, setTheme } = useTheme()
+  const { shortAccountId } = useShortAccountId(accountId as string)
 
   useEffect(() => setTheme(Themes.LIGHT), [])
 
@@ -94,7 +96,7 @@ const ConnectWallet = () => {
             className="rounded-full bg-gray-200 text-black-400 text-sm px-3 py-1.5"
             disabled={TURN_OFF_APPS}
           >
-            {accountId}
+            {shortAccountId}
           </button>
         </Popover.Trigger>
         <Popover.Content className="mt-1">

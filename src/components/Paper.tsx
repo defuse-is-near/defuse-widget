@@ -8,7 +8,7 @@ interface Props extends PropsWithChildren {
 const Paper = ({ children, title, description }: Props) => {
   return (
     <div className="flex flex-col flex-1 justify-start items-center mt-[5.5rem]">
-      <div className="w-full md:w-auto md:min-w-[600px]">
+      <div className="w-full md:w-auto md:min-w-[512px]">
         <div className="flex flex-col mb-8 text-center">
           {title && <h1 className="mb-3">{title}</h1>}
           {description && (

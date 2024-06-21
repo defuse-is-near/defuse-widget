@@ -20,6 +20,8 @@ interface Props<T extends FieldValues> {
   className?: string
 }
 
+export const FieldComboInputRegistryName = "FieldComboInput"
+
 const FieldComboInput = <T extends FieldValues>({
   fieldName,
   register,
@@ -82,5 +84,7 @@ const FieldComboInput = <T extends FieldValues>({
     </div>
   )
 }
+
+FieldComboInput.displayName = FieldComboInputRegistryName
 
 export default FieldComboInput

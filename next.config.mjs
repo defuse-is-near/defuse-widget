@@ -24,6 +24,7 @@ const nextConfig = {
     appUrl: process.env.NEXT_PUBLIC_APP_URL,
     // Specific [Keys] has to be below.
     NEAR_ENV: process.env.NEAR_ENV,
+    SOLVER_RELAY_0_URL: process.env.SOLVER_RELAY_0_URL,
   },
   images: {
     remotePatterns: [

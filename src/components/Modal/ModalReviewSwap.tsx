@@ -1,34 +1,42 @@
 "use client"
 
-import { useState, useDeferredValue } from "react"
 import { Text } from "@radix-ui/themes"
 import Image from "next/image"
+import React from "react"
 
 import ModalDialog from "@src/components/Modal/ModalDialog"
 import { NetworkToken } from "@src/types/interfaces"
-import { LIST_NETWORKS_TOKENS } from "@src/constants/tokens"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
-import { useSwap } from "@src/hooks/useSwap"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import Button from "@src/components/Button"
+import Button from "@src/components/Button/Button"
+import CardSwap from "@src/components/Card/CardSwap"
+import ButtonIcon from "@src/components/Button/ButtonIcon"
+import { ModalType } from "@src/stores/modalStore"
+import { useTimer } from "@src/hooks/useTimer"
+import { useTimeFormatMinutes } from "@src/hooks/useTimeFormat"
 
 export type ModalReviewSwapPayload = {
-  tokenIn: number
+  tokenIn: string
+  tokenOut: string
   selectedTokenIn: NetworkToken
   selectedTokenOut: NetworkToken
 }
 
 const ModalReviewSwap = () => {
-  const { selector, accountId } = useWalletSelector()
-  const { onCloseModal, modalType, payload } = useModalStore((state) => state)
+  const { onCloseModal, setModalType, payload } = useModalStore(
+    (state) => state
+  )
   const modalPayload = payload as ModalReviewSwapPayload
 
-  const { callRequestIntent } = useSwap({ selector, accountId })
+  const recalculateEstimation = async () => {
+    // TODO Adjust fetching prices from solver
+    console.log("Recalculating estimation...")
+  }
+
+  const { timeLeft } = useTimer(24, recalculateEstimation)
+  const { formatTwoNumbers } = useTimeFormatMinutes()
 
   const handleConfirmSwap = async () => {
-    await callRequestIntent({
-      inputAmount: modalPayload.tokenIn,
-    })
+    setModalType(ModalType.MODAL_CONFIRM_SWAP, payload)
   }
 
   return (
@@ -41,19 +49,27 @@ const ModalReviewSwap = () => {
             </Text>
             <div className="absolute top-[30px] left-[50%] -translate-x-2/4 text-gray-600">
               <Text size="2" weight="medium">
-                00:24
+                00:{formatTwoNumbers(timeLeft)}
               </Text>
             </div>
           </div>
           <button className="shrink-0" onClick={onCloseModal}>
             <Image
               src="/static/icons/close.svg"
-              alt="Search Icon"
+              alt="Close Icon"
               width={14}
               height={14}
             />
           </button>
         </div>
+        <CardSwap
+          amountIn={modalPayload.tokenIn}
+          amountOut={modalPayload.tokenOut}
+          amountOutToUsd="~"
+          amountInToUsd="~"
+          selectTokenIn={modalPayload.selectedTokenIn}
+          selectTokenOut={modalPayload.selectedTokenOut}
+        />
         <div className="flex flex-col w-full mb-6 gap-3">
           <div className="flex justify-between items-center">
             <Text size="2" weight="medium" className="text-gray-600">
@@ -77,12 +93,32 @@ const ModalReviewSwap = () => {
             <Text size="2" weight="medium" className="text-gray-600">
               Rate
             </Text>
-            <Text size="2" weight="medium">
-              1 AURORA = 0.027952 NEAR
-            </Text>
+            <div className="flex justify-center items-center gap-2">
+              <ButtonIcon
+                className="max-w-[24px] max-h-[24px] rounded-[3px] pointer-events-none"
+                iconWidth={16}
+                iconHeight={16}
+                icon="/static/icons/width.svg"
+              />
+              <Text size="2" weight="medium">
+                1
+              </Text>
+              <Text size="2" weight="medium">
+                {modalPayload.selectedTokenIn.symbol}
+              </Text>
+              =
+              <Text size="2" weight="medium">
+                {(
+                  Number(modalPayload.tokenOut) / Number(modalPayload.tokenIn)
+                ).toFixed(4)}
+              </Text>
+              <Text size="2" weight="medium">
+                {modalPayload.selectedTokenOut.symbol}
+              </Text>
+            </div>
           </div>
         </div>
-        <Button size="lg" fullWidth onChange={handleConfirmSwap}>
+        <Button size="lg" fullWidth onClick={handleConfirmSwap}>
           Confirm swap
         </Button>
       </div>

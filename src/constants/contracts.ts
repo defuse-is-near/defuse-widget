@@ -1,5 +1,5 @@
 enum CONTRACTS_MAINNET {
-  INTENT = "",
+  INTENT = "esufed.near",
 }
 
 enum CONTRACTS_TESTNET {

@@ -95,8 +95,8 @@ export const swapEstimateSolver0Provider = async (
       getTokenOutToFormat.result.tokens[0].defuse_asset_id,
     amount_in: data.amountIn,
   })
-
-  if (!getQuoteAssetPrices.result.length) {
+  console.log("Solver0 getQuoteAssetPrices: ", getQuoteAssetPrices)
+  if (!getQuoteAssetPrices.result?.length) {
     return {
       registrarId: `${REGISTRAR_ID}:`,
       estimateOut: "0",

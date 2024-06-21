@@ -3,6 +3,7 @@
 import React, { PropsWithChildren } from "react"
 import { usePathname } from "next/navigation"
 
+import { withHistory } from "@src/hocs/withHistory"
 import Header from "@src/components/Layout/Header"
 import Footer from "@src/components/Layout/Footer"
 import PageBackground from "@src/components/PageBackground"
@@ -28,4 +29,4 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   )
 }
 
-export default Layout
+export default withHistory(Layout)

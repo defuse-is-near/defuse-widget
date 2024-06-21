@@ -1,6 +1,5 @@
 "use client"
 
-import { useId, useState } from "react"
 import { WalletSelector } from "@near-wallet-selector/core"
 import * as borsh from "borsh"
 import { parseUnits } from "viem"
@@ -14,20 +13,21 @@ import { NetworkToken } from "@src/types/interfaces"
 import { swapSchema } from "@src/utils/schema"
 import useStorageDeposit from "@src/hooks/useStorageDeposit"
 import useNearSwapNearToWNear from "@src/hooks/useSwapNearToWNear"
-import { SUPPORTED_TOKENS } from "@src/constants/tokens"
+import { LIST_NATIVE_TOKENS, SUPPORTED_TOKENS } from "@src/constants/tokens"
 
 type Props = {
   accountId: string | null
   selector: WalletSelector | null
 }
-type CallRequestIntentProps = {
-  inputAmount: number
+export type CallRequestIntentProps = {
+  tokenIn: string
+  tokenOut: string
+  selectedTokenIn: NetworkToken
+  selectedTokenOut: NetworkToken
+  defuseClientId?: string
 }
 
 export const useSwap = ({ accountId, selector }: Props) => {
-  const clientSwapId = useId()
-  const [inputToken, setInputToken] = useState<NetworkToken>()
-  const [outputToken, setOutputToken] = useState<NetworkToken>()
   const { getStorageBalance, setStorageDeposit } = useStorageDeposit({
     accountId,
     selector,
@@ -37,45 +37,86 @@ export const useSwap = ({ accountId, selector }: Props) => {
     selector,
   })
 
-  const onChangeInputToken = (token?: NetworkToken) => {
-    setInputToken(token)
+  const validateInputs = (inputs: CallRequestIntentProps) => {
+    if (accountId) {
+      console.log("Non valid recipient address")
+      return
+    }
+    if (inputs!.selectedTokenIn?.address) {
+      console.log("Non valid contract address")
+      return
+    }
+    if (inputs?.defuseClientId) {
+      console.log("Non valid defuseClientId")
+      return
+    }
   }
 
-  const onChangeOutputToken = (token?: NetworkToken) => {
-    setOutputToken(token)
-  }
-
-  const callRequestIntent = async ({ inputAmount }: CallRequestIntentProps) => {
-    if (!accountId) console.log("Non valid recipient address")
-    if (!inputToken?.address) console.log("Non valid contract address")
+  const getEstimateQueueTransactions = async (
+    inputs: CallRequestIntentProps
+  ) => {
+    let queue = 1
+    validateInputs(inputs)
+    const { tokenIn, tokenOut, selectedTokenIn, selectedTokenOut } = inputs
+    const isExistSwapRoute = LIST_NATIVE_TOKENS.findIndex(
+      (token) => token.swapRoute === selectedTokenIn.address
+    )
+    if (isExistSwapRoute !== -1) {
+      // TODO compare tokenIn > selectedTokenIn.address balance then get balance of Native, and then queue++
+      queue++
+    }
 
     const balance = await getStorageBalance(
-      inputToken!.address as string,
+      selectedTokenIn!.address as string,
+      CONTRACTS_REGISTER.INTENT
+    )
+    console.log("useSwap getEstimateQueueTransactions: ", balance)
+    if (selectedTokenIn?.address && !Number(balance?.toString() || "0")) {
+      queue++
+    }
+    return queue
+  }
+
+  const callRequestCreateIntent = async (inputs: CallRequestIntentProps) => {
+    validateInputs(inputs)
+    const {
+      tokenIn,
+      tokenOut,
+      selectedTokenIn,
+      selectedTokenOut,
+      defuseClientId,
+    } = inputs
+
+    const balance = await getStorageBalance(
+      selectedTokenIn!.address as string,
       CONTRACTS_REGISTER.INTENT
     )
 
-    if (inputToken?.address && !Number(balance?.toString() || "0")) {
+    if (selectedTokenIn?.address && !Number(balance?.toString() || "0")) {
       await setStorageDeposit(
-        inputToken!.address as string,
+        selectedTokenIn!.address as string,
         CONTRACTS_REGISTER.INTENT
       )
     }
 
-    const intent_account_id = await sha256(clientSwapId)
-    localStorage.setItem("temp_intent_id", intent_account_id)
+    const intent_account_id = await sha256(defuseClientId as string)
 
     const unitsSendAmount = parseUnits(
-      String(inputAmount),
-      inputToken?.decimals as number
+      tokenIn,
+      selectedTokenIn?.decimals as number
+    ).toString()
+    const estimateUnitsBackAmount = parseUnits(
+      tokenOut,
+      selectedTokenOut?.decimals as number
     ).toString()
 
-    if (!inputToken?.address) {
-      await callRequestNearDeposit(SUPPORTED_TOKENS.wNEAR, unitsSendAmount)
-    }
+    const getBlock = 121_700_000 // Current block + 10
+    const referral = "referral.near" // Some referral account
 
-    // TODO Has to be estimated by Solver
-    //      [optional] could be estimated with Coingecko Api
-    const estimateUnitsBackAmount = unitsSendAmount
+    // TODO If wNear user amount less than amountIn and Near user amount cover left part then do deposit
+    // if (!selectedTokenIn?.address) {
+    //   await callRequestNearDeposit(SUPPORTED_TOKENS.wNEAR, unitsSendAmount)
+    // }
 
     const msg = {
       CreateIntent: {
@@ -83,18 +124,18 @@ export const useSwap = ({ accountId, selector }: Props) => {
         IntentStruct: {
           initiator: accountId,
           send: {
-            token_id: inputToken!.address,
+            token_id: selectedTokenIn!.address,
             amount: unitsSendAmount,
           },
           receive: {
-            token_id: outputToken!.address,
+            token_id: selectedTokenOut!.address,
             amount: estimateUnitsBackAmount,
           },
           expiration: {
-            Block: 123_456,
+            Block: getBlock,
           },
           referral: {
-            Some: "referral.near",
+            Some: referral,
           },
         },
       },
@@ -107,7 +148,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
     await wallet.signAndSendTransactions({
       transactions: [
         {
-          receiverId: inputToken!.address as string,
+          receiverId: selectedTokenIn!.address as string,
           actions: [
             {
               type: "FunctionCall",
@@ -130,8 +171,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
   }
 
   return {
-    onChangeInputToken,
-    onChangeOutputToken,
-    callRequestIntent,
+    getEstimateQueueTransactions,
+    callRequestCreateIntent,
   }
 }
