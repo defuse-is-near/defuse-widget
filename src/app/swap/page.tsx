@@ -256,7 +256,7 @@ export default function Swap() {
           className="border rounded-b-xl mb-5 max-w-[472px]"
           required
         />
-        <Button type="submit" size="lg" fullWidth disabled={isFetching}>
+        <Button type="submit" size="lg" fullWidth isLoading={isFetching}>
           Swap
         </Button>
       </Form>

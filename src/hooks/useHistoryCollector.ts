@@ -5,8 +5,7 @@ import { useEffect, useState } from "react"
 import { useQueryCollector } from "@src/hooks/useQuery"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 import { HistoryData } from "@src/stores/historyStore"
-
-const NEAR_COLLECTOR_KEY = "__d_history_collector"
+import { NEAR_COLLECTOR_KEY } from "@src/constants/contracts"
 
 export interface CollectorHook {
   getTransactions: () => Promise<HistoryData[]>

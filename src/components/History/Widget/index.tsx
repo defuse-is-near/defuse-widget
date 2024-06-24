@@ -26,7 +26,7 @@ const Widget = () => {
       {data.size ? (
         <WidgetDataList<HistoryData>
           Component={WidgetCard}
-          data={getHistoryFromStore}
+          data={getHistoryFromStore.toReversed()}
         />
       ) : (
         <WidgetEmpty />

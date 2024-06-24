@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
-const TURN_OFF_LANDING = process?.env?.turnOffLanding === "true" ?? true
+const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? false
+const TURN_OFF_LANDING = process?.env?.turnOffLanding === "true" ?? false
 const SOLVER_RELAY = "https://solver-relay.chaindefuser.com/rpc"
 
 const allowedOrigins = [SOLVER_RELAY]
@@ -12,13 +12,13 @@ const corsOptions = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 }
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  if (TURN_OFF_APPS) {
+  if (TURN_OFF_APPS && !TURN_OFF_LANDING && pathname !== "/") {
     return NextResponse.redirect(new URL("/", request.url))
   }
-  if (TURN_OFF_LANDING && pathname === "/") {
+  if (TURN_OFF_LANDING && !TURN_OFF_APPS && pathname === "/") {
     return NextResponse.redirect(new URL("/swap", request.url))
   }
 

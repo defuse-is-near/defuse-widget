@@ -2,13 +2,20 @@
 
 import { createStore } from "zustand/vanilla"
 
+import { NetworkToken } from "@src/types/interfaces"
+
 export type HistoryData = {
-  defuseClientId: string
-  status: string
+  clientId: string
   hash: string
-  logs: string[]
+  timestamp: number
   details?: {
-    failure?: string
+    method_name: string
+    logs: string[]
+    tokenIn?: string
+    tokenOut?: string
+    selectedTokenIn?: NetworkToken
+    selectedTokenOut?: NetworkToken
+    isClosed?: false
   }
 }
 
@@ -47,7 +54,7 @@ export const createHistoryStore = (
     updateHistory: (data: HistoryData[]) =>
       set((state) => {
         const updatedData = new Map(state.data)
-        data.forEach((item) => updatedData.set(item.defuseClientId, item))
+        data.forEach((item) => updatedData.set(item.clientId, item))
         return { data: updatedData, isFetched: true }
       }),
   }))

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 
-import { getSolverTokenFormat } from "../../oracles"
+import { getTokenFormatSolver0 } from "@src/api/intent"
 
 const queryKey = "quoting"
 export const getQuotingKey = [queryKey, "get-prices-ref-finance"]
@@ -8,6 +8,6 @@ export const getQuotingKey = [queryKey, "get-prices-ref-finance"]
 export const useQuotingSolver = (options = {}) =>
   useMutation({
     mutationKey: getQuotingKey,
-    mutationFn: (token: string) => getSolverTokenFormat(token),
+    mutationFn: (token: string) => getTokenFormatSolver0(token),
     ...options,
   })

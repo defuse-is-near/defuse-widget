@@ -88,6 +88,7 @@ const config: Config = {
         },
         primary: {
           DEFAULT: "rgba(247, 107, 21, 1)",
+          100: "rgba(239, 95, 0, 1)",
         },
         secondary: "rgba(128, 128, 128, 1)",
       },

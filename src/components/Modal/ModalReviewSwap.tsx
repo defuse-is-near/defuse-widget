@@ -63,8 +63,8 @@ const ModalReviewSwap = () => {
           </button>
         </div>
         <CardSwap
-          amountIn={modalPayload.tokenIn}
-          amountOut={modalPayload.tokenOut}
+          amountIn={modalPayload.tokenIn.substring(0, 10)}
+          amountOut={modalPayload.tokenOut.substring(0, 10)}
           amountOutToUsd="~"
           amountInToUsd="~"
           selectTokenIn={modalPayload.selectedTokenIn}

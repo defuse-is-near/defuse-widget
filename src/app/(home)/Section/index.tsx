@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react"
+import clsx from "clsx"
 
 interface Props extends PropsWithChildren {
   title: string
@@ -11,7 +12,7 @@ const Section = ({ title, className = "", children }: Props) => {
       <h2 className="font-black mb-5 text-black-400 text-[32px] md:text-5xl text-center">
         {title}
       </h2>
-      <div className={className}>{children}</div>
+      <div className={clsx("w-full", className && className)}>{children}</div>
     </section>
   )
 }

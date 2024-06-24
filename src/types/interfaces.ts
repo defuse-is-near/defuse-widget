@@ -30,3 +30,9 @@ export interface NetworkToken extends Partial<TokenInfo>, DefuseBaseIds {
 export interface NetworkTokenWithSwapRoute extends NetworkToken {
   swapRoute?: string
 }
+
+export enum QueueTransactions {
+  "SWAP_FROM_NATIVE" = "swapFromNative",
+  "STORAGE_DEPOSIT_TOKEN_IN" = "storageDepositTokenIn",
+  "CREATE_INTENT" = "createIntent",
+}

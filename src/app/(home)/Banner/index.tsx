@@ -9,7 +9,10 @@ const Banner = () => {
           playsInline
           className="absolute left-0 w-full h-full object-cover"
         >
-          <source src="/static/shutterstock_1096503017.mov" type="video/mp4" />
+          <source
+            src="/static/video/shutterstock_1096503017.mov"
+            type="video/mp4"
+          />
           Your browser does not support the video tag.
         </video>
       </div>
