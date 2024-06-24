@@ -6,13 +6,14 @@ import { parseUnits } from "viem"
 
 import {
   CONTRACTS_REGISTER,
+  CREATE_INTENT_EXPIRATION_BLOCK_BOOST,
   MAX_GAS_TRANSACTION,
 } from "@src/constants/contracts"
 import { NetworkToken, QueueTransactions } from "@src/types/interfaces"
 import { swapSchema } from "@src/utils/schema"
 import useStorageDeposit from "@src/hooks/useStorageDeposit"
 import useNearSwapNearToWNear from "@src/hooks/useSwapNearToWNear"
-import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
+import { useNearBlock } from "@src/hooks/useNearBlock"
 
 type Props = {
   accountId: string | null
@@ -33,6 +34,8 @@ export type CallRequestIntentProps = {
   clientId?: string
 }
 
+const REFERRAL_ACCOUNT = process.env.REFERRAL_ACCOUNT ?? ""
+
 export const useSwap = ({ accountId, selector }: Props) => {
   const { getStorageBalance, setStorageDeposit } = useStorageDeposit({
     accountId,
@@ -42,6 +45,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
     accountId,
     selector,
   })
+  const { getNearBlock } = useNearBlock()
 
   const isValidInputs = (inputs: CallRequestIntentProps): boolean => {
     if (!accountId) {
@@ -84,14 +88,24 @@ export const useSwap = ({ accountId, selector }: Props) => {
     const { tokenIn, tokenOut, selectedTokenIn, selectedTokenOut } = inputs
 
     // Estimate if user did storage before in order to transfer tokens for swap
-    const balance = await getStorageBalance(
+    const storageBalanceTokenIn = await getStorageBalance(
+      selectedTokenIn!.address as string,
+      accountId as string
+    )
+    console.log("useSwap storageBalanceTokenIn: ", storageBalanceTokenIn)
+    if (!Number(storageBalanceTokenIn?.toString() || "0")) {
+      queueTransaction.unshift(QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN)
+      queue++
+    }
+
+    // Estimate if user did storage before in order to transfer tokens for swap
+    const storageBalanceTokenOut = await getStorageBalance(
       selectedTokenOut!.address as string,
       accountId as string
     )
-
-    console.log("useSwap getEstimateQueueTransactions: ", balance)
-    if (!Number(balance?.toString() || "0")) {
-      queueTransaction.unshift(QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN)
+    console.log("useSwap storageBalanceTokenOut: ", storageBalanceTokenOut)
+    if (!Number(storageBalanceTokenIn?.toString() || "0")) {
+      queueTransaction.unshift(QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT)
       queue++
     }
 
@@ -121,7 +135,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
       clientId,
       estimateQueue,
     } = inputs
-    debugger
+
     if (
       estimateQueue!.queueTransactionsTrack.includes(
         QueueTransactions.SWAP_FROM_NATIVE
@@ -136,6 +150,23 @@ export const useSwap = ({ accountId, selector }: Props) => {
     if (
       estimateQueue!.queueTransactionsTrack.includes(
         QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
+      )
+    ) {
+      const balance = await getStorageBalance(
+        selectedTokenIn!.address as string,
+        accountId as string
+      )
+      if (selectedTokenIn?.address && !Number(balance?.toString() || "0")) {
+        await setStorageDeposit(
+          selectedTokenIn!.address as string,
+          accountId as string
+        )
+      }
+    }
+
+    if (
+      estimateQueue!.queueTransactionsTrack.includes(
+        QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
       )
     ) {
       const balance = await getStorageBalance(
@@ -159,8 +190,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
       selectedTokenOut?.decimals as number
     ).toString()
 
-    const getBlock = 121_700_000 // Current block + 10
-    const referral = "referral.near" // Some referral account
+    const getBlock = await getNearBlock()
 
     const msg = {
       CreateIntent: {
@@ -176,10 +206,10 @@ export const useSwap = ({ accountId, selector }: Props) => {
             amount: estimateUnitsBackAmount,
           },
           expiration: {
-            Block: getBlock,
+            Block: getBlock.height + CREATE_INTENT_EXPIRATION_BLOCK_BOOST,
           },
           referral: {
-            Some: referral,
+            Some: REFERRAL_ACCOUNT,
           },
         },
       },

@@ -5,9 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { CollectorHook } from "@src/hooks/useHistoryCollector"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import { getTransactionDetails } from "@src/api/transaction"
+import {
+  getNearBlockById,
+  getNearTransactionDetails,
+} from "@src/api/transaction"
 import { HistoryData } from "@src/stores/historyStore"
-import { NetworkToken } from "@src/types/interfaces"
+import { NearBlock, NearTX, NetworkToken, Result } from "@src/types/interfaces"
 import {
   CONFIRM_SWAP_LOCAL_KEY,
   NEAR_COLLECTOR_KEY,
@@ -19,6 +22,13 @@ interface HistoryFromLocal {
   tokenOut?: string
   selectedTokenIn?: NetworkToken
   selectedTokenOut?: NetworkToken
+}
+
+enum UseQueryCollectorKeys {
+  CLIENT_ID = "clientId",
+  TRANSACTION_HASHS = "transactionHashes",
+  ERROR_MESSAGE = "errorMessage",
+  ERROR_CODE = "errorCode",
 }
 
 export const useCreateQueryString = () => {
@@ -37,13 +47,6 @@ export const useCreateQueryString = () => {
   return {
     createQueryString,
   }
-}
-
-enum UseQueryCollectorKeys {
-  CLIENT_ID = "clientId",
-  TRANSACTION_HASHS = "transactionHashes",
-  ERROR_MESSAGE = "errorMessage",
-  ERROR_CODE = "errorCode",
 }
 
 // This hook collects transactions based on query parameters from the URL
@@ -95,20 +98,29 @@ export const useQueryCollector = (): CollectorHook => {
       const errorCode = searchParams.get(UseQueryCollectorKeys.ERROR_CODE)
 
       if (transactionHashes) {
-        const data = await getTransactionDetails(
+        const { result } = (await getNearTransactionDetails(
           transactionHashes as string,
           accountId as string
-        )
+        )) as Result<NearTX>
+
+        let getNearBlockData = 0
+        if (result.receipts_outcome.length) {
+          const { result: resultBlock } = (await getNearBlockById(
+            result.receipts_outcome[0].block_hash
+          )) as NearBlock
+          getNearBlockData = resultBlock.header.timestamp
+        }
+
         handleCleanupQuery()
 
         return [
           {
             clientId: clientId as string,
             hash: transactionHashes as string,
-            timestamp: 0,
+            timestamp: getNearBlockData ?? 0,
             details: {
-              method_name: "",
-              logs: data?.result?.receipts_outcome[0].outcome?.logs as string[],
+              receipts_outcome: result?.receipts_outcome,
+              transaction: result?.transaction,
               ...getTryToExtractDataFromLocal(clientId as string),
             },
           },

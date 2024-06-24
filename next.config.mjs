@@ -27,6 +27,7 @@ const nextConfig = {
     // Specific [Keys] has to be below.
     NEAR_ENV: process.env.NEAR_ENV,
     SOLVER_RELAY_0_URL: process.env.SOLVER_RELAY_0_URL,
+    REFERRAL_ACCOUNT: process.env.REFERRAL_ACCOUNT,
   },
   images: {
     remotePatterns: [

@@ -34,5 +34,42 @@ export interface NetworkTokenWithSwapRoute extends NetworkToken {
 export enum QueueTransactions {
   "SWAP_FROM_NATIVE" = "swapFromNative",
   "STORAGE_DEPOSIT_TOKEN_IN" = "storageDepositTokenIn",
+  "STORAGE_DEPOSIT_TOKEN_OUT" = "storageDepositTokenOut",
   "CREATE_INTENT" = "createIntent",
 }
+
+export interface Result<T> {
+  result: T
+}
+
+export interface NearTXTransaction {
+  actions: {
+    FunctionCall: {
+      method_name: string
+    }
+  }[]
+}
+
+export type NearTxReceiptsOutcome = {
+  block_hash: string
+  id: string
+  outcome: {
+    logs: string[]
+  }
+}[]
+
+export type NearTX = {
+  transaction: NearTXTransaction
+  receipts_outcome: NearTxReceiptsOutcome
+}
+
+export interface NearHeader {
+  height: number
+  prev_height: number
+  timestamp: number
+}
+
+export type NearBlock = Result<{
+  chunks: unknown
+  header: NearHeader
+}>

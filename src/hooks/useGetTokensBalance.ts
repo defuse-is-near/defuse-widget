@@ -9,11 +9,10 @@ import { NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 export const useGetTokensBalance = (
   tokensList: NetworkTokenWithSwapRoute[]
 ) => {
-  const [isFetching, setIsFetching] = useState(false)
   const [data, setData] = useState<NetworkTokenWithSwapRoute[]>([])
   const { accountId } = useWalletSelector()
 
-  const getTokensBalance = async (accountId: string) => {
+  const getTokensBalance = async () => {
     const dataWithBalances = await Promise.all(
       tokensList.map(async (token) => {
         const balance: string | null = await nep141Balance(
@@ -30,17 +29,8 @@ export const useGetTokensBalance = (
     setData(dataWithBalances)
   }
 
-  useEffect(() => {
-    getTokensBalance(accountId as string)
-    return () => {
-      setIsFetching(false)
-      setData([])
-    }
-  }, [accountId])
-
   return {
     data,
-    isFetching,
     getTokensBalance,
   }
 }

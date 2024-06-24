@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 
-import { getTransactionDetails } from "../../transaction"
+import { getNearTransactionDetails } from "../../transaction"
 
 const transactionKey = "transaction"
 export const getTransactionKey = [transactionKey, "get-transaction-details"]
@@ -14,6 +14,6 @@ export const useGetTransactionDetails = (options = {}) =>
     }: {
       transactionHash: string
       accountId: string
-    }) => getTransactionDetails(transactionHash, accountId),
+    }) => getNearTransactionDetails(transactionHash, accountId),
     ...options,
   })

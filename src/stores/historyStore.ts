@@ -2,21 +2,19 @@
 
 import { createStore } from "zustand/vanilla"
 
-import { NetworkToken } from "@src/types/interfaces"
+import { NearTX, NetworkToken } from "@src/types/interfaces"
 
 export type HistoryData = {
   clientId: string
   hash: string
   timestamp: number
   details?: {
-    method_name: string
-    logs: string[]
     tokenIn?: string
     tokenOut?: string
     selectedTokenIn?: NetworkToken
     selectedTokenOut?: NetworkToken
     isClosed?: false
-  }
+  } & Partial<NearTX>
 }
 
 export type HistoryState = {
@@ -54,7 +52,7 @@ export const createHistoryStore = (
     updateHistory: (data: HistoryData[]) =>
       set((state) => {
         const updatedData = new Map(state.data)
-        data.forEach((item) => updatedData.set(item.clientId, item))
+        data.forEach((item) => updatedData.set(item.hash, item))
         return { data: updatedData, isFetched: true }
       }),
   }))

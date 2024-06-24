@@ -2,7 +2,7 @@ import { BigNumber } from "ethers"
 import { providers } from "near-api-js"
 import type { AccountView } from "near-api-js/lib/providers/provider"
 
-interface GetAccountBalanceProps {
+export interface GetAccountBalanceProps {
   provider: providers.Provider
   accountId: string
 }
