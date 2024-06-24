@@ -1,12 +1,12 @@
 import { ReactNode, ButtonHTMLAttributes } from "react"
 import { FieldValues, UseFormRegister } from "react-hook-form"
 import clsx from "clsx"
-import { Button, Text, ButtonProps, TextProps } from "@radix-ui/themes"
+import { Button, Text, ButtonProps, TextProps, Spinner } from "@radix-ui/themes"
 
 interface Props<T extends FieldValues>
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "color"> {
   children?: ReactNode
-  variant?: "primary" | "secondary" | "base"
+  variant?: "primary" | "secondary" | "base" | "soft" | "solid"
   size?: "sm" | "base" | "lg"
   fullWidth?: boolean
   isLoading?: boolean
@@ -18,7 +18,7 @@ const CustomButton = <T extends FieldValues>({
   size = "base",
   fullWidth,
   disabled,
-  isLoading,
+  isLoading = false,
   ...rest
 }: Props<T>) => {
   const buttonBaseStyle = "cursor-pointer whitespace-nowrap"
@@ -36,7 +36,7 @@ const CustomButton = <T extends FieldValues>({
       break
     case "base":
       buttonVariantStyle = "solid"
-      buttonColorStyle = "orange"
+      buttonColorStyle = "gray"
       break
   }
 
@@ -48,7 +48,7 @@ const CustomButton = <T extends FieldValues>({
       buttonTextSizeStyle = "1"
       break
     case "base":
-      buttonSizeStyle = ""
+      buttonSizeStyle = "bg-gray-950"
       buttonTextSizeStyle = "2"
       break
     case "lg":
@@ -72,7 +72,10 @@ const CustomButton = <T extends FieldValues>({
       disabled={disabled || isLoading}
       {...rest}
     >
-      <Text size={buttonTextSizeStyle}>{children}</Text>
+      <div className="flex justify-center items-center gap-2">
+        <Spinner loading={isLoading as boolean} />
+        <Text size={buttonTextSizeStyle}>{children}</Text>
+      </div>
     </Button>
   )
 }

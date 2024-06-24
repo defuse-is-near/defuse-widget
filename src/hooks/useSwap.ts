@@ -8,23 +8,29 @@ import {
   CONTRACTS_REGISTER,
   MAX_GAS_TRANSACTION,
 } from "@src/constants/contracts"
-import { sha256 } from "@src/actions/crypto"
-import { NetworkToken } from "@src/types/interfaces"
+import { NetworkToken, QueueTransactions } from "@src/types/interfaces"
 import { swapSchema } from "@src/utils/schema"
 import useStorageDeposit from "@src/hooks/useStorageDeposit"
 import useNearSwapNearToWNear from "@src/hooks/useSwapNearToWNear"
-import { LIST_NATIVE_TOKENS, SUPPORTED_TOKENS } from "@src/constants/tokens"
+import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 
 type Props = {
   accountId: string | null
   selector: WalletSelector | null
 }
+
+export type EstimateQueueTransactions = {
+  queueTransactionsTrack: QueueTransactions[]
+  queueInTrack: number
+}
+
 export type CallRequestIntentProps = {
   tokenIn: string
   tokenOut: string
   selectedTokenIn: NetworkToken
   selectedTokenOut: NetworkToken
-  defuseClientId?: string
+  estimateQueue?: EstimateQueueTransactions
+  clientId?: string
 }
 
 export const useSwap = ({ accountId, selector }: Props) => {
@@ -37,69 +43,112 @@ export const useSwap = ({ accountId, selector }: Props) => {
     selector,
   })
 
-  const validateInputs = (inputs: CallRequestIntentProps) => {
-    if (accountId) {
+  const isValidInputs = (inputs: CallRequestIntentProps): boolean => {
+    if (!accountId) {
       console.log("Non valid recipient address")
-      return
+      return false
     }
-    if (inputs!.selectedTokenIn?.address) {
+    if (!inputs!.selectedTokenIn?.address) {
       console.log("Non valid contract address")
-      return
+      return false
     }
-    if (inputs?.defuseClientId) {
-      console.log("Non valid defuseClientId")
-      return
+    if (!inputs?.clientId) {
+      console.log("Non valid clientId")
+      return false
     }
+    return true
+  }
+  const isValidEstimateQueue = (
+    queueTransaction?: EstimateQueueTransactions
+  ) => {
+    if (!queueTransaction?.queueTransactionsTrack?.length) {
+      console.log("Non valid queueTransactionsTrack")
+      return false
+    }
+    return true
   }
 
   const getEstimateQueueTransactions = async (
     inputs: CallRequestIntentProps
-  ) => {
+  ): Promise<EstimateQueueTransactions> => {
     let queue = 1
-    validateInputs(inputs)
+    const queueTransaction = [QueueTransactions.CREATE_INTENT]
+
+    if (!isValidInputs(inputs)) {
+      return {
+        queueInTrack: 0,
+        queueTransactionsTrack: [],
+      }
+    }
+
     const { tokenIn, tokenOut, selectedTokenIn, selectedTokenOut } = inputs
-    const isExistSwapRoute = LIST_NATIVE_TOKENS.findIndex(
-      (token) => token.swapRoute === selectedTokenIn.address
+
+    // Estimate if user did storage before in order to transfer tokens for swap
+    const balance = await getStorageBalance(
+      selectedTokenOut!.address as string,
+      accountId as string
     )
-    if (isExistSwapRoute !== -1) {
-      // TODO compare tokenIn > selectedTokenIn.address balance then get balance of Native, and then queue++
+
+    console.log("useSwap getEstimateQueueTransactions: ", balance)
+    if (!Number(balance?.toString() || "0")) {
+      queueTransaction.unshift(QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN)
       queue++
     }
 
-    const balance = await getStorageBalance(
-      selectedTokenIn!.address as string,
-      CONTRACTS_REGISTER.INTENT
-    )
-    console.log("useSwap getEstimateQueueTransactions: ", balance)
-    if (selectedTokenIn?.address && !Number(balance?.toString() || "0")) {
-      queue++
+    // const isExistSwapRoute = LIST_NATIVE_TOKENS.findIndex(
+    //     (token) => token.swapRoute === selectedTokenIn.address
+    // )
+    // if (isExistSwapRoute !== -1) {
+    //   // TODO compare tokenIn > selectedTokenIn.address balance then get balance of Native, and then queue++
+    //   queueTransaction.unshift(QueueTransactions.SWAP_FROM_NATIVE)
+    //   queue++
+    // }
+
+    return {
+      queueInTrack: queue,
+      queueTransactionsTrack: queueTransaction,
     }
-    return queue
   }
 
   const callRequestCreateIntent = async (inputs: CallRequestIntentProps) => {
-    validateInputs(inputs)
+    if (!isValidInputs(inputs) && !isValidEstimateQueue(inputs?.estimateQueue))
+      return
     const {
       tokenIn,
       tokenOut,
       selectedTokenIn,
       selectedTokenOut,
-      defuseClientId,
+      clientId,
+      estimateQueue,
     } = inputs
-
-    const balance = await getStorageBalance(
-      selectedTokenIn!.address as string,
-      CONTRACTS_REGISTER.INTENT
-    )
-
-    if (selectedTokenIn?.address && !Number(balance?.toString() || "0")) {
-      await setStorageDeposit(
-        selectedTokenIn!.address as string,
-        CONTRACTS_REGISTER.INTENT
+    debugger
+    if (
+      estimateQueue!.queueTransactionsTrack.includes(
+        QueueTransactions.SWAP_FROM_NATIVE
       )
+    ) {
+      // TODO If wNear user amount less than amountIn and Near user amount cover left part then do deposit
+      // if (!selectedTokenIn?.address) {
+      //   await callRequestNearDeposit(SUPPORTED_TOKENS.wNEAR, unitsSendAmount)
+      // }
     }
 
-    const intent_account_id = await sha256(defuseClientId as string)
+    if (
+      estimateQueue!.queueTransactionsTrack.includes(
+        QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
+      )
+    ) {
+      const balance = await getStorageBalance(
+        selectedTokenOut!.address as string,
+        accountId as string
+      )
+      if (selectedTokenOut?.address && !Number(balance?.toString() || "0")) {
+        await setStorageDeposit(
+          selectedTokenOut!.address as string,
+          accountId as string
+        )
+      }
+    }
 
     const unitsSendAmount = parseUnits(
       tokenIn,
@@ -113,14 +162,9 @@ export const useSwap = ({ accountId, selector }: Props) => {
     const getBlock = 121_700_000 // Current block + 10
     const referral = "referral.near" // Some referral account
 
-    // TODO If wNear user amount less than amountIn and Near user amount cover left part then do deposit
-    // if (!selectedTokenIn?.address) {
-    //   await callRequestNearDeposit(SUPPORTED_TOKENS.wNEAR, unitsSendAmount)
-    // }
-
     const msg = {
       CreateIntent: {
-        id: intent_account_id,
+        id: clientId,
         IntentStruct: {
           initiator: accountId,
           send: {
