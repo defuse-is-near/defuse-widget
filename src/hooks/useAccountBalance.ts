@@ -7,11 +7,16 @@ export interface GetAccountBalanceProps {
   accountId: string
 }
 
+export interface GetAccountBalanceResult {
+  hasBalance: boolean
+  balance: string
+}
+
 export const useAccountBalance = () => {
   const getAccountBalance = async ({
     provider,
     accountId,
-  }: GetAccountBalanceProps) => {
+  }: GetAccountBalanceProps): Promise<GetAccountBalanceResult> => {
     try {
       const { amount } = await provider.query<AccountView>({
         request_type: "view_account",
@@ -19,9 +24,11 @@ export const useAccountBalance = () => {
         account_id: accountId,
       })
       const bn = BigNumber.from(amount)
-      return { hasBalance: !bn.isZero() }
-    } catch {
-      return { hasBalance: false }
+      const isZero = bn.isZero()
+      return { hasBalance: !isZero, balance: amount }
+    } catch (e) {
+      console.log("useAccountBalance: ", e)
+      return { hasBalance: false, balance: "0" }
     }
   }
 

@@ -1,18 +1,10 @@
 "use client"
 
 import React, { PropsWithChildren, useEffect } from "react"
-import { setNearProvider, getNearProvider } from "@near-eth/client"
-import { providers } from "near-api-js"
 
-import {
-  GetAccountBalanceProps,
-  useAccountBalance,
-} from "@src/hooks/useAccountBalance"
 import { useGetTokensBalance } from "@src/hooks/useGetTokensBalance"
 import { useCombinedTokensListAdapter } from "@src/hooks/useTokensListAdapter"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-
-const NEAR_NODE_URL = process.env.NEAR_NODE_URL ?? ""
+import { useTokensStore } from "@src/providers/TokensStoreProvider"
 
 export function withTokensBalance<T extends React.ComponentType>(
   WrappedComponent: T
@@ -24,31 +16,21 @@ export function withTokensBalance<T extends React.ComponentType>(
     children,
     ...rest
   }) => {
-    const { accountId } = useWalletSelector()
-    const { data: dataTokenList, isFetching } = useCombinedTokensListAdapter()
-    const {} = useGetTokensBalance(dataTokenList)
-    const { getAccountBalance } = useAccountBalance()
-
-    setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
+    const { data: dataTokenList } = useCombinedTokensListAdapter()
+    const { data: dataTokensBalance, isFetching } =
+      useGetTokensBalance(dataTokenList)
+    const { onLoad, updateTokens } = useTokensStore((state) => state)
 
     const handleUpdateDataTokenList = async () => {
-      const provider = getNearProvider()
-      const updateDataTokenLis = await Promise.all(
-        dataTokenList.map((token) => {
-          return getAccountBalance({
-            provider,
-            accountId,
-          } as GetAccountBalanceProps)
-        })
-      )
-      console.log(updateDataTokenLis, "updateDataTokenLis")
+      onLoad()
+      updateTokens(dataTokensBalance)
     }
 
     useEffect(() => {
-      if (!isFetching && dataTokenList) {
+      if (!isFetching && dataTokensBalance) {
         handleUpdateDataTokenList()
       }
-    }, [dataTokenList, isFetching])
+    }, [dataTokensBalance, isFetching])
 
     return (
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

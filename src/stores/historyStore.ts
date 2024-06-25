@@ -35,6 +35,7 @@ export type HistoryStore = HistoryState & HistoryActions
 export const initHistoryStore = (): HistoryState => {
   return { active: false, data: new Map(), isFetched: false }
 }
+
 export const defaultInitState: HistoryState = {
   active: false,
   data: new Map(),

@@ -1,15 +1,16 @@
 "use client"
 
-import { useState, useDeferredValue } from "react"
+import { useState, useDeferredValue, useEffect } from "react"
 import { Text } from "@radix-ui/themes"
+import { BigNumber } from "ethers"
 
 import ModalDialog from "@src/components/Modal/ModalDialog"
 import SearchBar from "@src/components/SearchBar"
 import AssetList from "@src/components/Network/AssetList"
-import { NetworkToken } from "@src/types/interfaces"
-import { LIST_NETWORKS_TOKENS } from "@src/constants/tokens"
+import { NetworkToken, NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
+import { useTokensStore } from "@src/providers/TokensStoreProvider"
 
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
@@ -18,8 +19,14 @@ export type ModalSelectAssetsPayload = {
 }
 
 const ModalSelectAssets = () => {
-  const { onCloseModal, modalType, payload } = useModalStore((state) => state)
   const [searchValue, setSearchValue] = useState("")
+  const [assetList, setAssetList] = useState<NetworkTokenWithSwapRoute[]>([])
+  const [assetListWithBalances, setAssetListWithBalances] = useState<
+    NetworkTokenWithSwapRoute[]
+  >([])
+
+  const { onCloseModal, modalType, payload } = useModalStore((state) => state)
+  const { data, isLoading } = useTokensStore((state) => state)
   const deferredQuery = useDeferredValue(searchValue)
 
   const handleSearchClear = () => setSearchValue("")
@@ -42,6 +49,22 @@ const ModalSelectAssets = () => {
     })
   }
 
+  useEffect(() => {
+    if (!data.size) {
+      return
+    }
+    const getAssetList: NetworkTokenWithSwapRoute[] = []
+    const getAssetListWithBalances: NetworkTokenWithSwapRoute[] = []
+    data.forEach((value) => {
+      if (parseFloat(BigNumber.from(value?.balance || "0").toString())) {
+        getAssetListWithBalances.push(value)
+      }
+      getAssetList.push(value)
+    })
+    setAssetList(getAssetList)
+    setAssetListWithBalances(getAssetListWithBalances)
+  }, [data])
+
   return (
     <ModalDialog>
       <div className="flex flex-col min-h-[680px] max-h-[680px] h-full">
@@ -55,7 +78,7 @@ const ModalSelectAssets = () => {
         {!deferredQuery.length && (
           <div className="flex-1 border-b border-gray-100 px-2.5 min-h-[228px] h-full max-h-[228px] overflow-y-auto">
             <AssetList
-              assets={LIST_NETWORKS_TOKENS.slice(0, 5)}
+              assets={assetListWithBalances}
               title="Your tokens"
               handleSelectToken={handleSelectToken}
             />
@@ -63,11 +86,7 @@ const ModalSelectAssets = () => {
         )}
         <div className="flex-1 flex flex-col justify-between border-b border-gray-100 px-2.5 overflow-y-auto">
           <AssetList
-            assets={
-              deferredQuery
-                ? LIST_NETWORKS_TOKENS.filter(filterPattern)
-                : LIST_NETWORKS_TOKENS
-            }
+            assets={deferredQuery ? assetList.filter(filterPattern) : assetList}
             title={deferredQuery ? "Search results" : "Popular tokens"}
             className="h-full"
             handleSelectToken={handleSelectToken}

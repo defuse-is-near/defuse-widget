@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 import { Text } from "@radix-ui/themes"
 import clsx from "clsx"
+import { BigNumber } from "ethers"
 
 import AssetComboIcon from "@src/components/Network/AssetComboIcon"
 import { NetworkToken } from "@src/types/interfaces"
@@ -66,7 +67,9 @@ const AssetList = ({
                   {name}
                 </Text>
                 <Text as="span" size="2" weight="medium">
-                  {balance ? balance.toString() : null}
+                  {parseFloat(BigNumber.from(balance || 0).toString())
+                    ? BigNumber.from(balance || 0).toString()
+                    : null}
                 </Text>
               </div>
               <div className="flex justify-between items-center text-gray-600">
