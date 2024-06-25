@@ -11,6 +11,7 @@ import { NetworkToken, NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
 import { useTokensStore } from "@src/providers/TokensStoreProvider"
+import { tokenBalanceToFormatUnits } from "@src/utils/token"
 
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
@@ -56,10 +57,15 @@ const ModalSelectAssets = () => {
     const getAssetList: NetworkTokenWithSwapRoute[] = []
     const getAssetListWithBalances: NetworkTokenWithSwapRoute[] = []
     data.forEach((value) => {
+      let balanceToUnits = "0"
       if (parseFloat(BigNumber.from(value?.balance || "0").toString())) {
-        getAssetListWithBalances.push(value)
+        balanceToUnits = tokenBalanceToFormatUnits({
+          balance: value.balance,
+          decimals: value.decimals as number,
+        })
+        getAssetListWithBalances.push({ ...value, balance: balanceToUnits })
       }
-      getAssetList.push(value)
+      getAssetList.push({ ...value, balance: balanceToUnits ?? value.balance })
     })
     setAssetList(getAssetList)
     setAssetListWithBalances(getAssetListWithBalances)

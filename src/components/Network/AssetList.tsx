@@ -67,8 +67,10 @@ const AssetList = ({
                   {name}
                 </Text>
                 <Text as="span" size="2" weight="medium">
-                  {parseFloat(BigNumber.from(balance || 0).toString())
-                    ? BigNumber.from(balance || 0).toString()
+                  {typeof balance === "string" && parseFloat(balance)
+                    ? balance === "0.00001"
+                      ? `< ${balance}`
+                      : balance
                     : null}
                 </Text>
               </div>
