@@ -11,11 +11,18 @@ import {
   CREATE_INTENT_EXPIRATION_BLOCK_BOOST,
   MAX_GAS_TRANSACTION,
 } from "@src/constants/contracts"
-import { NetworkToken, QueueTransactions } from "@src/types/interfaces"
+import {
+  NearTX,
+  NetworkToken,
+  QueueTransactions,
+  Result,
+} from "@src/types/interfaces"
 import { swapSchema } from "@src/utils/schema"
 import useStorageDeposit from "@src/hooks/useStorageDeposit"
 import useNearSwapNearToWNear from "@src/hooks/useSwapNearToWNear"
 import { useNearBlock } from "@src/hooks/useNearBlock"
+import { getNearTransactionDetails } from "@src/api/transaction"
+import { useTransactionScan } from "@src/hooks/useTransactionScan"
 
 type Props = {
   accountId: string | null
@@ -27,12 +34,22 @@ export type EstimateQueueTransactions = {
   queueInTrack: number
 }
 
+export type NextEstimateQueueTransactionsProps = {
+  estimateQueue: EstimateQueueTransactions
+  receivedHash: string
+}
+
+export type NextEstimateQueueTransactionsResult = {
+  value: EstimateQueueTransactions
+  done: boolean
+}
+
 export type CallRequestIntentProps = {
   tokenIn: string
   tokenOut: string
   selectedTokenIn: NetworkToken
   selectedTokenOut: NetworkToken
-  estimateQueue?: EstimateQueueTransactions
+  estimateQueue: EstimateQueueTransactions
   clientId?: string
 }
 
@@ -49,6 +66,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
     selector,
   })
   const { getNearBlock } = useNearBlock()
+  const { getTransactionScan } = useTransactionScan()
 
   const isValidInputs = (inputs: CallRequestIntentProps): boolean => {
     if (!accountId) {
@@ -76,12 +94,22 @@ export const useSwap = ({ accountId, selector }: Props) => {
   }
 
   const getEstimateQueueTransactions = async (
-    inputs: CallRequestIntentProps
+    inputs: Omit<
+      Pick<
+        CallRequestIntentProps,
+        | "tokenIn"
+        | "tokenOut"
+        | "selectedTokenIn"
+        | "selectedTokenOut"
+        | "clientId"
+      >,
+      "estimateQueue"
+    >
   ): Promise<EstimateQueueTransactions> => {
     let queue = 1
     const queueTransaction = [QueueTransactions.CREATE_INTENT]
 
-    if (!isValidInputs(inputs)) {
+    if (!isValidInputs(inputs as CallRequestIntentProps)) {
       return {
         queueInTrack: 0,
         queueTransactionsTrack: [],
@@ -139,8 +167,35 @@ export const useSwap = ({ accountId, selector }: Props) => {
     }
   }
 
+  const nextEstimateQueueTransactions = async ({
+    estimateQueue,
+    receivedHash,
+  }: NextEstimateQueueTransactionsProps): Promise<NextEstimateQueueTransactionsResult> => {
+    const { result } = (await getNearTransactionDetails(
+      receivedHash as string,
+      accountId as string
+    )) as Result<NearTX>
+    const { isFailure } = await getTransactionScan(result)
+
+    if (isFailure) {
+      return {
+        value: estimateQueue,
+        done: false,
+      }
+    }
+
+    const updateEstimateQueue = estimateQueue?.queueTransactionsTrack
+    updateEstimateQueue?.shift()
+    return {
+      value: {
+        queueTransactionsTrack: updateEstimateQueue,
+        queueInTrack: updateEstimateQueue!.length,
+      },
+      done: updateEstimateQueue!.length ? false : true,
+    } as NextEstimateQueueTransactionsResult
+  }
+
   const callRequestCreateIntent = async (inputs: CallRequestIntentProps) => {
-    setIsProcessing(true)
     if (!isValidInputs(inputs) && !isValidEstimateQueue(inputs?.estimateQueue))
       return
     const {
@@ -152,118 +207,118 @@ export const useSwap = ({ accountId, selector }: Props) => {
       estimateQueue,
     } = inputs
 
-    if (
-      estimateQueue!.queueTransactionsTrack.includes(
-        QueueTransactions.SWAP_FROM_NATIVE
-      )
-    ) {
-      // TODO If wNear user amount less than amountIn and Near user amount cover left part then do deposit
-      // if (!selectedTokenIn?.address) {
-      //   await callRequestNearDeposit(SUPPORTED_TOKENS.wNEAR, unitsSendAmount)
-      // }
-    }
+    const currentQueue: QueueTransactions =
+      estimateQueue!.queueTransactionsTrack[0]
 
-    if (
-      estimateQueue!.queueTransactionsTrack.includes(
-        QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
-      )
-    ) {
-      const balance = await getStorageBalance(
-        selectedTokenIn!.address as string,
-        accountId as string
-      )
-      if (selectedTokenIn?.address && !Number(balance?.toString() || "0")) {
-        await setStorageDeposit(
+    setIsProcessing(true)
+
+    switch (currentQueue) {
+      case QueueTransactions.SWAP_FROM_NATIVE:
+        // TODO If wNear user amount less than amountIn and Near user amount cover left part then do deposit
+        // if (!selectedTokenIn?.address) {
+        //   await callRequestNearDeposit(SUPPORTED_TOKENS.wNEAR, unitsSendAmount)
+        // }
+        break
+
+      case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
+        const storageBalanceTokenIn = await getStorageBalance(
           selectedTokenIn!.address as string,
           accountId as string
         )
-      }
-    }
+        if (
+          selectedTokenIn?.address &&
+          !Number(storageBalanceTokenIn?.toString() || "0")
+        ) {
+          await setStorageDeposit(
+            selectedTokenIn!.address as string,
+            accountId as string
+          )
+        }
+        break
 
-    if (
-      estimateQueue!.queueTransactionsTrack.includes(
-        QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
-      )
-    ) {
-      const balance = await getStorageBalance(
-        selectedTokenOut!.address as string,
-        accountId as string
-      )
-      if (selectedTokenOut?.address && !Number(balance?.toString() || "0")) {
-        await setStorageDeposit(
+      case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
+        const storageBalanceTokenOut = await getStorageBalance(
           selectedTokenOut!.address as string,
           accountId as string
         )
-      }
-    }
+        if (
+          selectedTokenOut?.address &&
+          !Number(storageBalanceTokenOut?.toString() || "0")
+        ) {
+          await setStorageDeposit(
+            selectedTokenOut!.address as string,
+            accountId as string
+          )
+        }
+        break
 
-    const unitsSendAmount = parseUnits(
-      tokenIn,
-      selectedTokenIn?.decimals as number
-    ).toString()
-    const estimateUnitsBackAmount = parseUnits(
-      tokenOut,
-      selectedTokenOut?.decimals as number
-    ).toString()
-
-    const getBlock = await getNearBlock()
-
-    const msg = {
-      CreateIntent: {
-        id: clientId,
-        IntentStruct: {
-          initiator: accountId,
-          send: {
-            token_id: selectedTokenIn!.address,
-            amount: unitsSendAmount,
-          },
-          receive: {
-            token_id: selectedTokenOut!.address,
-            amount: estimateUnitsBackAmount,
-          },
-          expiration: {
-            Block: getBlock.height + CREATE_INTENT_EXPIRATION_BLOCK_BOOST,
-          },
-          referral: {
-            Some: REFERRAL_ACCOUNT,
-          },
-        },
-      },
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const msgBorsh = borsh.serialize(swapSchema as any, msg)
-
-    const wallet = await selector!.wallet()
-    await wallet.signAndSendTransactions({
-      transactions: [
-        {
-          receiverId: selectedTokenIn!.address as string,
-          actions: [
-            {
-              type: "FunctionCall",
-              params: {
-                methodName: "ft_transfer_call",
-                args: {
-                  receiver_id: CONTRACTS_REGISTER.INTENT,
-                  amount: unitsSendAmount,
-                  memo: "Execute intent: NEP-141 to NEP-141",
-                  msg: Buffer.from(msgBorsh).toString("base64"),
-                },
-                gas: MAX_GAS_TRANSACTION,
-                deposit: "1",
+      case QueueTransactions.CREATE_INTENT:
+        const unitsSendAmount = parseUnits(
+          tokenIn,
+          selectedTokenIn?.decimals as number
+        ).toString()
+        const estimateUnitsBackAmount = parseUnits(
+          tokenOut,
+          selectedTokenOut?.decimals as number
+        ).toString()
+        const getBlock = await getNearBlock()
+        const msg = {
+          CreateIntent: {
+            id: clientId,
+            IntentStruct: {
+              initiator: accountId,
+              send: {
+                token_id: selectedTokenIn!.address,
+                amount: unitsSendAmount,
+              },
+              receive: {
+                token_id: selectedTokenOut!.address,
+                amount: estimateUnitsBackAmount,
+              },
+              expiration: {
+                Block: getBlock.height + CREATE_INTENT_EXPIRATION_BLOCK_BOOST,
+              },
+              referral: {
+                Some: REFERRAL_ACCOUNT,
               },
             },
+          },
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const msgBorsh = borsh.serialize(swapSchema as any, msg)
+        const wallet = await selector!.wallet()
+        await wallet.signAndSendTransactions({
+          transactions: [
+            {
+              receiverId: selectedTokenIn!.address as string,
+              actions: [
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "ft_transfer_call",
+                    args: {
+                      receiver_id: CONTRACTS_REGISTER.INTENT,
+                      amount: unitsSendAmount,
+                      memo: "Execute intent: NEP-141 to NEP-141",
+                      msg: Buffer.from(msgBorsh).toString("base64"),
+                    },
+                    gas: MAX_GAS_TRANSACTION,
+                    deposit: "1",
+                  },
+                },
+              ],
+            },
           ],
-        },
-      ],
-    })
+        })
+        break
+    }
 
     setIsProcessing(false)
   }
 
   return {
     isProcessing,
+    nextEstimateQueueTransactions,
     getEstimateQueueTransactions,
     callRequestCreateIntent,
   }

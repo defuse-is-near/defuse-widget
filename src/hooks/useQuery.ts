@@ -24,7 +24,7 @@ interface HistoryFromLocal {
   selectedTokenOut?: NetworkToken
 }
 
-enum UseQueryCollectorKeys {
+export enum UseQueryCollectorKeys {
   CLIENT_ID = "clientId",
   TRANSACTION_HASHS = "transactionHashes",
   ERROR_MESSAGE = "errorMessage",

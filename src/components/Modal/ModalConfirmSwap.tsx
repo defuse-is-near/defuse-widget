@@ -5,16 +5,21 @@ import { Text } from "@radix-ui/themes"
 import Image from "next/image"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { parseUnits } from "viem"
+import { v4 } from "uuid"
 
 import ModalDialog from "@src/components/Modal/ModalDialog"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import {
   CallRequestIntentProps,
   EstimateQueueTransactions,
+  NextEstimateQueueTransactionsProps,
   useSwap,
 } from "@src/hooks/useSwap"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import { useCreateQueryString } from "@src/hooks/useQuery"
+import {
+  useCreateQueryString,
+  UseQueryCollectorKeys,
+} from "@src/hooks/useQuery"
 import { ModalReviewSwapPayload } from "@src/components/Modal/ModalReviewSwap"
 import { ModalType } from "@src/stores/modalStore"
 import { sha256 } from "@src/actions/crypto"
@@ -27,10 +32,11 @@ export interface ModalConfirmSwapPayload extends CallRequestIntentProps {}
 const ModalConfirmSwap = () => {
   const [transactionQueue, setTransactionQueue] = useState(0)
   const [dataFromLocal, setDataFromLocal] = useState<ModalConfirmSwapPayload>()
-  const clientId = useId()
   const { selector, accountId } = useWalletSelector()
+  const searchParams = useSearchParams()
   const {
     callRequestCreateIntent,
+    nextEstimateQueueTransactions,
     getEstimateQueueTransactions,
     isProcessing,
   } = useSwap({
@@ -117,18 +123,23 @@ const ModalConfirmSwap = () => {
   const handleTrackSwap = async () => {
     if (!modalPayload) {
       const data = getSwapFromLocal()
-      console.log("Recreate stored call data: ", data)
+
       if (data) {
         setDataFromLocal(data)
 
-        // Update estimateQueue
-        const updateEstimateQueue = data.estimateQueue
-        updateEstimateQueue &&
-          updateEstimateQueue?.queueTransactionsTrack?.length &&
-          data.estimateQueue!.queueTransactionsTrack.shift()
-        updateEstimateQueue &&
-          updateEstimateQueue?.queueInTrack > 0 &&
-          data.estimateQueue!.queueInTrack--
+        const receivedHash = searchParams.get(
+          UseQueryCollectorKeys.TRANSACTION_HASHS
+        )
+        if (!receivedHash) {
+          console.log(
+            "EstimateQueueTransactions has stopped due to the hash is missing, UseQueryCollectorKeys.TRANSACTION_HASHS"
+          )
+          return
+        }
+        const { value, done } = await nextEstimateQueueTransactions({
+          estimateQueue: data.estimateQueue,
+          receivedHash: receivedHash as string,
+        })
 
         const inputs = {
           tokenIn: data!.tokenIn,
@@ -136,10 +147,10 @@ const ModalConfirmSwap = () => {
           selectedTokenIn: data!.selectedTokenIn,
           selectedTokenOut: data!.selectedTokenOut,
           clientId: data.clientId,
-          estimateQueue: updateEstimateQueue,
+          estimateQueue: value,
         }
 
-        if (!updateEstimateQueue?.queueTransactionsTrack?.length) {
+        if (done) {
           handlePublishIntentToSolver(inputs)
           onCloseModal()
           router.replace(pathname)
@@ -155,7 +166,7 @@ const ModalConfirmSwap = () => {
       return
     }
 
-    const newClientId = await sha256(clientId as string)
+    const newClientId = await sha256(v4())
     const estimateQueue = await handleEstimateQueueTransactions(newClientId)
 
     const inputs = {

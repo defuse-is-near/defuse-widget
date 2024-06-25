@@ -50,11 +50,27 @@ export interface NearTXTransaction {
   }[]
 }
 
+export type NearTxReceiptsOutcomeFailure = {
+  ActionError: {
+    index: number
+    kind: {
+      FunctionCallError: {
+        ExecutionError: string
+      }
+    }
+  }
+}
+
 export type NearTxReceiptsOutcome = {
   block_hash: string
   id: string
   outcome: {
     logs: string[]
+    status: {
+      SuccessReceiptId?: string
+      SuccessValue?: string
+      Failure?: NearTxReceiptsOutcomeFailure
+    }
   }
 }[]
 
