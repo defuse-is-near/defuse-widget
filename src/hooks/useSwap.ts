@@ -3,6 +3,8 @@
 import { WalletSelector } from "@near-wallet-selector/core"
 import * as borsh from "borsh"
 import { parseUnits } from "viem"
+import { BigNumber } from "ethers"
+import { useState } from "react"
 
 import {
   CONTRACTS_REGISTER,
@@ -37,6 +39,7 @@ export type CallRequestIntentProps = {
 const REFERRAL_ACCOUNT = process.env.REFERRAL_ACCOUNT ?? ""
 
 export const useSwap = ({ accountId, selector }: Props) => {
+  const [isProcessing, setIsProcessing] = useState(false)
   const { getStorageBalance, setStorageDeposit } = useStorageDeposit({
     accountId,
     selector,
@@ -92,8 +95,14 @@ export const useSwap = ({ accountId, selector }: Props) => {
       selectedTokenIn!.address as string,
       accountId as string
     )
-    console.log("useSwap storageBalanceTokenIn: ", storageBalanceTokenIn)
-    if (!Number(storageBalanceTokenIn?.toString() || "0")) {
+    const storageBalanceTokenInToString = BigNumber.from(
+      storageBalanceTokenIn
+    ).toString()
+    console.log(
+      "useSwap storageBalanceTokenIn: ",
+      storageBalanceTokenInToString
+    )
+    if (!parseFloat(storageBalanceTokenInToString)) {
       queueTransaction.unshift(QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN)
       queue++
     }
@@ -103,8 +112,14 @@ export const useSwap = ({ accountId, selector }: Props) => {
       selectedTokenOut!.address as string,
       accountId as string
     )
-    console.log("useSwap storageBalanceTokenOut: ", storageBalanceTokenOut)
-    if (!Number(storageBalanceTokenIn?.toString() || "0")) {
+    const storageBalanceTokenOutToString = BigNumber.from(
+      storageBalanceTokenOut
+    ).toString()
+    console.log(
+      "useSwap storageBalanceTokenOut: ",
+      storageBalanceTokenOutToString
+    )
+    if (!parseFloat(storageBalanceTokenOutToString)) {
       queueTransaction.unshift(QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT)
       queue++
     }
@@ -125,6 +140,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
   }
 
   const callRequestCreateIntent = async (inputs: CallRequestIntentProps) => {
+    setIsProcessing(true)
     if (!isValidInputs(inputs) && !isValidEstimateQueue(inputs?.estimateQueue))
       return
     const {
@@ -242,9 +258,12 @@ export const useSwap = ({ accountId, selector }: Props) => {
         },
       ],
     })
+
+    setIsProcessing(false)
   }
 
   return {
+    isProcessing,
     getEstimateQueueTransactions,
     callRequestCreateIntent,
   }

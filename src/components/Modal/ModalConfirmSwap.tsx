@@ -29,7 +29,11 @@ const ModalConfirmSwap = () => {
   const [dataFromLocal, setDataFromLocal] = useState<ModalConfirmSwapPayload>()
   const clientId = useId()
   const { selector, accountId } = useWalletSelector()
-  const { callRequestCreateIntent, getEstimateQueueTransactions } = useSwap({
+  const {
+    callRequestCreateIntent,
+    getEstimateQueueTransactions,
+    isProcessing,
+  } = useSwap({
     selector,
     accountId,
   })
@@ -89,8 +93,8 @@ const ModalConfirmSwap = () => {
   const handlePublishIntentToSolver = (
     inputs: ModalConfirmSwapPayload
   ): void => {
-    historyData.forEach((value, key) => {
-      if (key === inputs.clientId) {
+    historyData.forEach((value) => {
+      if (value.clientId === inputs.clientId) {
         mutate({
           hash: value.hash,
           defuseAssetIdIn: inputs.selectedTokenIn.defuse_asset_id,
@@ -136,9 +140,9 @@ const ModalConfirmSwap = () => {
         }
 
         if (!updateEstimateQueue?.queueTransactionsTrack?.length) {
+          handlePublishIntentToSolver(inputs)
           onCloseModal()
           router.replace(pathname)
-          handlePublishIntentToSolver(inputs)
           return
         }
 
@@ -171,10 +175,10 @@ const ModalConfirmSwap = () => {
   }
 
   useEffect(() => {
-    if (isFetched) {
+    if (isFetched && !isProcessing) {
       handleTrackSwap()
     }
-  }, [historyData, isFetched])
+  }, [historyData, isFetched, isProcessing])
 
   return (
     <ModalDialog>
