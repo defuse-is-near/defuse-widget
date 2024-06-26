@@ -4,16 +4,26 @@ import { createStore } from "zustand/vanilla"
 
 import { NearTX, NetworkToken } from "@src/types/interfaces"
 
+export enum HistoryStatus {
+  AVAILABLE = "Available",
+  PROCESSING = "Processing",
+  COMPLETED = "Completed",
+  ROLLED_BACK = "RolledBack",
+  EXPIRED = "Expired",
+}
+
 export type HistoryData = {
   clientId: string
   hash: string
   timestamp: number
+  status?: HistoryStatus
+  errorMessage?: string
+  isClosed?: false
   details?: {
     tokenIn?: string
     tokenOut?: string
     selectedTokenIn?: NetworkToken
     selectedTokenOut?: NetworkToken
-    isClosed?: false
   } & Partial<NearTX>
 }
 

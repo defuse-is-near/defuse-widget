@@ -1,6 +1,8 @@
 import type { AccountView } from "near-api-js/lib/providers/provider"
 import { BigNumber } from "ethers"
 
+import { HistoryStatus } from "@src/stores/historyStore"
+
 // defuse_asset_id - consist of: `blockchain + ":" + chainId + ":" + "token"`
 export type DefuseBaseIds = {
   defuse_asset_id: string
@@ -89,3 +91,24 @@ export type NearBlock = Result<{
   chunks: unknown
   header: NearHeader
 }>
+
+export type NearIntentStatus = {
+  intent: {
+    initiator: string
+    send: {
+      token_id: string
+      amount: string
+    }
+    receive: {
+      token_id: string
+      amount: string
+    }
+    expiration: {
+      Block: number
+    }
+    referral: string
+  }
+  status: HistoryStatus
+  created_at: number
+  min_ttl: number
+}

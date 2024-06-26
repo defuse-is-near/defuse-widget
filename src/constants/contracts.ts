@@ -21,4 +21,4 @@ export const TOKEN_TRANSFER_DEPOSIT = ""
 export const CONFIRM_SWAP_LOCAL_KEY = "__d_confirm_swap"
 export const NEAR_COLLECTOR_KEY = "__d_history_collector"
 
-export const CREATE_INTENT_EXPIRATION_BLOCK_BOOST = 20
+export const CREATE_INTENT_EXPIRATION_BLOCK_BOOST = 50
