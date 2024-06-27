@@ -50,6 +50,8 @@ export interface NearTXTransaction {
       method_name: string
     }
   }[]
+  signer_id: string
+  receiver_id: string
 }
 
 export type NearTxReceiptsOutcomeFailure = {

@@ -7,26 +7,56 @@ import Link from "next/link"
 
 import { HistoryData } from "@src/stores/historyStore"
 import Button from "@src/components/Button/Button"
+import { NearTX, QueueTransactions } from "@src/types/interfaces"
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 
-const WidgetCard = ({ hash, details }: HistoryData) => {
+const PLACEHOLDER = "XX"
+
+const WidgetCard = ({ hash, details, isClosed, status }: HistoryData) => {
   const [title, setTitle] = useState<string>("")
 
+  const handlePrepareTitle = (
+    details: HistoryData["details"],
+    typeQueueTransactions?: QueueTransactions
+  ): string => {
+    switch (typeQueueTransactions) {
+      case QueueTransactions.CREATE_INTENT:
+        return `Swapping ${details?.tokenIn ?? PLACEHOLDER} ${details?.selectedTokenIn?.symbol ?? PLACEHOLDER} for ${details?.tokenOut ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}`
+      case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
+      case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
+        return `Storage deposit on ${details?.transaction?.receiver_id ?? PLACEHOLDER} by ${details?.transaction?.signer_id ?? PLACEHOLDER}`
+      default:
+        return "Unknown"
+    }
+  }
+
+  const handleGetTypeOfQueueTransactions = (
+    transaction: NearTX["transaction"]
+  ): QueueTransactions | undefined => {
+    if (
+      transaction.actions[0].FunctionCall.method_name === "ft_transfer_call"
+    ) {
+      return QueueTransactions.CREATE_INTENT
+    }
+    if (transaction.actions[0].FunctionCall.method_name === "storage_deposit") {
+      // No matter is IN or OUT as QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
+      return QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
+    }
+  }
+
   useEffect(() => {
-    if (details?.receipts_outcome?.length) {
-      let mainLog: string = ""
-      details!.receipts_outcome?.forEach((receipt) => {
-        if (receipt?.outcome?.logs?.length && !mainLog.length) {
-          mainLog = receipt!.outcome!.logs[0]
-        }
-      })
-      setTitle(mainLog)
+    if (details && details?.transaction) {
+      const typeQueueTransactions = handleGetTypeOfQueueTransactions(
+        details!.transaction as NearTX["transaction"]
+      )
+      const title = handlePrepareTitle(details, typeQueueTransactions)
+      setTitle(title)
     }
     return () => {
       setTitle("")
     }
-  }, [details?.receipts_outcome])
+  }, [details])
 
   return (
     <div className="max-w-full md:max-w-[260px] min-h-[152px] flex flex-col justify-between m-5 p-3 card-history bg-white rounded-[8px] border overflow-hidden">

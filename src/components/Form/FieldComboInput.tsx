@@ -71,8 +71,9 @@ const FieldComboInput = <T extends FieldValues>({
       </div>
       {balance && (
         <div className="absolute bottom-4 right-5 flex justify-center items-center gap-2">
-          <span className="text-xs text-secondary">
-            Balance: ${balance.toString()}
+          <span className="text-sm text-gray-600">Balance:</span>
+          <span className="text-xs px-2 py-0.5 bg-red-100 text-red-400 rounded-full">
+            {balance.toString()}
           </span>
           {handleSetMax && (
             <button className="text-xs uppercase" onClick={handleSetMax}>
