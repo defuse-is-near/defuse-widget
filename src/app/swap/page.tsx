@@ -108,7 +108,7 @@ export default function Swap() {
       isProgrammaticUpdate.current = true
       setValue("tokenOut", estimatedAmountOut)
     },
-    2000
+    1000
   )
 
   const debouncedGetSwapEstimateBotReverse = debounce(
@@ -241,8 +241,7 @@ export default function Swap() {
           balance={selectTokenIn?.balance as string}
           selected={selectTokenIn as NetworkToken}
           handleSelect={() => handleSelect("tokenIn")}
-          handleSetMax={handleSetMax}
-          className="border rounded-t-xl max-w-[472px]"
+          className="border rounded-t-xl md:max-w-[472px]"
           required
         />
         <div className="relative w-full">
@@ -253,7 +252,7 @@ export default function Swap() {
           price={selectTokenOut?.balanceToUds as string}
           selected={selectTokenOut as NetworkToken}
           handleSelect={() => handleSelect("tokenOut")}
-          className="border rounded-b-xl mb-5 max-w-[472px]"
+          className="border rounded-b-xl mb-5 md:max-w-[472px]"
           required
         />
         <Button type="submit" size="lg" fullWidth isLoading={isFetching}>

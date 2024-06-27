@@ -46,15 +46,17 @@ export const getPublishAtomicNearIntent = ({
     .post(SOLVER_RELAY_0_URL, {
       jsonrpc: "2.0",
       method: "publish_intent",
-      params: {
-        intent_type: "atomic_near",
-        intent_creation_hash: hash,
-        intent_id: clientId,
-        intent_initiator: accountId,
-        defuse_asset_identifier_in: defuseAssetIdIn, //Data Dublication for Dev purpose. Should not be used in production
-        defuse_asset_identifier_out: defuseAssetIdOut,
-        amount_in: unitsAmountIn,
-        amount_out_desired: unitsAmountOut,
-      },
+      params: [
+        {
+          intent_type: "atomic_near",
+          intent_creation_hash: hash,
+          intent_id: clientId,
+          intent_initiator: accountId,
+          defuse_asset_identifier_in: defuseAssetIdIn, //Data Dublication for Dev purpose. Should not be used in production
+          defuse_asset_identifier_out: defuseAssetIdOut,
+          amount_in: unitsAmountIn,
+          amount_out_desired: unitsAmountOut,
+        },
+      ],
     })
     .then((resp) => resp.data)

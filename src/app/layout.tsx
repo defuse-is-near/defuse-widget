@@ -7,6 +7,7 @@ import queryClient from "@src/constants/queryClient"
 import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
 import { ModalStoreProvider } from "@src/providers/ModalStoreProvider"
+import { TokensStoreProvider } from "@src/providers/TokensStoreProvider"
 import Modal from "@src/components/Modal"
 import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
@@ -30,10 +31,12 @@ const RootLayout = ({
             <ThemeProvider attribute="class">
               <Theme>
                 <HistoryStoreProvider>
-                  <ModalStoreProvider>
-                    {children}
-                    <Modal />
-                  </ModalStoreProvider>
+                  <TokensStoreProvider>
+                    <ModalStoreProvider>
+                      {children}
+                      <Modal />
+                    </ModalStoreProvider>
+                  </TokensStoreProvider>
                 </HistoryStoreProvider>
               </Theme>
             </ThemeProvider>
