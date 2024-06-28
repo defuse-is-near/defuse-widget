@@ -10,6 +10,7 @@ export enum HistoryStatus {
   COMPLETED = "Completed",
   ROLLED_BACK = "RolledBack",
   EXPIRED = "Expired",
+  FAILED = "Failed", // Internal status
 }
 
 export type HistoryData = {

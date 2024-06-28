@@ -11,6 +11,15 @@ const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 type Props = {
   links?: NavigationLinks[]
 }
+
+const NavbarLabelComingSoon = () => {
+  return (
+    <span className="absolute -top-2 -right-3 text-[8px] text-nowrap text-primary">
+      Coming Soon
+    </span>
+  )
+}
+
 const Navbar = ({ links = LINKS_HEADER }: Props) => {
   const pathname = usePathname()
   return (
@@ -23,7 +32,7 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
               key={i}
               className="text-sm"
               onClick={route.action}
-              disabled={TURN_OFF_APPS}
+              disabled={TURN_OFF_APPS || route.comingSoon}
             >
               {route.label}
             </button>
@@ -34,12 +43,14 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
             href={route.href ?? ""}
             key={i}
             className={clsx(
-              "px-3 py-1.5 rounded-full text-sm",
+              "relative px-3 py-1.5 rounded-full text-sm",
               isCurrentPage && "bg-black-400 text-white",
-              TURN_OFF_APPS && "pointer-events-none text-gray-500"
+              (TURN_OFF_APPS || route.comingSoon) &&
+                "pointer-events-none text-gray-500"
             )}
           >
             {route.label}
+            {route.comingSoon && !isCurrentPage && <NavbarLabelComingSoon />}
           </Link>
         )
       })}

@@ -5,29 +5,51 @@ import Image from "next/image"
 import { Spinner, Text } from "@radix-ui/themes"
 import Link from "next/link"
 
-import { HistoryData } from "@src/stores/historyStore"
+import { HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import Button from "@src/components/Button/Button"
 import { NearTX, QueueTransactions } from "@src/types/interfaces"
+import { WidgetCardTimer } from "@src/components/History/Widget/WidgetCardTimer"
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
-
 const PLACEHOLDER = "XX"
 
-const WidgetCard = ({ hash, details, isClosed, status }: HistoryData) => {
-  const [title, setTitle] = useState<string>("")
+const WidgetCard = ({
+  hash,
+  details,
+  timestamp,
+  isClosed,
+  status,
+}: HistoryData) => {
+  const [title, setTitle] = useState("")
+  const [subTitle, setSubTitle] = useState("")
 
-  const handlePrepareTitle = (
+  const handlePrepareMeta = (
     details: HistoryData["details"],
     typeQueueTransactions?: QueueTransactions
-  ): string => {
+  ): { title: string; subTitle?: string } => {
     switch (typeQueueTransactions) {
       case QueueTransactions.CREATE_INTENT:
-        return `Swapping ${details?.tokenIn ?? PLACEHOLDER} ${details?.selectedTokenIn?.symbol ?? PLACEHOLDER} for ${details?.tokenOut ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}`
+        if (status === HistoryStatus.FAILED) {
+          return {
+            title: "Transaction failed",
+          }
+        }
+        if (status === HistoryStatus.COMPLETED) {
+          return {
+            title: `Transaction complete!`,
+            subTitle: `You received ${details?.tokenOut ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
+          }
+        }
+        return {
+          title: `Swapping ${details?.tokenIn ?? PLACEHOLDER} ${details?.selectedTokenIn?.symbol ?? PLACEHOLDER} for ${details?.tokenOut ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}`,
+        }
       case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
       case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
-        return `Storage deposit on ${details?.transaction?.receiver_id ?? PLACEHOLDER} by ${details?.transaction?.signer_id ?? PLACEHOLDER}`
+        return {
+          title: `Storage deposit on ${details?.transaction?.receiver_id ?? PLACEHOLDER} by ${details?.transaction?.signer_id ?? PLACEHOLDER}`,
+        }
       default:
-        return "Unknown"
+        return { title: "Unknown" }
     }
   }
 
@@ -50,8 +72,12 @@ const WidgetCard = ({ hash, details, isClosed, status }: HistoryData) => {
       const typeQueueTransactions = handleGetTypeOfQueueTransactions(
         details!.transaction as NearTX["transaction"]
       )
-      const title = handlePrepareTitle(details, typeQueueTransactions)
+      const { title, subTitle } = handlePrepareMeta(
+        details,
+        typeQueueTransactions
+      )
       setTitle(title)
+      subTitle && setSubTitle(subTitle)
     }
     return () => {
       setTitle("")
@@ -61,7 +87,24 @@ const WidgetCard = ({ hash, details, isClosed, status }: HistoryData) => {
   return (
     <div className="max-w-full md:max-w-[260px] min-h-[152px] flex flex-col justify-between m-5 p-3 card-history bg-white rounded-[8px] border overflow-hidden">
       <div className="flex justify-between items-center mb-3">
-        <Spinner size="3" />
+        {status === HistoryStatus.COMPLETED && (
+          <Image
+            src="/static/icons/CheckCircle.svg"
+            width={28}
+            height={28}
+            alt="CheckCircle"
+          />
+        )}
+        {status === HistoryStatus.FAILED && (
+          <Image
+            src="/static/icons/Failed.svg"
+            width={28}
+            height={28}
+            alt="Failed"
+          />
+        )}
+        {status !== HistoryStatus.COMPLETED &&
+          status !== HistoryStatus.FAILED && <Spinner size="3" />}
         <Image
           src="/static/icons/close.svg"
           width={16}
@@ -70,11 +113,13 @@ const WidgetCard = ({ hash, details, isClosed, status }: HistoryData) => {
         />
       </div>
       <Text size="1" weight="bold" className="mb-1">
-        {title.substring(0, 37)}
-        ...
+        {title.length > 37 ? title.substring(0, 37) + "..." : title}
       </Text>
       <Text size="1" className="mb-3">
-        Estimated time left: 2 mins
+        {subTitle && subTitle}
+        {!subTitle && (
+          <WidgetCardTimer timeLeft={Math.floor(timestamp / 1e6)} />
+        )}
       </Text>
       <div className="flex justify-start items-center gap-3 cursor-pointer">
         <Button size="sm" variant="soft" className="bg-black cursor-pointer">
