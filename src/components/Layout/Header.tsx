@@ -8,7 +8,7 @@ import Settings from "@src/components/Settings"
 const Header = () => {
   return (
     <>
-      <header className="h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] border-white-200 z-50 bg-transparent">
+      <header className="h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] border-white-200 z-50 bg-transparent dark:border-black-600">
         <div className="h-full flex justify-between items-center px-3">
           <Logo />
           <div className="hidden md:flex justify-center w-full max-w-5xl pl-3">

@@ -5,19 +5,12 @@ import clsx from "clsx"
 import Link from "next/link"
 
 import { LINKS_HEADER, NavigationLinks } from "@src/constants/routes"
+import LabelComingSoon from "@src/components/LabelComingSoon"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
 type Props = {
   links?: NavigationLinks[]
-}
-
-const NavbarLabelComingSoon = () => {
-  return (
-    <span className="absolute -top-2 -right-3 text-[8px] text-nowrap text-primary">
-      Coming Soon
-    </span>
-  )
 }
 
 const Navbar = ({ links = LINKS_HEADER }: Props) => {
@@ -44,13 +37,14 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
             key={i}
             className={clsx(
               "relative px-3 py-1.5 rounded-full text-sm",
-              isCurrentPage && "bg-black-400 text-white",
+              isCurrentPage &&
+                "bg-black-400 text-white dark:bg-white dark:text-black-400",
               (TURN_OFF_APPS || route.comingSoon) &&
                 "pointer-events-none text-gray-500"
             )}
           >
             {route.label}
-            {route.comingSoon && !isCurrentPage && <NavbarLabelComingSoon />}
+            {route.comingSoon && !isCurrentPage && <LabelComingSoon />}
           </Link>
         )
       })}

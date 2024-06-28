@@ -208,7 +208,7 @@ const listNativeTokensTestnet = [
     chainIcon: "/static/icons/network/near.svg",
     icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
     decimals: 24,
-    swapRoute: "wrap.testnet",
+    routes: ["wrap.testnet"],
   },
 ]
 const listNativeTokensMainnet = [
@@ -223,7 +223,7 @@ const listNativeTokensMainnet = [
     chainIcon: "/static/icons/network/near.svg",
     icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
     decimals: 24,
-    swapRoute: "wrap.near",
+    routes: ["near:mainnet:aurora", "near:mainnet:usm.tkn.near"],
   },
 ]
 
