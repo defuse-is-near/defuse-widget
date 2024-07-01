@@ -1,23 +1,32 @@
 import React from "react"
-import { Path, FieldValues, UseFormRegister } from "react-hook-form"
+import {
+  Path,
+  FieldValues,
+  FieldErrors,
+  FieldError,
+  UseFormRegister,
+} from "react-hook-form"
 import clsx from "clsx"
 import { BigNumber } from "ethers"
 
 import AssetsSelect from "@src/components/Network/SelectAssets"
 import { NetworkToken } from "@src/types/interfaces"
+import BlockMultiBalances, {
+  BlockMultiBalancesProps,
+} from "@src/components/Block/BlockMultiBalances"
 
 interface Props<T extends FieldValues> {
   fieldName: Path<T>
   register?: UseFormRegister<T>
-  required?: boolean
+  required?: string
   placeholder?: string
   label?: string
   price?: string
   balance?: string | BigNumber
-  handleSetMax?: (e: React.MouseEvent<HTMLButtonElement>) => void
   selected?: NetworkToken
   handleSelect?: () => void
   className?: string
+  errors?: FieldErrors
 }
 
 export const FieldComboInputRegistryName = "FieldComboInput"
@@ -30,22 +39,73 @@ const FieldComboInput = <T extends FieldValues>({
   label,
   price,
   balance,
-  handleSetMax,
   selected,
   handleSelect,
   className,
-}: Props<T>) => {
+  errors,
+  withNativeSupport,
+  handleIncludeNativeToSwap,
+  nativeSupportChecked,
+}: Props<T> & BlockMultiBalancesProps) => {
   if (!register) {
     return null
   }
-  // TODO Error has to be propagated from parent Form
-  const error = false
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const allowedKeys = [
+      "Backspace",
+      "Tab",
+      "ArrowLeft",
+      "ArrowRight",
+      "Delete", // control keys
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9", // numeric keys
+      ".", // decimal point
+    ]
+
+    if (!allowedKeys.includes(event.key) && !event.ctrlKey) {
+      event.preventDefault()
+    }
+
+    // Ensure only one dot is allowed
+    const inputValue = (event.target as HTMLInputElement).value
+    if (event.key === "." && inputValue.includes(".")) {
+      event.preventDefault()
+    }
+  }
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const paste = event.clipboardData.getData("text")
+
+    if (!/^[0-9.,]+$/.test(paste)) {
+      event.preventDefault()
+    }
+  }
+
+  const option = {
+    pattern: {
+      value: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/, // Valid result "100", "1.000", "0.000123", etc.
+      message: "Please enter a valid number",
+    },
+  }
+  if (required) {
+    Object.assign(option, { required: "This field is required" })
+  }
+
   return (
     <div
       className={clsx(
         "relative flex justify-between items-center px-5 py-[2.375rem] w-full bg-gray-50",
         !label && "pt-5",
-        !price && !balance && !error && "pb-5",
+        !price && !balance && errors && !errors[fieldName] && "pb-5",
         className && className
       )}
     >
@@ -55,32 +115,36 @@ const FieldComboInput = <T extends FieldValues>({
         </span>
       )}
       <input
-        {...register(fieldName, { required })}
+        {...register(fieldName, option)}
+        onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
         placeholder={placeholder}
         className={clsx(
           "grow flex-1 bg-gray-50 max-w-[140px] md:max-w-[none] md:min-w-[calc(100%-210px)] text-3xl font-medium placeholder-black border-transparent focus:border-transparent focus:ring-0"
         )}
       />
-      {price && (
+      {errors && errors[fieldName] ? (
+        <span className="absolute bottom-4 left-5 text-sm font-medium text-red-400">
+          {(errors[fieldName] as FieldError).message}
+        </span>
+      ) : null}
+      {price && errors && !errors[fieldName] ? (
         <span className="absolute bottom-4 left-5 text-sm font-medium text-secondary">
           ~${price}
         </span>
-      )}
+      ) : null}
       <div className="flex justify-end items-center">
         <AssetsSelect selected={selected} handleSelect={handleSelect} />
       </div>
       {balance && (
-        <div className="absolute bottom-4 right-5 flex justify-center items-center gap-2">
-          <span className="text-sm text-gray-600">Balance:</span>
-          <span className="text-xs px-2 py-0.5 bg-red-100 text-red-400 rounded-full">
-            {balance.toString()}
-          </span>
-          {handleSetMax && (
-            <button className="text-xs uppercase" onClick={handleSetMax}>
-              max
-            </button>
-          )}
-        </div>
+        <BlockMultiBalances
+          balance={balance}
+          withNativeSupport={withNativeSupport ?? false}
+          handleIncludeNativeToSwap={
+            handleIncludeNativeToSwap ? handleIncludeNativeToSwap : () => {}
+          }
+          nativeSupportChecked={nativeSupportChecked ?? false}
+        />
       )}
     </div>
   )

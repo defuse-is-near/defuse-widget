@@ -36,7 +36,6 @@ export default function Withdraw() {
           label="You’re sending"
           price="58.95"
           balance="515.22"
-          handleSetMax={handleSetMax}
           selected={{ name: "AURORA" } as NetworkToken}
         />
         <div className="h-[10px]"></div>

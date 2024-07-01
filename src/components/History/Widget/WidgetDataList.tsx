@@ -10,7 +10,6 @@ type Props<T> = {
 }
 
 const WidgetDataList = <T,>({ data, className, Component }: Props<T>) => {
-  console.log("WidgetDataList: ", data)
   return (
     <div
       className={clsx(

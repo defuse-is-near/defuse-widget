@@ -12,7 +12,6 @@ import { useModalStore } from "@src/providers/ModalStoreProvider"
 import {
   CallRequestIntentProps,
   EstimateQueueTransactions,
-  NextEstimateQueueTransactionsProps,
   useSwap,
 } from "@src/hooks/useSwap"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"

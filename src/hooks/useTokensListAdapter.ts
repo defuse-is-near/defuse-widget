@@ -8,6 +8,19 @@ export interface SolverHook {
   getTokenList: () => Promise<NetworkTokenWithSwapRoute[]>
 }
 
+const getChainIconFromId = (defuseAssetId: string): string => {
+  const getAssetIdParts = defuseAssetId.split(":")
+  const chain = getAssetIdParts.length ? getAssetIdParts[0] : ""
+  switch (chain.toLowerCase()) {
+    case "near":
+      return "/static/icons/network/near.svg"
+    case "eth":
+      return "/static/icons/network/ethereum.svg"
+    default:
+      return ""
+  }
+}
+
 const useTokenListSolver0 = (): SolverHook => {
   const getTokenList = async (): Promise<NetworkTokenWithSwapRoute[]> => {
     const { result } = (await getSupportTokenListSolver0()) as SupportedTokens
@@ -20,6 +33,8 @@ const useTokenListSolver0 = (): SolverHook => {
       icon: token.metadata_link as string,
       chainId: token.defuse_asset_id.split(":")[1] as string,
       chainName: token.defuse_asset_id.split(":")[0] as string,
+      chainIcon: getChainIconFromId(token.defuse_asset_id as string),
+      routes: token.routes_to as string[],
     })) as NetworkTokenWithSwapRoute[]
   }
 

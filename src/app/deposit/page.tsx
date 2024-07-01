@@ -38,7 +38,6 @@ export default function Deposit() {
         <FieldComboInput<FormValues>
           fieldName="tokenIn"
           label="You pay"
-          handleSetMax={handleSetMax}
           selected={{ name: "USD" } as NetworkToken}
         />
         <ButtonSwitch onClick={handleSwitch} />

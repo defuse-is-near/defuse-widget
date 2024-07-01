@@ -17,13 +17,14 @@ const Widget = () => {
   const getHistoryFromStore: HistoryData[] = []
   if (data.size) {
     data.forEach((setOfData) => {
-      if (typeof setOfData === "object") getHistoryFromStore.push(setOfData)
+      if (typeof setOfData === "object" && !setOfData?.isClosed)
+        getHistoryFromStore.push(setOfData)
     })
   }
 
   return (
     <div className="min-w-full md:min-w-auto md:w-[300px]">
-      {data.size ? (
+      {data.size && getHistoryFromStore.length ? (
         <WidgetDataList<HistoryData>
           Component={WidgetCard}
           data={getHistoryFromStore.toReversed()}

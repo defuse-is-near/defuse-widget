@@ -1,7 +1,7 @@
-import { ReactNode } from "react"
+import React, { ReactNode } from "react"
 import { Text } from "@radix-ui/themes"
 import clsx from "clsx"
-import { BigNumber } from "ethers"
+import Image from "next/image"
 
 import AssetComboIcon from "@src/components/Network/AssetComboIcon"
 import { NetworkToken } from "@src/types/interfaces"
@@ -18,10 +18,18 @@ const EmptyAssetList = ({ className }: Pick<Props, "className">) => {
   return (
     <div
       className={clsx(
-        "w-full flex flex-col text-center",
+        "flex-1 w-full flex flex-col justify-center items-center text-center -mt-10",
         className && className
       )}
     >
+      <div className="flex justify-center items-center rounded-full bg-gray-950 p-6 mb-4">
+        <Image
+          src="/static/icons/cross-1.svg"
+          alt="Close"
+          width={32}
+          height={32}
+        />
+      </div>
       <Text size="4" weight="bold">
         Your token not found
       </Text>
@@ -44,7 +52,7 @@ const AssetList = ({
   }
   return (
     <div className={clsx("flex flex-col", className && className)}>
-      <div className="sticky top-0 z-10 px-5 h-[46px] flex items-center bg-white">
+      <div className="sticky top-0 z-10 px-5 h-[46px] flex items-center bg-white dark:bg-black-700 dark:text-white">
         <Text as="p" size="1" weight="medium" className="pt-2.5 text-gray-600">
           {title}
         </Text>

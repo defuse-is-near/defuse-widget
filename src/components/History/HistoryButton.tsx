@@ -13,7 +13,7 @@ const HistoryButton = ({
   return (
     <button
       className={clsx(
-        "hidden md:flex justify-center items-center h-[64px] w-[64px] bg-black-600 rounded-full shadow-widget",
+        "hidden md:flex justify-center items-center h-[64px] w-[64px] bg-black-600 rounded-full shadow-widget dark:bg-gray-600",
         active && "bg-white"
       )}
       {...rest}

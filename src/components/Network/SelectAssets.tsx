@@ -11,7 +11,7 @@ type Props = {
 
 const EmptyIcon = () => {
   return (
-    <span className="relative w-[36px] h-[36px] bg-gray-400 rounded-full"></span>
+    <span className="relative min-w-[36px] min-h-[36px] bg-gray-200 rounded-full"></span>
   )
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { useQueryCollector } from "@src/hooks/useQuery"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
@@ -19,18 +19,6 @@ export const useHistoryCollector = (collectorHooks: CollectorHook[]) => {
   const [isError, setIsError] = useState(false)
   const { data, updateHistory } = useHistoryStore((state) => state)
   const { runHistoryUpdate } = useHistoryLatest()
-
-  useEffect(() => {
-    if (!data.size) {
-      return
-    }
-    const getHistoryFromStore: HistoryData[] = []
-    data.forEach((value) => getHistoryFromStore.push(value))
-    localStorage.setItem(
-      NEAR_COLLECTOR_KEY,
-      JSON.stringify({ data: getHistoryFromStore })
-    )
-  }, [data])
 
   const runTransactionCollector = async () => {
     try {

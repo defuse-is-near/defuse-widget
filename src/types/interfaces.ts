@@ -30,7 +30,7 @@ export interface NetworkToken extends Partial<TokenInfo>, DefuseBaseIds {
 }
 
 export interface NetworkTokenWithSwapRoute extends NetworkToken {
-  swapRoute?: string
+  routes?: string[]
 }
 
 export enum QueueTransactions {

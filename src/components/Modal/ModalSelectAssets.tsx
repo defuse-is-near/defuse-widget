@@ -74,23 +74,23 @@ const ModalSelectAssets = () => {
   return (
     <ModalDialog>
       <div className="flex flex-col min-h-[680px] max-h-[680px] h-full">
-        <div className="flex-none p-5 border-b border-gray-100">
+        <div className="flex-none p-5 border-b border-gray-100 dark:border-black">
           <SearchBar
             query={searchValue}
             setQuery={setSearchValue}
             handleOverrideCancel={onCloseModal}
           />
         </div>
-        {!deferredQuery.length && (
-          <div className="flex-1 border-b border-gray-100 px-2.5 min-h-[228px] h-full max-h-[228px] overflow-y-auto">
+        {!deferredQuery.length && assetListWithBalances.length ? (
+          <div className="relative flex-1 border-b border-gray-100 px-2.5 min-h-[228px] h-full max-h-[228px] overflow-y-auto dark:border-black">
             <AssetList
               assets={assetListWithBalances}
               title="Your tokens"
               handleSelectToken={handleSelectToken}
             />
           </div>
-        )}
-        <div className="flex-1 flex flex-col justify-between border-b border-gray-100 px-2.5 overflow-y-auto">
+        ) : null}
+        <div className="flex-1 flex flex-col justify-between border-b border-gray-100 px-2.5 overflow-y-auto dark:border-black-700">
           <AssetList
             assets={deferredQuery ? assetList.filter(filterPattern) : assetList}
             title={deferredQuery ? "Search results" : "Popular tokens"}

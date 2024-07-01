@@ -9,13 +9,16 @@ import { CONTRACTS_REGISTER } from "@src/constants/contracts"
 import { NearIntentStatus, NearTX, Result } from "@src/types/interfaces"
 import { getNearTransactionDetails } from "@src/api/transaction"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useTransactionScan } from "@src/hooks/useTransactionScan"
 
 const SCHEDULER_3_MIN = 180000
+const SCHEDULER_30_SEC = 30000
 
 export const useHistoryLatest = () => {
   const { accountId } = useWalletSelector()
   const { updateHistory } = useHistoryStore((state) => state)
   const [isHistoryWorkerSleeping, setIsHistoryWorkerSleeping] = useState(true)
+  const { getTransactionScan } = useTransactionScan()
   const [isMonitoringComplete, setIsMonitoringComplete] = useState({
     cycle: 0,
     done: false,
@@ -28,6 +31,7 @@ export const useHistoryLatest = () => {
       HistoryStatus.COMPLETED,
       HistoryStatus.ROLLED_BACK,
       HistoryStatus.EXPIRED,
+      HistoryStatus.FAILED,
     ]
 
     const historyCompletion: boolean[] = []
@@ -46,14 +50,6 @@ export const useHistoryLatest = () => {
           return historyData
         }
 
-        const getIntentStatus = (await intentStatus(
-          CONTRACTS_REGISTER.INTENT,
-          historyData.clientId
-        )) as NearIntentStatus | null
-        if (getIntentStatus?.status) {
-          Object.assign(historyData, { status: getIntentStatus?.status })
-        }
-
         if (!historyData.details?.receipts_outcome) {
           const { result } = (await getNearTransactionDetails(
             historyData.hash as string,
@@ -68,6 +64,31 @@ export const useHistoryLatest = () => {
               },
             })
           }
+        }
+
+        const { isFailure } = await getTransactionScan(
+          historyData!.details as NearTX
+        )
+        if (isFailure) {
+          historyCompletion.push(true)
+          Object.assign(historyData, { status: HistoryStatus.FAILED })
+          return historyData
+        }
+
+        if (
+          historyData?.details?.transaction?.actions[0].FunctionCall
+            .method_name !== "ft_transfer_call"
+        ) {
+          historyCompletion.push(true)
+          return historyData
+        }
+
+        const getIntentStatus = (await intentStatus(
+          CONTRACTS_REGISTER.INTENT,
+          historyData.clientId
+        )) as NearIntentStatus | null
+        if (getIntentStatus?.status) {
+          Object.assign(historyData, { status: getIntentStatus?.status })
         }
 
         return historyData
@@ -85,12 +106,13 @@ export const useHistoryLatest = () => {
     }
 
     setTimeout(() => {
+      console.log("useHistoryLatest next run: ", isMonitoringComplete.cycle)
       setIsMonitoringComplete({
         ...isMonitoringComplete,
         cycle: isMonitoringComplete.cycle++,
       })
       runHistoryMonitoring(result)
-    }, SCHEDULER_3_MIN)
+    }, SCHEDULER_30_SEC)
   }
 
   const runHistoryUpdate = (data: HistoryData[]): void => {

@@ -3,6 +3,7 @@ export interface Token {
   decimals: number
   asset_name: string
   metadata_link: string
+  routes_to: string[]
 }
 
 export interface Result<T> {

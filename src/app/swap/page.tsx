@@ -2,14 +2,16 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import { FieldValues, useForm } from "react-hook-form"
-import { parseUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
+import { CheckedState } from "@radix-ui/react-checkbox"
+import { BigNumber } from "ethers"
 
 import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
 import FieldComboInput from "@src/components/Form/FieldComboInput"
 import Button from "@src/components/Button/Button"
 import ButtonSwitch from "@src/components/Button/ButtonSwitch"
-import { LIST_NETWORKS_TOKENS } from "@src/constants/tokens"
+import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
 import { NetworkToken } from "@src/types/interfaces"
@@ -18,6 +20,7 @@ import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
 import { DataEstimateRequest } from "@src/libs/de-sdk/types/interfaces"
 import { debounce } from "@src/utils/debounce"
 import { useModalSearchParams } from "@src/hooks/useModalSearchParams"
+import { useAccountBalance } from "@src/hooks/useAccountBalance"
 
 type FormValues = {
   tokenIn: string
@@ -35,15 +38,22 @@ type EstimateSwap = {
 }
 
 export default function Swap() {
-  const [selectTokenIn, setSelectTokenIn] = useState<SelectToken>(
-    LIST_NETWORKS_TOKENS[0]
-  )
-  const [selectTokenOut, setSelectTokenOut] = useState<SelectToken>(
-    LIST_NETWORKS_TOKENS[1]
-  )
+  const [selectTokenIn, setSelectTokenIn] = useState<SelectToken>()
+  const [selectTokenOut, setSelectTokenOut] = useState<SelectToken>()
+  const [withNativeSupport, setWithNativeSupport] = useState<boolean>(false)
+  const [nativeSupportChecked, setNativeSupportChecked] =
+    useState<CheckedState>(false)
+  const { getAccountBalance } = useAccountBalance()
+  const [nativeBalance, setNativeBalance] = useState("0")
 
-  const { handleSubmit, register, watch, setValue, getValues } =
-    useForm<FormValues>()
+  const {
+    handleSubmit,
+    register,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<FormValues>()
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
   )
@@ -93,9 +103,8 @@ export default function Swap() {
     setValue("tokenOut", valueTokenIn)
   }
 
-  const handleSetMax = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    // TODO Set Max available from balance value
+  const handleIncludeNativeToSwap = (checked: CheckedState) => {
+    setNativeSupportChecked(checked)
   }
 
   const handleSelect = (fieldName: string) => {
@@ -157,6 +166,27 @@ export default function Swap() {
       } as DataEstimateRequest)
     }
   }
+
+  useEffect(() => {
+    if (selectTokenIn?.defuse_asset_id) {
+      const getNativeTokenToSwap = LIST_NATIVE_TOKENS.find((nativeToken) =>
+        nativeToken.routes?.includes(selectTokenIn?.defuse_asset_id as string)
+      )
+      if (!getNativeTokenToSwap) {
+        setNativeBalance("0")
+        return setWithNativeSupport(false)
+      }
+      ;(async () => {
+        const { balance } = await getAccountBalance()
+        const formattedAmountOut = formatUnits(
+          BigInt(balance),
+          selectTokenIn.decimals as number
+        )
+        setNativeBalance(formattedAmountOut)
+      })()
+      setWithNativeSupport(true)
+    }
+  }, [selectTokenIn?.defuse_asset_id])
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
@@ -238,11 +268,21 @@ export default function Swap() {
         <FieldComboInput<FormValues>
           fieldName="tokenIn"
           price={selectTokenIn?.balanceToUds as string}
-          balance={selectTokenIn?.balance as string}
+          balance={
+            nativeSupportChecked
+              ? (
+                  Number(selectTokenIn?.balance) + Number(nativeBalance)
+                ).toString()
+              : (selectTokenIn?.balance as string)
+          }
           selected={selectTokenIn as NetworkToken}
           handleSelect={() => handleSelect("tokenIn")}
           className="border rounded-t-xl md:max-w-[472px]"
-          required
+          required="This field is required"
+          errors={errors}
+          withNativeSupport={withNativeSupport}
+          nativeSupportChecked={nativeSupportChecked}
+          handleIncludeNativeToSwap={handleIncludeNativeToSwap}
         />
         <div className="relative w-full">
           <ButtonSwitch onClick={handleSwitch} />
@@ -250,10 +290,12 @@ export default function Swap() {
         <FieldComboInput<FormValues>
           fieldName="tokenOut"
           price={selectTokenOut?.balanceToUds as string}
+          balance={selectTokenOut?.balance as string}
           selected={selectTokenOut as NetworkToken}
           handleSelect={() => handleSelect("tokenOut")}
           className="border rounded-b-xl mb-5 md:max-w-[472px]"
-          required
+          required="This field is required"
+          errors={errors}
         />
         <Button type="submit" size="lg" fullWidth isLoading={isFetching}>
           Swap

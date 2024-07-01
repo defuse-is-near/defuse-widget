@@ -22,7 +22,7 @@ const SearchBar = ({
         height={18}
       />
       <input
-        className="flex-1 border-transparent focus:border-transparent focus:ring-0"
+        className="flex-1 border-transparent focus:border-transparent focus:ring-0 dark:bg-black-700 dark:text-white"
         placeholder={placeholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
