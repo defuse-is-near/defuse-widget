@@ -4,14 +4,14 @@ export const nearTokenList: TokenBalance[] = [
   {
     name: "NEAR",
     symbol: "AURORA",
-    balance: "300",
-    balanceToUsd: "58.95",
+    balance: "0,00",
+    balanceToUsd: "00.00",
   },
   {
     name: "USDT",
     symbol: "ETH",
-    balance: "0,0102",
-    balanceToUsd: "39.52",
+    balance: "0,00",
+    balanceToUsd: "00.00",
   },
 ]
 

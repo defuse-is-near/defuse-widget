@@ -3,6 +3,7 @@
 import { createStore } from "zustand/vanilla"
 
 import { NearTX, NetworkToken } from "@src/types/interfaces"
+import { NEAR_COLLECTOR_KEY } from "@src/constants/contracts"
 
 export enum HistoryStatus {
   AVAILABLE = "Available",
@@ -19,7 +20,7 @@ export type HistoryData = {
   timestamp: number
   status?: HistoryStatus
   errorMessage?: string
-  isClosed?: false
+  isClosed?: boolean
   details?: {
     tokenIn?: string
     tokenOut?: string
@@ -39,6 +40,7 @@ export type HistoryActions = {
   closeWidget: () => void
   toggleWidget: () => void
   updateHistory: (data: HistoryData[]) => void
+  closeHistoryItem: (hash: HistoryData["hash"]) => void
 }
 
 export type HistoryStore = HistoryState & HistoryActions
@@ -53,6 +55,15 @@ export const defaultInitState: HistoryState = {
   isFetched: false,
 }
 
+const helperHistoryLocalStore = (data: HistoryState["data"]): void => {
+  const getHistoryFromStore: HistoryData[] = []
+  data.forEach((value) => getHistoryFromStore.push(value))
+  localStorage.setItem(
+    NEAR_COLLECTOR_KEY,
+    JSON.stringify({ data: getHistoryFromStore })
+  )
+}
+
 export const createHistoryStore = (
   initState: HistoryState = defaultInitState
 ) => {
@@ -65,7 +76,19 @@ export const createHistoryStore = (
       set((state) => {
         const updatedData = new Map(state.data)
         data.forEach((item) => updatedData.set(item.hash, item))
+        helperHistoryLocalStore(updatedData as HistoryState["data"])
         return { data: updatedData, isFetched: true }
+      }),
+    closeHistoryItem: (hash: HistoryData["hash"]) =>
+      set((state) => {
+        const currentData = state.data
+        const getItem = currentData.get(hash)
+        currentData.set(hash, {
+          ...getItem,
+          isClosed: true,
+        } as HistoryData)
+        helperHistoryLocalStore(currentData)
+        return { data: currentData }
       }),
   }))
 }

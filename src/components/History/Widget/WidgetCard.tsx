@@ -9,19 +9,16 @@ import { HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import Button from "@src/components/Button/Button"
 import { NearTX, QueueTransactions } from "@src/types/interfaces"
 import { WidgetCardTimer } from "@src/components/History/Widget/WidgetCardTimer"
+import { smallBalanceToFormat } from "@src/utils/token"
+import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 const PLACEHOLDER = "XX"
 
-const WidgetCard = ({
-  hash,
-  details,
-  timestamp,
-  isClosed,
-  status,
-}: HistoryData) => {
+const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
   const [title, setTitle] = useState("")
   const [subTitle, setSubTitle] = useState("")
+  const { closeHistoryItem } = useHistoryStore((state) => state)
 
   const handlePrepareMeta = (
     details: HistoryData["details"],
@@ -32,12 +29,13 @@ const WidgetCard = ({
         if (status === HistoryStatus.FAILED) {
           return {
             title: "Transaction failed",
+            subTitle: `You received ${smallBalanceToFormat(details?.tokenOut ?? "0") ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
           }
         }
         if (status === HistoryStatus.COMPLETED) {
           return {
             title: `Transaction complete!`,
-            subTitle: `You received ${details?.tokenOut ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
+            subTitle: `You received ${smallBalanceToFormat(details?.tokenOut ?? "0") ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
           }
         }
         return {
@@ -66,6 +64,8 @@ const WidgetCard = ({
       return QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
     }
   }
+
+  const handleCloseHistory = () => closeHistoryItem(hash)
 
   useEffect(() => {
     if (details && details?.transaction) {
@@ -105,12 +105,14 @@ const WidgetCard = ({
         )}
         {status !== HistoryStatus.COMPLETED &&
           status !== HistoryStatus.FAILED && <Spinner size="3" />}
-        <Image
-          src="/static/icons/close.svg"
-          width={16}
-          height={16}
-          alt="Close"
-        />
+        <button onClick={handleCloseHistory}>
+          <Image
+            src="/static/icons/close.svg"
+            width={16}
+            height={16}
+            alt="Close"
+          />
+        </button>
       </div>
       <Text size="1" weight="bold" className="mb-1">
         {title.length > 37 ? title.substring(0, 37) + "..." : title}
@@ -122,9 +124,16 @@ const WidgetCard = ({
         )}
       </Text>
       <div className="flex justify-start items-center gap-3 cursor-pointer">
-        <Button size="sm" variant="soft" className="bg-black cursor-pointer">
-          View details
-        </Button>
+        {status !== HistoryStatus.COMPLETED &&
+          status !== HistoryStatus.FAILED && (
+            <Button
+              size="sm"
+              variant="soft"
+              className="bg-black cursor-pointer"
+            >
+              Cancel Swap
+            </Button>
+          )}
         <Link
           className="h-[32px] flex items-center gap-[4px] border border-gray-600 rounded-[3px] cursor-pointer px-3"
           href={NEAR_EXPLORER + "/txns/" + hash}

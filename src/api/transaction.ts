@@ -1,7 +1,8 @@
 import axios from "axios"
 import { v4 } from "uuid"
 
-const NEAR_NODE_URL = process?.env?.nearNodeUrl ?? ""
+const NEAR_NODE_URL =
+  (process?.env?.nearNodeAuroraRpc || process?.env?.nearNodeUrl) ?? ""
 
 export const getNearTransactionDetails = (
   transactionHash: string,

@@ -3,7 +3,9 @@ import { CodeResult } from "near-api-js/lib/providers/provider"
 import { setNearProvider, getNearProvider } from "@near-eth/client"
 import { BigNumber } from "ethers"
 
-const NEAR_NODE_URL = process.env.nearNodeUrl || "https://rpc.testnet.near.org"
+const NEAR_NODE_URL =
+  (process?.env?.nearNodeAuroraRpc || process.env.nearNodeUrl) ??
+  "https://rpc.testnet.near.org"
 
 export async function storageBalance(contractId: string, accountId: string) {
   try {

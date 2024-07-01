@@ -42,8 +42,14 @@ export default function Swap() {
     LIST_NETWORKS_TOKENS[1]
   )
 
-  const { handleSubmit, register, watch, setValue, getValues } =
-    useForm<FormValues>()
+  const {
+    handleSubmit,
+    register,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<FormValues>()
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
   )
@@ -243,6 +249,7 @@ export default function Swap() {
           handleSelect={() => handleSelect("tokenIn")}
           className="border rounded-t-xl md:max-w-[472px]"
           required
+          errors={errors}
         />
         <div className="relative w-full">
           <ButtonSwitch onClick={handleSwitch} />
@@ -254,6 +261,7 @@ export default function Swap() {
           handleSelect={() => handleSelect("tokenOut")}
           className="border rounded-b-xl mb-5 md:max-w-[472px]"
           required
+          errors={errors}
         />
         <Button type="submit" size="lg" fullWidth isLoading={isFetching}>
           Swap

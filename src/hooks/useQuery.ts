@@ -11,10 +11,7 @@ import {
 } from "@src/api/transaction"
 import { HistoryData } from "@src/stores/historyStore"
 import { NearBlock, NearTX, NetworkToken, Result } from "@src/types/interfaces"
-import {
-  CONFIRM_SWAP_LOCAL_KEY,
-  NEAR_COLLECTOR_KEY,
-} from "@src/constants/contracts"
+import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"
 import { ModalConfirmSwapPayload } from "@src/components/Modal/ModalConfirmSwap"
 
 interface HistoryFromLocal {

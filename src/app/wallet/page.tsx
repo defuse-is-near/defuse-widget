@@ -29,7 +29,7 @@ export default function Wallet() {
         <div className="flex flex-col gap-8">
           <CardBalance
             label="NEAR balance (available)"
-            balance="903.56"
+            balance="00.00"
             handleCopy={() => console.log("Copy wallet")}
           />
           <CardTokenList list={nearTokenList} />
