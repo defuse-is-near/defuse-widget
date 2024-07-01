@@ -11,16 +11,18 @@ import { BigNumber } from "ethers"
 
 import AssetsSelect from "@src/components/Network/SelectAssets"
 import { NetworkToken } from "@src/types/interfaces"
+import BlockMultiBalances, {
+  BlockMultiBalancesProps,
+} from "@src/components/Block/BlockMultiBalances"
 
 interface Props<T extends FieldValues> {
   fieldName: Path<T>
   register?: UseFormRegister<T>
-  required?: boolean
+  required?: string
   placeholder?: string
   label?: string
   price?: string
   balance?: string | BigNumber
-  handleSetMax?: (e: React.MouseEvent<HTMLButtonElement>) => void
   selected?: NetworkToken
   handleSelect?: () => void
   className?: string
@@ -37,12 +39,14 @@ const FieldComboInput = <T extends FieldValues>({
   label,
   price,
   balance,
-  handleSetMax,
   selected,
   handleSelect,
   className,
   errors,
-}: Props<T>) => {
+  withNativeSupport,
+  handleIncludeNativeToSwap,
+  nativeSupportChecked,
+}: Props<T> & BlockMultiBalancesProps) => {
   if (!register) {
     return null
   }
@@ -86,6 +90,16 @@ const FieldComboInput = <T extends FieldValues>({
     }
   }
 
+  const option = {
+    pattern: {
+      value: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/, // Valid result "100", "1.000", "0.000123", etc.
+      message: "Please enter a valid number",
+    },
+  }
+  if (required) {
+    Object.assign(option, { required: "This field is required" })
+  }
+
   return (
     <div
       className={clsx(
@@ -101,13 +115,7 @@ const FieldComboInput = <T extends FieldValues>({
         </span>
       )}
       <input
-        {...register(fieldName, {
-          required: "This field is required",
-          pattern: {
-            value: /^(?!0(\.0+)?$)(\d+(\.\d+)?|\.\d+)$/, // Valid result "100", "1.000", "0.000123", etc.
-            message: "Please enter a valid number",
-          },
-        })}
+        {...register(fieldName, option)}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         placeholder={placeholder}
@@ -129,17 +137,14 @@ const FieldComboInput = <T extends FieldValues>({
         <AssetsSelect selected={selected} handleSelect={handleSelect} />
       </div>
       {balance && (
-        <div className="absolute bottom-4 right-5 flex justify-center items-center gap-2">
-          <span className="text-sm text-gray-600">Balance:</span>
-          <span className="text-xs px-2 py-0.5 bg-red-100 text-red-400 rounded-full">
-            {balance.toString()}
-          </span>
-          {handleSetMax && (
-            <button className="text-xs uppercase" onClick={handleSetMax}>
-              max
-            </button>
-          )}
-        </div>
+        <BlockMultiBalances
+          balance={balance}
+          withNativeSupport={withNativeSupport ?? false}
+          handleIncludeNativeToSwap={
+            handleIncludeNativeToSwap ? handleIncludeNativeToSwap : () => {}
+          }
+          nativeSupportChecked={nativeSupportChecked ?? false}
+        />
       )}
     </div>
   )

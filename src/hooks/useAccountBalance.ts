@@ -2,6 +2,8 @@ import { BigNumber } from "ethers"
 import { providers } from "near-api-js"
 import type { AccountView } from "near-api-js/lib/providers/provider"
 
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+
 export interface GetAccountBalanceProps {
   provider: providers.Provider
   accountId: string
@@ -13,11 +15,13 @@ export interface GetAccountBalanceResult {
 }
 
 export const useAccountBalance = () => {
-  const getAccountBalance = async ({
-    provider,
-    accountId,
-  }: GetAccountBalanceProps): Promise<GetAccountBalanceResult> => {
+  const { selector, accountId } = useWalletSelector()
+
+  const getAccountBalance = async (): Promise<GetAccountBalanceResult> => {
     try {
+      const { network } = selector.options
+      const provider = new providers.JsonRpcProvider({ url: network.nodeUrl })
+
       const { amount } = await provider.query<AccountView>({
         request_type: "view_account",
         finality: "final",

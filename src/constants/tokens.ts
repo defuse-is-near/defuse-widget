@@ -124,7 +124,7 @@ const listNetworksTokensMainnet = [
     name: "Wrapped NEAR fungible token",
     symbol: "wNEAR",
     chainIcon: "/static/icons/network/near.svg",
-    icon: "https://assets.coingecko.com/coins/images/18280/standard/EX4mrWMW_400x400.jpg?1696517773",
+    icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg",
     decimals: 24,
   },
   {
@@ -223,7 +223,7 @@ const listNativeTokensMainnet = [
     chainIcon: "/static/icons/network/near.svg",
     icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
     decimals: 24,
-    routes: ["near:mainnet:aurora", "near:mainnet:usm.tkn.near"],
+    routes: ["near:mainnet:wrap.near"],
   },
 ]
 

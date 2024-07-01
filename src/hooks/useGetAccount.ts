@@ -22,10 +22,7 @@ export const useGetAccount = ({ accountId, selector }: Props) => {
     const { network } = selector.options
     const provider = new providers.JsonRpcProvider({ url: network.nodeUrl })
 
-    const { hasBalance } = await getAccountBalance({
-      provider,
-      accountId,
-    })
+    const { hasBalance } = await getAccountBalance()
 
     if (!hasBalance) {
       window.alert(

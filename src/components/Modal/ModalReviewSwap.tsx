@@ -2,7 +2,8 @@
 
 import { Text } from "@radix-ui/themes"
 import Image from "next/image"
-import React from "react"
+import React, { useState } from "react"
+import { parseUnits } from "viem"
 
 import ModalDialog from "@src/components/Modal/ModalDialog"
 import { NetworkToken } from "@src/types/interfaces"
@@ -13,6 +14,7 @@ import ButtonIcon from "@src/components/Button/ButtonIcon"
 import { ModalType } from "@src/stores/modalStore"
 import { useTimer } from "@src/hooks/useTimer"
 import { useTimeFormatMinutes } from "@src/hooks/useTimeFormat"
+import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
 
 export type ModalReviewSwapPayload = {
   tokenIn: string
@@ -21,18 +23,35 @@ export type ModalReviewSwapPayload = {
   selectedTokenOut: NetworkToken
 }
 
+const RECALCULATE_ESTIMATION_TIME_SECS = 15
+
 const ModalReviewSwap = () => {
   const { onCloseModal, setModalType, payload } = useModalStore(
     (state) => state
   )
-  const modalPayload = payload as ModalReviewSwapPayload
+  const { getSwapEstimateBot, isFetching } = useSwapEstimateBot()
+  const [convertPayload, setConvertPayload] = useState<ModalReviewSwapPayload>(
+    payload as ModalReviewSwapPayload
+  )
 
   const recalculateEstimation = async () => {
-    // TODO Adjust fetching prices from solver
-    console.log("Recalculating estimation...")
+    const unitsTokenIn = parseUnits(
+      convertPayload.tokenIn,
+      convertPayload.selectedTokenIn.decimals as number
+    ).toString()
+
+    const estimatedAmountOut = await getSwapEstimateBot({
+      tokenIn: convertPayload.selectedTokenIn.address as string,
+      tokenOut: convertPayload.selectedTokenOut.address as string,
+      amountIn: unitsTokenIn,
+    })
+    setConvertPayload({ ...convertPayload, tokenOut: estimatedAmountOut })
   }
 
-  const { timeLeft } = useTimer(24, recalculateEstimation)
+  const { timeLeft } = useTimer(
+    RECALCULATE_ESTIMATION_TIME_SECS,
+    recalculateEstimation
+  )
   const { formatTwoNumbers } = useTimeFormatMinutes()
 
   const handleConfirmSwap = async () => {
@@ -63,12 +82,12 @@ const ModalReviewSwap = () => {
           </button>
         </div>
         <CardSwap
-          amountIn={modalPayload.tokenIn.substring(0, 10)}
-          amountOut={modalPayload.tokenOut.substring(0, 10)}
+          amountIn={convertPayload.tokenIn.substring(0, 10)}
+          amountOut={convertPayload.tokenOut.substring(0, 10)}
           amountOutToUsd="~"
           amountInToUsd="~"
-          selectTokenIn={modalPayload.selectedTokenIn}
-          selectTokenOut={modalPayload.selectedTokenOut}
+          selectTokenIn={convertPayload.selectedTokenIn}
+          selectTokenOut={convertPayload.selectedTokenOut}
         />
         <div className="flex flex-col w-full mb-6 gap-3">
           <div className="flex justify-between items-center">
@@ -104,21 +123,27 @@ const ModalReviewSwap = () => {
                 1
               </Text>
               <Text size="2" weight="medium">
-                {modalPayload.selectedTokenIn.symbol}
+                {convertPayload.selectedTokenIn.symbol}
               </Text>
               =
               <Text size="2" weight="medium">
                 {(
-                  Number(modalPayload.tokenOut) / Number(modalPayload.tokenIn)
+                  Number(convertPayload.tokenOut) /
+                  Number(convertPayload.tokenIn)
                 ).toFixed(4)}
               </Text>
               <Text size="2" weight="medium">
-                {modalPayload.selectedTokenOut.symbol}
+                {convertPayload.selectedTokenOut.symbol}
               </Text>
             </div>
           </div>
         </div>
-        <Button size="lg" fullWidth onClick={handleConfirmSwap}>
+        <Button
+          size="lg"
+          fullWidth
+          onClick={handleConfirmSwap}
+          isLoading={isFetching}
+        >
           Confirm swap
         </Button>
       </div>
