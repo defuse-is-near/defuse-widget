@@ -9,16 +9,29 @@ import { HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import Button from "@src/components/Button/Button"
 import { NearTX, QueueTransactions } from "@src/types/interfaces"
 import { WidgetCardTimer } from "@src/components/History/Widget/WidgetCardTimer"
-import { smallBalanceToFormat } from "@src/utils/token"
+import {
+  smallBalanceToFormat,
+  tokenBalanceToFormatUnits,
+} from "@src/utils/token"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
+import { rollbackIntent } from "@src/utils/near"
+import { CONTRACTS_REGISTER } from "@src/constants/contracts"
+import { useNetworkTokens } from "@src/hooks/useNetworkTokens"
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 const PLACEHOLDER = "XX"
 
-const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
+const WidgetCard = ({
+  clientId,
+  hash,
+  details,
+  timestamp,
+  status,
+}: HistoryData) => {
   const [title, setTitle] = useState("")
   const [subTitle, setSubTitle] = useState("")
   const { closeHistoryItem } = useHistoryStore((state) => state)
+  const { getTokensDataByIds } = useNetworkTokens()
 
   const handlePrepareMeta = (
     details: HistoryData["details"],
@@ -38,8 +51,32 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
             subTitle: `You received ${smallBalanceToFormat(details?.tokenOut ?? "0") ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
           }
         }
+
+        if (!details?.tokenIn || !details?.tokenOut) {
+          const tokensData = getTokensDataByIds([
+            details?.recoverDetails?.send.token_id ?? "",
+            details?.recoverDetails?.receive.token_id ?? "",
+          ])
+          if (tokensData.length !== 2) {
+            return {
+              title: `Swapping ${PLACEHOLDER} ${PLACEHOLDER} for ${PLACEHOLDER} ${PLACEHOLDER}`,
+            }
+          }
+          const tokenIn = tokenBalanceToFormatUnits({
+            balance: details?.recoverDetails?.send.amount as string,
+            decimals: tokensData[0].decimals as number,
+          })
+          const tokenOut = tokenBalanceToFormatUnits({
+            balance: details?.recoverDetails?.receive.amount as string,
+            decimals: tokensData[1].decimals as number,
+          })
+          return {
+            title: `Swapping ${tokenIn} ${tokensData[0].symbol} for ${tokenOut} ${tokensData[1].symbol}`,
+          }
+        }
+
         return {
-          title: `Swapping ${details?.tokenIn ?? PLACEHOLDER} ${details?.selectedTokenIn?.symbol ?? PLACEHOLDER} for ${details?.tokenOut ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}`,
+          title: `Swapping ${details?.tokenIn} ${details?.selectedTokenIn?.symbol} for ${details?.tokenOut} ${details?.selectedTokenOut?.symbol}`,
         }
       case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
       case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
@@ -66,6 +103,10 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
   }
 
   const handleCloseHistory = () => closeHistoryItem(hash)
+
+  const handleRollbackIntent = async () => {
+    await rollbackIntent(CONTRACTS_REGISTER.INTENT, clientId)
+  }
 
   useEffect(() => {
     if (details && details?.transaction) {
@@ -130,6 +171,7 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
               size="sm"
               variant="soft"
               className="bg-black cursor-pointer"
+              onClick={handleRollbackIntent}
             >
               Cancel Swap
             </Button>

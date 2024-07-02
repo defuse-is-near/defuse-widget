@@ -96,7 +96,35 @@ export async function intentStatus(
     const intent = JSON.parse(Buffer.from(result.result).toString())
     return intent
   } catch (e) {
-    console.error("Failed to check storage balance")
+    console.error("Failed to get intent status")
+    return null
+  }
+}
+
+export async function rollbackIntent(
+  contractId: string,
+  intentId: string
+): Promise<string | null> {
+  try {
+    setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
+
+    const nearProvider = getNearProvider()
+    const result = await nearProvider.query<CodeResult>({
+      request_type: "call_function",
+      account_id: contractId,
+      method_name: "rollback_intent",
+      args_base64: Buffer.from(JSON.stringify({ id: intentId })).toString(
+        "base64"
+      ),
+      finality: "optimistic",
+    })
+    console.log(
+      `rollback_intent ${contractId} for ${intentId} status is ${result}`
+    )
+    const intent = JSON.parse(Buffer.from(result.result).toString())
+    return intent
+  } catch (e) {
+    console.error("Failed to rollback intent")
     return null
   }
 }

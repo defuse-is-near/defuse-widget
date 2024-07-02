@@ -48,6 +48,7 @@ export interface NearTXTransaction {
   actions: {
     FunctionCall: {
       method_name: string
+      args: string
     }
   }[]
   signer_id: string
@@ -113,4 +114,36 @@ export type NearIntentStatus = {
   status: HistoryStatus
   created_at: number
   min_ttl: number
+}
+
+type TransferToken = {
+  token_id: string
+  amount: string
+}
+
+type ExpirationEnum = {
+  Null: string
+  Time: string
+  Block: string
+}
+
+export interface NearIntentCreate {
+  CreateIntent: {
+    id: string
+    IntentStruct: {
+      initiator: string
+      send: TransferToken
+      receive: TransferToken
+      expiration: ExpirationEnum
+      referral: string
+    }
+  }
+}
+
+export interface RecoverDetails {
+  initiator: string
+  send: TransferToken
+  receive: TransferToken
+  expiration: ExpirationEnum
+  referral: string
 }

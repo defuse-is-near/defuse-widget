@@ -2,7 +2,7 @@
 
 import { createStore } from "zustand/vanilla"
 
-import { NearTX, NetworkToken } from "@src/types/interfaces"
+import { NearTX, NetworkToken, RecoverDetails } from "@src/types/interfaces"
 import { NEAR_COLLECTOR_KEY } from "@src/constants/contracts"
 
 export enum HistoryStatus {
@@ -26,6 +26,7 @@ export type HistoryData = {
     tokenOut?: string
     selectedTokenIn?: NetworkToken
     selectedTokenOut?: NetworkToken
+    recoverDetails?: RecoverDetails
   } & Partial<NearTX>
 }
 
