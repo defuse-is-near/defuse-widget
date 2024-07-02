@@ -14,12 +14,13 @@ import {
   tokenBalanceToFormatUnits,
 } from "@src/utils/token"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
-import { rollbackIntent } from "@src/utils/near"
-import { CONTRACTS_REGISTER } from "@src/constants/contracts"
 import { useNetworkTokens } from "@src/hooks/useNetworkTokens"
+import { useSwap } from "@src/hooks/useSwap"
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 const PLACEHOLDER = "XX"
+const WAIT_MORE_2MIN = 120000
 
 const WidgetCard = ({
   clientId,
@@ -32,6 +33,8 @@ const WidgetCard = ({
   const [subTitle, setSubTitle] = useState("")
   const { closeHistoryItem } = useHistoryStore((state) => state)
   const { getTokensDataByIds } = useNetworkTokens()
+  const { selector, accountId } = useWalletSelector()
+  const { callRequestRollbackIntent } = useSwap({ selector, accountId })
 
   const handlePrepareMeta = (
     details: HistoryData["details"],
@@ -43,6 +46,15 @@ const WidgetCard = ({
           return {
             title: "Transaction failed",
             subTitle: `You received ${smallBalanceToFormat(details?.tokenOut ?? "0") ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
+          }
+        }
+        if (status === HistoryStatus.ROLLED_BACK) {
+          const tokensData = getTokensDataByIds([
+            details?.recoverDetails?.send.token_id ?? "",
+          ])
+          return {
+            title: `Swap rolled back!`,
+            subTitle: `You received back ${smallBalanceToFormat(details?.tokenIn ?? "0") ?? PLACEHOLDER} ${(details?.selectedTokenIn?.symbol || tokensData[0]?.symbol) ?? PLACEHOLDER}.`,
           }
         }
         if (status === HistoryStatus.COMPLETED) {
@@ -105,7 +117,7 @@ const WidgetCard = ({
   const handleCloseHistory = () => closeHistoryItem(hash)
 
   const handleRollbackIntent = async () => {
-    await rollbackIntent(CONTRACTS_REGISTER.INTENT, clientId)
+    await callRequestRollbackIntent({ id: clientId })
   }
 
   useEffect(() => {
@@ -128,7 +140,8 @@ const WidgetCard = ({
   return (
     <div className="max-w-full md:max-w-[260px] min-h-[152px] flex flex-col justify-between m-5 p-3 card-history bg-white rounded-[8px] border overflow-hidden">
       <div className="flex justify-between items-center mb-3">
-        {status === HistoryStatus.COMPLETED && (
+        {(status === HistoryStatus.COMPLETED ||
+          status === HistoryStatus.ROLLED_BACK) && (
           <Image
             src="/static/icons/CheckCircle.svg"
             width={28}
@@ -145,7 +158,8 @@ const WidgetCard = ({
           />
         )}
         {status !== HistoryStatus.COMPLETED &&
-          status !== HistoryStatus.FAILED && <Spinner size="3" />}
+          status !== HistoryStatus.FAILED &&
+          status !== HistoryStatus.ROLLED_BACK && <Spinner size="3" />}
         <button onClick={handleCloseHistory}>
           <Image
             src="/static/icons/close.svg"
@@ -161,21 +175,26 @@ const WidgetCard = ({
       <Text size="1" className="mb-3">
         {subTitle && subTitle}
         {!subTitle && (
-          <WidgetCardTimer timeLeft={Math.floor(timestamp / 1e6)} />
+          <WidgetCardTimer
+            timeLeft={Math.floor(timestamp / 1e6 + WAIT_MORE_2MIN)}
+          />
         )}
       </Text>
       <div className="flex justify-start items-center gap-3 cursor-pointer">
         {status !== HistoryStatus.COMPLETED &&
-          status !== HistoryStatus.FAILED && (
-            <Button
-              size="sm"
-              variant="soft"
-              className="bg-black cursor-pointer"
-              onClick={handleRollbackIntent}
-            >
-              Cancel Swap
-            </Button>
-          )}
+        status !== HistoryStatus.FAILED &&
+        status !== HistoryStatus.ROLLED_BACK &&
+        details?.transaction?.actions[0].FunctionCall.method_name ===
+          "ft_transfer_call" ? (
+          <Button
+            size="sm"
+            variant="soft"
+            className="bg-black cursor-pointer"
+            onClick={handleRollbackIntent}
+          >
+            Cancel Swap
+          </Button>
+        ) : null}
         <Link
           className="h-[32px] flex items-center gap-[4px] border border-gray-600 rounded-[3px] cursor-pointer px-3"
           href={NEAR_EXPLORER + "/txns/" + hash}
