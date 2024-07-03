@@ -9,16 +9,32 @@ import { HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import Button from "@src/components/Button/Button"
 import { NearTX, QueueTransactions } from "@src/types/interfaces"
 import { WidgetCardTimer } from "@src/components/History/Widget/WidgetCardTimer"
-import { smallBalanceToFormat } from "@src/utils/token"
+import {
+  smallBalanceToFormat,
+  tokenBalanceToFormatUnits,
+} from "@src/utils/token"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
+import { useNetworkTokens } from "@src/hooks/useNetworkTokens"
+import { useSwap } from "@src/hooks/useSwap"
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 const PLACEHOLDER = "XX"
+const WAIT_MORE_2MIN = 120000
 
-const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
+const WidgetCard = ({
+  clientId,
+  hash,
+  details,
+  timestamp,
+  status,
+}: HistoryData) => {
   const [title, setTitle] = useState("")
   const [subTitle, setSubTitle] = useState("")
   const { closeHistoryItem } = useHistoryStore((state) => state)
+  const { getTokensDataByIds } = useNetworkTokens()
+  const { selector, accountId } = useWalletSelector()
+  const { callRequestRollbackIntent } = useSwap({ selector, accountId })
 
   const handlePrepareMeta = (
     details: HistoryData["details"],
@@ -32,14 +48,47 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
             subTitle: `You received ${smallBalanceToFormat(details?.tokenOut ?? "0") ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
           }
         }
+        if (status === HistoryStatus.ROLLED_BACK) {
+          const tokensData = getTokensDataByIds([
+            details?.recoverDetails?.send.token_id ?? "",
+          ])
+          return {
+            title: `Swap rolled back!`,
+            subTitle: `You received back ${smallBalanceToFormat(details?.tokenIn ?? "0") ?? PLACEHOLDER} ${(details?.selectedTokenIn?.symbol || tokensData[0]?.symbol) ?? PLACEHOLDER}.`,
+          }
+        }
         if (status === HistoryStatus.COMPLETED) {
           return {
             title: `Transaction complete!`,
             subTitle: `You received ${smallBalanceToFormat(details?.tokenOut ?? "0") ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}.`,
           }
         }
+
+        if (!details?.tokenIn || !details?.tokenOut) {
+          const tokensData = getTokensDataByIds([
+            details?.recoverDetails?.send.token_id ?? "",
+            details?.recoverDetails?.receive.token_id ?? "",
+          ])
+          if (tokensData.length !== 2) {
+            return {
+              title: `Swapping ${PLACEHOLDER} ${PLACEHOLDER} for ${PLACEHOLDER} ${PLACEHOLDER}`,
+            }
+          }
+          const tokenIn = tokenBalanceToFormatUnits({
+            balance: details?.recoverDetails?.send.amount as string,
+            decimals: tokensData[0].decimals as number,
+          })
+          const tokenOut = tokenBalanceToFormatUnits({
+            balance: details?.recoverDetails?.receive.amount as string,
+            decimals: tokensData[1].decimals as number,
+          })
+          return {
+            title: `Swapping ${tokenIn} ${tokensData[0].symbol} for ${tokenOut} ${tokensData[1].symbol}`,
+          }
+        }
+
         return {
-          title: `Swapping ${details?.tokenIn ?? PLACEHOLDER} ${details?.selectedTokenIn?.symbol ?? PLACEHOLDER} for ${details?.tokenOut ?? PLACEHOLDER} ${details?.selectedTokenOut?.symbol ?? PLACEHOLDER}`,
+          title: `Swapping ${details?.tokenIn} ${details?.selectedTokenIn?.symbol} for ${details?.tokenOut} ${details?.selectedTokenOut?.symbol}`,
         }
       case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
       case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
@@ -67,6 +116,10 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
 
   const handleCloseHistory = () => closeHistoryItem(hash)
 
+  const handleRollbackIntent = async () => {
+    await callRequestRollbackIntent({ id: clientId })
+  }
+
   useEffect(() => {
     if (details && details?.transaction) {
       const typeQueueTransactions = handleGetTypeOfQueueTransactions(
@@ -87,7 +140,8 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
   return (
     <div className="max-w-full md:max-w-[260px] min-h-[152px] flex flex-col justify-between m-5 p-3 card-history bg-white rounded-[8px] border overflow-hidden">
       <div className="flex justify-between items-center mb-3">
-        {status === HistoryStatus.COMPLETED && (
+        {(status === HistoryStatus.COMPLETED ||
+          status === HistoryStatus.ROLLED_BACK) && (
           <Image
             src="/static/icons/CheckCircle.svg"
             width={28}
@@ -104,7 +158,8 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
           />
         )}
         {status !== HistoryStatus.COMPLETED &&
-          status !== HistoryStatus.FAILED && <Spinner size="3" />}
+          status !== HistoryStatus.FAILED &&
+          status !== HistoryStatus.ROLLED_BACK && <Spinner size="3" />}
         <button onClick={handleCloseHistory}>
           <Image
             src="/static/icons/close.svg"
@@ -120,20 +175,26 @@ const WidgetCard = ({ hash, details, timestamp, status }: HistoryData) => {
       <Text size="1" className="mb-3">
         {subTitle && subTitle}
         {!subTitle && (
-          <WidgetCardTimer timeLeft={Math.floor(timestamp / 1e6)} />
+          <WidgetCardTimer
+            timeLeft={Math.floor(timestamp / 1e6 + WAIT_MORE_2MIN)}
+          />
         )}
       </Text>
       <div className="flex justify-start items-center gap-3 cursor-pointer">
         {status !== HistoryStatus.COMPLETED &&
-          status !== HistoryStatus.FAILED && (
-            <Button
-              size="sm"
-              variant="soft"
-              className="bg-black cursor-pointer"
-            >
-              Cancel Swap
-            </Button>
-          )}
+        status !== HistoryStatus.FAILED &&
+        status !== HistoryStatus.ROLLED_BACK &&
+        details?.transaction?.actions[0].FunctionCall.method_name ===
+          "ft_transfer_call" ? (
+          <Button
+            size="sm"
+            variant="soft"
+            className="bg-black cursor-pointer"
+            onClick={handleRollbackIntent}
+          >
+            Cancel Swap
+          </Button>
+        ) : null}
         <Link
           className="h-[32px] flex items-center gap-[4px] border border-gray-600 rounded-[3px] cursor-pointer px-3"
           href={NEAR_EXPLORER + "/txns/" + hash}

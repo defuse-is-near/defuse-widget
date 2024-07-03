@@ -1,15 +1,23 @@
 "use client"
 
 import { useState } from "react"
+import * as borsh from "borsh"
 
 import { HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 import { intentStatus } from "@src/utils/near"
 import { CONTRACTS_REGISTER } from "@src/constants/contracts"
-import { NearIntentStatus, NearTX, Result } from "@src/types/interfaces"
+import {
+  NearIntentCreate,
+  NearIntentStatus,
+  NearTX,
+  RecoverDetails,
+  Result,
+} from "@src/types/interfaces"
 import { getNearTransactionDetails } from "@src/api/transaction"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useTransactionScan } from "@src/hooks/useTransactionScan"
+import { swapSchema } from "@src/utils/schema"
 
 const SCHEDULER_3_MIN = 180000
 const SCHEDULER_30_SEC = 30000
@@ -42,7 +50,6 @@ export const useHistoryLatest = () => {
             validHistoryStatuses.includes(
               historyData!.status as HistoryStatus
             )) ||
-          !historyData?.clientId ||
           historyData.errorMessage ||
           historyData.isClosed
         ) {
@@ -64,6 +71,59 @@ export const useHistoryLatest = () => {
               },
             })
           }
+        }
+
+        // Try to recover clientId and "Swap" data in case it was lost
+        if (
+          (!historyData.clientId || !historyData.details?.tokenIn) &&
+          historyData.details?.transaction
+        ) {
+          const getHashedArgs =
+            historyData.details.transaction.actions.length &&
+            historyData.details.transaction.actions[0].FunctionCall
+              .method_name === "ft_transfer_call"
+              ? historyData.details.transaction.actions[0].FunctionCall.args
+              : undefined
+
+          const argsJson = Buffer.from(getHashedArgs ?? "", "base64").toString(
+            "utf-8"
+          )
+          const args = JSON.parse(argsJson)
+          const msgBase64 = args.msg
+          const msgBuffer = Buffer.from(msgBase64, "base64")
+
+          const msgBorshDeserialize = borsh.deserialize(
+            swapSchema as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+            msgBuffer
+          )
+          const recoverData = msgBorshDeserialize as NearIntentCreate
+          const clientId = recoverData.CreateIntent?.id
+          const recoverDetails = recoverData.CreateIntent?.IntentStruct
+
+          const sendAmount = recoverDetails?.send.amount.toString()
+          const receiveAmount = recoverDetails?.receive.amount.toString()
+          const expiration = {
+            Block: recoverDetails?.expiration.Block.toString(),
+          }
+
+          Object.assign(historyData, {
+            clientId,
+            details: {
+              ...historyData.details,
+              recoverDetails: {
+                ...recoverDetails,
+                send: {
+                  ...(recoverDetails as RecoverDetails).send,
+                  amount: sendAmount,
+                },
+                receive: {
+                  ...(recoverDetails as RecoverDetails).receive,
+                  amount: receiveAmount,
+                },
+                expiration,
+              },
+            },
+          })
         }
 
         const { isFailure } = await getTransactionScan(

@@ -96,7 +96,7 @@ export async function intentStatus(
     const intent = JSON.parse(Buffer.from(result.result).toString())
     return intent
   } catch (e) {
-    console.error("Failed to check storage balance")
+    console.error("Failed to get intent status")
     return null
   }
 }

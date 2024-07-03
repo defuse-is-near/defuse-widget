@@ -316,10 +316,35 @@ export const useSwap = ({ accountId, selector }: Props) => {
     setIsProcessing(false)
   }
 
+  const callRequestRollbackIntent = async (inputs: { id: string }) => {
+    const wallet = await selector!.wallet()
+    await wallet.signAndSendTransactions({
+      transactions: [
+        {
+          receiverId: CONTRACTS_REGISTER.INTENT,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "rollback_intent",
+                args: {
+                  id: inputs.id,
+                },
+                gas: MAX_GAS_TRANSACTION,
+                deposit: "0",
+              },
+            },
+          ],
+        },
+      ],
+    })
+  }
+
   return {
     isProcessing,
     nextEstimateQueueTransactions,
     getEstimateQueueTransactions,
     callRequestCreateIntent,
+    callRequestRollbackIntent,
   }
 }
