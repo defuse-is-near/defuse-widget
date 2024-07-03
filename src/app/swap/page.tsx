@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react"
 import { FieldValues, useForm } from "react-hook-form"
 import { formatUnits, parseUnits } from "viem"
 import { CheckedState } from "@radix-ui/react-checkbox"
-import { BigNumber } from "ethers"
 
 import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
@@ -107,8 +106,8 @@ export default function Swap() {
     setNativeSupportChecked(checked)
   }
 
-  const handleSelect = (fieldName: string) => {
-    setModalType(ModalType.MODAL_SELECT_ASSETS, { fieldName })
+  const handleSelect = (fieldName: string, selectToken: SelectToken) => {
+    setModalType(ModalType.MODAL_SELECT_ASSETS, { fieldName, selectToken })
   }
 
   const debouncedGetSwapEstimateBot = debounce(
@@ -276,7 +275,7 @@ export default function Swap() {
               : (selectTokenIn?.balance as string)
           }
           selected={selectTokenIn as NetworkToken}
-          handleSelect={() => handleSelect("tokenIn")}
+          handleSelect={() => handleSelect("tokenIn", selectTokenOut)}
           className="border rounded-t-xl md:max-w-[472px]"
           required="This field is required"
           errors={errors}
@@ -292,7 +291,7 @@ export default function Swap() {
           price={selectTokenOut?.balanceToUds as string}
           balance={selectTokenOut?.balance as string}
           selected={selectTokenOut as NetworkToken}
-          handleSelect={() => handleSelect("tokenOut")}
+          handleSelect={() => handleSelect("tokenOut", selectTokenIn)}
           className="border rounded-b-xl mb-5 md:max-w-[472px]"
           required="This field is required"
           errors={errors}

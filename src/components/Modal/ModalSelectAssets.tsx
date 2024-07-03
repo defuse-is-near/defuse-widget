@@ -54,9 +54,19 @@ const ModalSelectAssets = () => {
     if (!data.size) {
       return
     }
+    const { selectToken } = payload as {
+      selectToken: NetworkTokenWithSwapRoute | undefined
+    }
+
     const getAssetList: NetworkTokenWithSwapRoute[] = []
     const getAssetListWithBalances: NetworkTokenWithSwapRoute[] = []
     data.forEach((value) => {
+      if (
+        selectToken &&
+        !selectToken?.routes?.includes(value.defuse_asset_id)
+      ) {
+        return
+      }
       let balanceToUnits = "0"
       if (parseFloat(BigNumber.from(value?.balance || "0").toString())) {
         balanceToUnits = tokenBalanceToFormatUnits({
