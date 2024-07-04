@@ -147,3 +147,10 @@ export interface RecoverDetails {
   expiration: ExpirationEnum
   referral: string
 }
+
+export type JobsDetails = {
+  team?: string
+  applicationLink?: boolean
+  position: string
+  link: string
+}

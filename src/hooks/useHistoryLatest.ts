@@ -78,52 +78,73 @@ export const useHistoryLatest = () => {
           (!historyData.clientId || !historyData.details?.tokenIn) &&
           historyData.details?.transaction
         ) {
-          const getHashedArgs =
+          const getMethodName =
             historyData.details.transaction.actions.length &&
-            historyData.details.transaction.actions[0].FunctionCall
-              .method_name === "ft_transfer_call"
-              ? historyData.details.transaction.actions[0].FunctionCall.args
-              : undefined
+            historyData.details.transaction.actions[0].FunctionCall.method_name
 
-          const argsJson = Buffer.from(getHashedArgs ?? "", "base64").toString(
-            "utf-8"
-          )
-          const args = JSON.parse(argsJson)
-          const msgBase64 = args.msg
-          const msgBuffer = Buffer.from(msgBase64, "base64")
+          let getHashedArgs = ""
+          let argsJson = ""
+          let args: unknown
+          let msgBase64 = ""
+          let msgBuffer: Buffer
+          switch (getMethodName) {
+            case "ft_transfer_call":
+              getHashedArgs =
+                historyData.details.transaction.actions[0].FunctionCall.args
+              argsJson = Buffer.from(getHashedArgs ?? "", "base64").toString(
+                "utf-8"
+              )
+              args = JSON.parse(argsJson)
+              msgBase64 = (args as { msg: string }).msg
+              msgBuffer = Buffer.from(msgBase64, "base64")
 
-          const msgBorshDeserialize = borsh.deserialize(
-            swapSchema as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-            msgBuffer
-          )
-          const recoverData = msgBorshDeserialize as NearIntentCreate
-          const clientId = recoverData.CreateIntent?.id
-          const recoverDetails = recoverData.CreateIntent?.IntentStruct
+              const msgBorshDeserialize = borsh.deserialize(
+                swapSchema as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+                msgBuffer
+              )
+              const recoverData = msgBorshDeserialize as NearIntentCreate
+              const clientId = recoverData.CreateIntent?.id
+              const recoverDetails = recoverData.CreateIntent?.IntentStruct
 
-          const sendAmount = recoverDetails?.send.amount.toString()
-          const receiveAmount = recoverDetails?.receive.amount.toString()
-          const expiration = {
-            Block: recoverDetails?.expiration.Block.toString(),
+              const sendAmount = recoverDetails?.send.amount.toString()
+              const receiveAmount = recoverDetails?.receive.amount.toString()
+              const expiration = {
+                Block: recoverDetails?.expiration.Block.toString(),
+              }
+
+              Object.assign(historyData, {
+                clientId,
+                details: {
+                  ...historyData.details,
+                  recoverDetails: {
+                    ...recoverDetails,
+                    send: {
+                      ...(recoverDetails as RecoverDetails).send,
+                      amount: sendAmount,
+                    },
+                    receive: {
+                      ...(recoverDetails as RecoverDetails).receive,
+                      amount: receiveAmount,
+                    },
+                    expiration,
+                  },
+                },
+              })
+              break
+
+            case "rollback_intent":
+              getHashedArgs =
+                historyData.details.transaction.actions[0].FunctionCall.args
+              argsJson = Buffer.from(getHashedArgs ?? "", "base64").toString(
+                "utf-8"
+              )
+              args = JSON.parse(argsJson)
+              Object.assign(historyData, {
+                clientId: (args as { id: string }).id,
+                status: HistoryStatus.ROLLED_BACK,
+              })
+              break
           }
-
-          Object.assign(historyData, {
-            clientId,
-            details: {
-              ...historyData.details,
-              recoverDetails: {
-                ...recoverDetails,
-                send: {
-                  ...(recoverDetails as RecoverDetails).send,
-                  amount: sendAmount,
-                },
-                receive: {
-                  ...(recoverDetails as RecoverDetails).receive,
-                  amount: receiveAmount,
-                },
-                expiration,
-              },
-            },
-          })
         }
 
         const { isFailure } = await getTransactionScan(
@@ -132,14 +153,6 @@ export const useHistoryLatest = () => {
         if (isFailure) {
           historyCompletion.push(true)
           Object.assign(historyData, { status: HistoryStatus.FAILED })
-          return historyData
-        }
-
-        if (
-          historyData?.details?.transaction?.actions[0].FunctionCall
-            .method_name !== "ft_transfer_call"
-        ) {
-          historyCompletion.push(true)
           return historyData
         }
 

@@ -37,7 +37,7 @@ const History = () => {
         </Popover.Trigger>
         <Popover.Content
           sideOffset={5}
-          className="absolut bottom-[36px] -left-[10px] md:bottom-[64px] md:right-[20px] w-screen md:w-auto border-0 bg-transparent shadow-none"
+          className="bottom-[36px] -left-[10px] md:bottom-[64px] md:right-[20px] w-screen md:w-auto border-0 bg-transparent shadow-none"
         >
           <Widget />
         </Popover.Content>

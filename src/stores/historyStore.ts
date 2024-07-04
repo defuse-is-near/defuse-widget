@@ -32,6 +32,7 @@ export type HistoryData = {
 
 export type HistoryState = {
   active: boolean
+  activePreview?: string
   data: Map<string, HistoryData>
   isFetched: boolean
 }
@@ -39,6 +40,7 @@ export type HistoryState = {
 export type HistoryActions = {
   openWidget: () => void
   closeWidget: () => void
+  togglePreview: (hash: string | undefined) => void
   toggleWidget: () => void
   updateHistory: (data: HistoryData[]) => void
   closeHistoryItem: (hash: HistoryData["hash"]) => void
@@ -72,6 +74,7 @@ export const createHistoryStore = (
     ...initState,
     openWidget: () => set({ active: true }),
     closeWidget: () => set({ active: false }),
+    togglePreview: (hash: string | undefined) => set({ activePreview: hash }),
     toggleWidget: () => set((state) => ({ active: !state.active })),
     updateHistory: (data: HistoryData[]) =>
       set((state) => {

@@ -144,11 +144,11 @@ export default function Swap() {
 
     const unitsTokenIn = parseUnits(
       tokenIn,
-      selectTokenIn!.decimals as number
+      selectTokenIn?.decimals ?? 0
     ).toString()
     const unitsTokenOut = parseUnits(
       tokenOut,
-      selectTokenOut!.decimals as number
+      selectTokenOut?.decimals ?? 0
     ).toString()
 
     if (name === "tokenIn") {

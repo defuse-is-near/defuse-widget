@@ -15,7 +15,12 @@ const corsOptions = {
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  if (TURN_OFF_APPS && !TURN_OFF_LANDING && pathname !== "/") {
+  if (
+    TURN_OFF_APPS &&
+    !TURN_OFF_LANDING &&
+    pathname !== "/" &&
+    pathname !== "/jobs"
+  ) {
     return NextResponse.redirect(new URL("/", request.url))
   }
   if (TURN_OFF_LANDING && !TURN_OFF_APPS && pathname === "/") {
@@ -56,5 +61,6 @@ export const config = {
     "/deposit/:path*",
     "/withdraw/:path*",
     "/wallet/:path*",
+    "/jobs/:path*",
   ],
 }

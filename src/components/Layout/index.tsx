@@ -11,6 +11,7 @@ import PageBackground from "@src/components/PageBackground"
 import NavbarMobile from "@src/components/NavbarMobile"
 import History from "@src/components/History"
 import { LINKS_HEADER } from "@src/constants/routes"
+import HistoryLastUpdate from "@src/components/History/HistoryLastUpdate"
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   const pathname = usePathname()
@@ -26,6 +27,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <NavbarMobile />
       <PageBackground />
       {isAppsPath && <History />}
+      <HistoryLastUpdate />
     </div>
   )
 }

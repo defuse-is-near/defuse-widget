@@ -13,6 +13,7 @@ import { HistoryData } from "@src/stores/historyStore"
 import { NearBlock, NearTX, NetworkToken, Result } from "@src/types/interfaces"
 import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"
 import { ModalConfirmSwapPayload } from "@src/components/Modal/ModalConfirmSwap"
+import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 interface HistoryFromLocal {
   tokenIn?: string
@@ -52,6 +53,7 @@ export const useQueryCollector = (): CollectorHook => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { accountId } = useWalletSelector()
+  const { togglePreview } = useHistoryStore((state) => state)
 
   const cleanupQuery = (keys: string[]) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -108,6 +110,7 @@ export const useQueryCollector = (): CollectorHook => {
           getNearBlockData = resultBlock.header.timestamp
         }
 
+        togglePreview(transactionHashes)
         handleCleanupQuery()
 
         return [

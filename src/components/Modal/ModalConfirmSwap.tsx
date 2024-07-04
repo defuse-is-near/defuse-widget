@@ -31,6 +31,7 @@ export interface ModalConfirmSwapPayload extends CallRequestIntentProps {}
 const ModalConfirmSwap = () => {
   const [transactionQueue, setTransactionQueue] = useState(0)
   const [dataFromLocal, setDataFromLocal] = useState<ModalConfirmSwapPayload>()
+  const [isReadingHistory, setIsReadingHistory] = useState(false)
   const { selector, accountId } = useWalletSelector()
   const searchParams = useSearchParams()
   const {
@@ -140,6 +141,8 @@ const ModalConfirmSwap = () => {
           receivedHash: receivedHash as string,
         })
 
+        setIsReadingHistory(false)
+
         const inputs = {
           tokenIn: data!.tokenIn,
           tokenOut: data!.tokenOut,
@@ -168,6 +171,8 @@ const ModalConfirmSwap = () => {
     const newClientId = await sha256(v4())
     const estimateQueue = await handleEstimateQueueTransactions(newClientId)
 
+    setIsReadingHistory(false)
+
     const inputs = {
       tokenIn: modalPayload.tokenIn,
       tokenOut: modalPayload.tokenOut,
@@ -189,6 +194,10 @@ const ModalConfirmSwap = () => {
       handleTrackSwap()
     }
   }, [historyData, isFetched, isProcessing])
+
+  if (isReadingHistory) {
+    return null
+  }
 
   return (
     <ModalDialog>

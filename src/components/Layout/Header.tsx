@@ -1,9 +1,18 @@
 "use client"
 
+import React from "react"
+import Link from "next/link"
+import clsx from "clsx"
+import { Text } from "@radix-ui/themes"
+
 import Logo from "@src/components/Logo"
 import Navbar from "@src/components/Navbar"
 import ConnectWallet from "@src/components/ConnectWallet"
 import Settings from "@src/components/Settings"
+import { Navigation } from "@src/constants/routes"
+
+const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
+const NEXT_PUBLIC_APP_URL = process?.env?.appUrl ?? ""
 
 const Header = () => {
   return (
@@ -12,11 +21,38 @@ const Header = () => {
         <div className="h-full flex justify-between items-center px-3">
           <Logo />
           <div className="hidden md:flex justify-center w-full max-w-5xl pl-3">
-            <Navbar />
+            {!TURN_OFF_APPS && <Navbar />}
           </div>
           <div className="flex justify-between items-center gap-4">
-            <ConnectWallet />
-            <Settings />
+            {!TURN_OFF_APPS && (
+              <>
+                <ConnectWallet />
+                <Settings />
+              </>
+            )}
+            {TURN_OFF_APPS && (
+              <>
+                <Link
+                  href={Navigation.JOBS}
+                  className="hidden md:block relative px-3 py-1.5 rounded-full text-sm"
+                >
+                  Jobs
+                </Link>
+                <Link
+                  href={NEXT_PUBLIC_APP_URL}
+                  className={clsx(
+                    "rounded-full text-white px-4 py-2.5 text-sm",
+                    TURN_OFF_APPS
+                      ? "bg-gray-500 pointer-events-none"
+                      : "bg-primary"
+                  )}
+                >
+                  <Text size="2" weight="medium" wrap="nowrap">
+                    Launch App
+                  </Text>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
