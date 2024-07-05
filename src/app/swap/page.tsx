@@ -36,9 +36,13 @@ type EstimateSwap = {
   selectTokenOut: SelectToken
 }
 
+const ESTIMATE_BOT_AWAIT_250_MS = 250
+
 export default function Swap() {
   const [selectTokenIn, setSelectTokenIn] = useState<SelectToken>()
   const [selectTokenOut, setSelectTokenOut] = useState<SelectToken>()
+  const [errorSelectTokenIn, setErrorSelectTokenIn] = useState("")
+  const [errorSelectTokenOut, setErrorSelectTokenOut] = useState("")
   const [withNativeSupport, setWithNativeSupport] = useState<boolean>(false)
   const [nativeSupportChecked, setNativeSupportChecked] =
     useState<CheckedState>(false)
@@ -75,7 +79,21 @@ export default function Swap() {
     return false
   }
 
+  const handleValidateSelectTokens = (): boolean => {
+    let isValid = true
+    if (!selectTokenIn) {
+      isValid = false
+      setErrorSelectTokenIn("Select token is required")
+    }
+    if (!selectTokenOut) {
+      isValid = false
+      setErrorSelectTokenOut("Select token is required")
+    }
+    return isValid
+  }
+
   const onSubmit = async (values: FieldValues) => {
+    if (!handleValidateSelectTokens()) return
     setModalType(ModalType.MODAL_REVIEW_SWAP, {
       tokenIn: values.tokenIn,
       tokenOut: values.tokenOut,
@@ -116,7 +134,7 @@ export default function Swap() {
       isProgrammaticUpdate.current = true
       setValue("tokenOut", estimatedAmountOut)
     },
-    1000
+    ESTIMATE_BOT_AWAIT_250_MS
   )
 
   const debouncedGetSwapEstimateBotReverse = debounce(
@@ -125,7 +143,7 @@ export default function Swap() {
       isProgrammaticUpdate.current = true
       setValue("tokenIn", estimatedAmountIn)
     },
-    2000
+    ESTIMATE_BOT_AWAIT_250_MS
   )
 
   const handleEstimateSwap = ({
@@ -137,7 +155,9 @@ export default function Swap() {
   }: EstimateSwap) => {
     if (
       (name === "tokenIn" && !parseFloat(tokenIn)) ||
-      (name === "tokenOut" && !parseFloat(tokenOut))
+      (name === "tokenOut" && !parseFloat(tokenOut)) ||
+      !selectTokenIn ||
+      !selectTokenOut
     ) {
       return
     }
@@ -154,13 +174,13 @@ export default function Swap() {
     if (name === "tokenIn") {
       debouncedGetSwapEstimateBot({
         tokenIn: selectTokenIn!.address,
-        tokenOut: selectTokenOut!.address,
+        tokenOut: selectTokenOut?.address,
         amountIn: unitsTokenIn,
       } as DataEstimateRequest)
     } else if (name === "tokenOut") {
       debouncedGetSwapEstimateBotReverse({
         tokenIn: selectTokenOut!.address,
-        tokenOut: selectTokenIn!.address,
+        tokenOut: selectTokenIn?.address,
         amountIn: unitsTokenOut,
       } as DataEstimateRequest)
     }
@@ -231,6 +251,7 @@ export default function Swap() {
               selectTokenOut,
             })
           isProgrammaticUpdate.current = false
+          setErrorSelectTokenIn("")
           break
         case "tokenOut":
           setSelectTokenOut(token)
@@ -249,6 +270,7 @@ export default function Swap() {
               selectTokenOut: token,
             })
           isProgrammaticUpdate.current = false
+          setErrorSelectTokenOut("")
           break
       }
       onCloseModal(undefined)
@@ -266,7 +288,7 @@ export default function Swap() {
       >
         <FieldComboInput<FormValues>
           fieldName="tokenIn"
-          price={selectTokenIn?.balanceToUds as string}
+          price={selectTokenIn?.balanceToUds?.toString()}
           balance={
             nativeSupportChecked
               ? (
@@ -282,19 +304,21 @@ export default function Swap() {
           withNativeSupport={withNativeSupport}
           nativeSupportChecked={nativeSupportChecked}
           handleIncludeNativeToSwap={handleIncludeNativeToSwap}
+          errorSelect={errorSelectTokenIn}
         />
         <div className="relative w-full">
           <ButtonSwitch onClick={handleSwitch} />
         </div>
         <FieldComboInput<FormValues>
           fieldName="tokenOut"
-          price={selectTokenOut?.balanceToUds as string}
+          price={selectTokenOut?.balanceToUds?.toString()}
           balance={selectTokenOut?.balance as string}
           selected={selectTokenOut as NetworkToken}
           handleSelect={() => handleSelect("tokenOut", selectTokenIn)}
           className="border rounded-b-xl mb-5 md:max-w-[472px]"
           required="This field is required"
           errors={errors}
+          errorSelect={errorSelectTokenOut}
         />
         <Button type="submit" size="lg" fullWidth isLoading={isFetching}>
           Swap

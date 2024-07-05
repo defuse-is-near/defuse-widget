@@ -43,7 +43,7 @@ export const useHistoryCollector = (collectorHooks: CollectorHook[]) => {
         }
       }
       const history = [...getHistoryFromStore, ...getTransactionHistories]
-      console.log("Data before store to the history: ", history)
+      // console.log("Data before store to the history: ", history)
       updateHistory(history)
 
       const isHistoryNotComplete = history.some(

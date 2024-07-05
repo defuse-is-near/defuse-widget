@@ -24,7 +24,7 @@ const getExchangesList = () => {
     .then((resp) => resp.data)
 }
 
-const getTrendingList = () => {
+export const getTrendingList = (id = "binance") => {
   const config: AxiosRequestConfig = {
     headers: {
       "Content-Type": "application/json",
@@ -32,9 +32,24 @@ const getTrendingList = () => {
       "x-cg-pro-api-key": coingeckoApiKey,
     },
   }
-  const id = "binance"
   return axios
     .get(`https://pro-api.coingecko.com/api/v3/exchanges/${id}/tickers`, config)
+    .then((resp) => resp.data)
+}
+
+export const getCoinsListWithMarketData = (currency = "usd") => {
+  const config: AxiosRequestConfig = {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": appOriginUrl,
+      "x-cg-pro-api-key": coingeckoApiKey,
+    },
+  }
+  return axios
+    .get(
+      `https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=${currency}`,
+      config
+    )
     .then((resp) => resp.data)
 }
 

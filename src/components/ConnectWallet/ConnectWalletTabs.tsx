@@ -1,9 +1,10 @@
-import { Box, Popover, Switch, Text, Tabs } from "@radix-ui/themes"
-import { useTheme } from "next-themes"
-import clsx from "clsx"
-import { PropsWithChildren } from "react"
+"use client"
+
+import { Box, Text, Tabs, Spinner } from "@radix-ui/themes"
+import { PropsWithChildren, useEffect, useState } from "react"
 
 import LabelComingSoon from "@src/components/LabelComingSoon"
+import { useTokensStore } from "@src/providers/TokensStoreProvider"
 
 const ConnectWalletTabBox = ({ children }: PropsWithChildren) => {
   return (
@@ -12,6 +13,26 @@ const ConnectWalletTabBox = ({ children }: PropsWithChildren) => {
 }
 
 const ConnectWalletTabs = () => {
+  const { data, isLoading, isFetched } = useTokensStore((state) => state)
+  const [totalBalanceInUsd, setTotalBalanceInUsd] = useState<
+    number | undefined
+  >()
+
+  useEffect(() => {
+    if (data.size && isFetched) {
+      let balanceInUsd = 0
+      const temp = []
+      data.forEach((token) => {
+        temp.push(token)
+        if (token?.balanceToUds && token?.balanceToUds > 0) {
+          balanceInUsd = Number(balanceInUsd) + Number(token!.balanceToUds)
+        }
+      })
+      // TODO Has to be fixed getting balances for Native and Wrap Native tokens
+      setTotalBalanceInUsd(balanceInUsd)
+    }
+  }, [data, isFetched])
+
   return (
     <Tabs.Root defaultValue="account">
       <Tabs.List color="orange">
@@ -27,9 +48,13 @@ const ConnectWalletTabs = () => {
       <Box pt="3" className="border-b-[1px] border-white-900 -mx-4 px-4">
         <Tabs.Content value="available">
           <ConnectWalletTabBox>
-            <Text size="7" weight="bold">
-              $0,000.00
-            </Text>
+            {isLoading && !isFetched ? (
+              <Spinner loading={isLoading} />
+            ) : (
+              <Text size="7" weight="bold">
+                ${totalBalanceInUsd?.toFixed(14)}
+              </Text>
+            )}
             <Text size="2" weight="medium" className="text-gray-600">
               Total balance
             </Text>
