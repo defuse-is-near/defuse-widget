@@ -33,7 +33,7 @@ interface SolverQuoteRequest {
   amount_in: string
 }
 
-interface SolverQuoteResponse {
+export interface SolverQuoteResponse {
   solver_id: string
   amount_out: string
 }
@@ -98,8 +98,8 @@ export const swapEstimateSolver0Provider = async (
   console.log("Solver0 getQuoteAssetPrices: ", getQuoteAssetPrices)
   if (!getQuoteAssetPrices.result?.length) {
     return {
-      registrarId: `${REGISTRAR_ID}:`,
-      estimateOut: "0",
+      solver_id: `${REGISTRAR_ID}:`,
+      amount_out: "0",
     } as SwapEstimateProviderResponse
   }
 
@@ -109,11 +109,12 @@ export const swapEstimateSolver0Provider = async (
   console.log("swapEstimateSolver0Provider:", getSortedList)
 
   return {
-    registrarId: `${REGISTRAR_ID}:${getSortedList[0].solver_id}`,
-    estimateOut: formatUnits(
+    solver_id: `${REGISTRAR_ID}:${getSortedList[0].solver_id}`,
+    amount_out: formatUnits(
       BigInt(getSortedList[0].amount_out),
       getTokenOutToFormat.result.tokens[0].decimals
     ).toString(),
+    list: getSortedList,
   } as SwapEstimateProviderResponse
 }
 

@@ -52,7 +52,7 @@ const ConnectWalletTabs = () => {
               <Spinner loading={isLoading} />
             ) : (
               <Text size="7" weight="bold">
-                ${totalBalanceInUsd?.toFixed(14)}
+                ${totalBalanceInUsd ? totalBalanceInUsd?.toFixed(10) : "0.0"}
               </Text>
             )}
             <Text size="2" weight="medium" className="text-gray-600">

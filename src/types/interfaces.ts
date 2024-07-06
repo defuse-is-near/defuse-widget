@@ -18,7 +18,7 @@ export enum TokenConvertEnum {
 }
 
 export type TokenBalance = {
-  balance?: string | BigNumber
+  balance?: number
   balanceToUds?: number
   convertedLast?: {
     [key in TokenConvertEnum]: number

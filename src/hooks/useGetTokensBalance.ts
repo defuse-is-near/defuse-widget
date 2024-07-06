@@ -8,10 +8,7 @@ import { nep141Balance } from "@src/utils/near"
 import { NetworkTokenWithSwapRoute, TokenBalance } from "@src/types/interfaces"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 import { useGetCoingeckoExchangesList } from "@src/api/hooks/exchanges/useGetCoingeckoExchangesList"
-import { useGetCoinsListWithMarketData } from "@src/api/hooks/exchanges/useGetCoinsListWithMarketData"
-import { CoingeckoMarkets } from "@src/types/coingecko"
-
-const STABLE_LIST = ["USDC", "USDC.e", "USDt", "USDT.e"]
+import { CoingeckoExchanges } from "@src/types/coingecko"
 
 export const useGetTokensBalance = (
   tokensList: NetworkTokenWithSwapRoute[]
@@ -21,7 +18,7 @@ export const useGetTokensBalance = (
   const [data, setData] = useState<NetworkTokenWithSwapRoute[]>([])
   const { accountId } = useWalletSelector()
   const { activePreview } = useHistoryStore((state) => state)
-  const { data: marketData, isFetched } = useGetCoinsListWithMarketData()
+  const { data: exchangesList, isFetched } = useGetCoingeckoExchangesList()
 
   const getTokensBalance = useCallback(async () => {
     try {
@@ -36,59 +33,40 @@ export const useGetTokensBalance = (
 
           const tokenBalance: TokenBalance = {}
 
-          let balance: string | undefined = undefined
+          let balance: number | undefined = undefined
           if (accountId && token?.address) {
             const getBalance = await nep141Balance(
               accountId as string,
               token.address as string
             )
             if (getBalance) {
-              balance = getBalance
+              balance = Number(
+                formatUnits(
+                  BigInt(getBalance as string),
+                  token.decimals as number
+                )
+              )
               Object.assign(tokenBalance, { balance })
             }
           }
 
-          const getCoinIndex = (marketData as CoingeckoMarkets[])?.findIndex(
-            (coin) => {
-              if (STABLE_LIST.includes(token?.symbol ?? "")) {
-                return true
-              }
-              if (
-                token.symbol === "wNear" &&
-                coin.symbol.toLowerCase() === "near"
-              ) {
-                return true
-              }
-              if (
-                token.symbol?.toLowerCase() === "wBTC" &&
-                coin.symbol.toLowerCase() === "btc"
-              ) {
-                return true
-              }
-              if (
-                token.symbol?.toLowerCase() === "wETH" &&
-                coin.symbol.toLowerCase() === "eth"
-              ) {
-                return true
-              }
-              if (coin.symbol.toLowerCase() === token.symbol?.toLowerCase()) {
-                return true
-              }
+          const getCoinIndex = (
+            exchangesList as CoingeckoExchanges
+          ).tickers?.findIndex((coin) => {
+            const defuseAssetId = token?.defuse_asset_id?.split(":")
+            if (defuseAssetId.length === 3) {
+              return coin.base.toLowerCase() === defuseAssetId[2].toLowerCase()
             }
-          )
+          })
 
-          const getHigh24h: number | undefined = (
-            marketData as CoingeckoMarkets[]
-          )?.length
-            ? (marketData as CoingeckoMarkets[])[getCoinIndex]?.high_24h
-            : undefined
-          if (getCoinIndex !== undefined && getCoinIndex !== -1) {
-            Object.assign(tokenBalance, { convertedLast: getHigh24h })
+          if (getCoinIndex !== -1) {
+            const convertedLastUsd = (exchangesList as CoingeckoExchanges)
+              .tickers[getCoinIndex].converted_last.usd
+            Object.assign(tokenBalance, {
+              convertedLast: { usd: convertedLastUsd },
+            })
             if (balance) {
-              const balanceToUds = formatUnits(
-                BigInt(balance as string),
-                token.decimals as number
-              )
+              const balanceToUds = balance * convertedLastUsd
               Object.assign(tokenBalance, {
                 balanceToUds,
               })
@@ -109,7 +87,7 @@ export const useGetTokensBalance = (
       setIsError(true)
       setIsFetching(false)
     }
-  }, [tokensList, marketData])
+  }, [tokensList, exchangesList])
 
   useEffect(() => {
     if (tokensList || activePreview || isFetched) {

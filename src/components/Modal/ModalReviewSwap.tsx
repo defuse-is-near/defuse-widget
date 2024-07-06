@@ -40,12 +40,12 @@ const ModalReviewSwap = () => {
       convertPayload.selectedTokenIn.decimals as number
     ).toString()
 
-    const estimatedAmountOut = await getSwapEstimateBot({
+    const { bestOut } = await getSwapEstimateBot({
       tokenIn: convertPayload.selectedTokenIn.address as string,
       tokenOut: convertPayload.selectedTokenOut.address as string,
       amountIn: unitsTokenIn,
     })
-    setConvertPayload({ ...convertPayload, tokenOut: estimatedAmountOut })
+    setConvertPayload({ ...convertPayload, tokenOut: bestOut ?? "0" })
   }
 
   const { timeLeft } = useTimer(

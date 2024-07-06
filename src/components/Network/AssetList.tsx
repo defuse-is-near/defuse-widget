@@ -75,10 +75,10 @@ const AssetList = ({
                   {name}
                 </Text>
                 <Text as="span" size="2" weight="medium">
-                  {typeof balance === "string" && parseFloat(balance)
-                    ? balance === "0.00001"
-                      ? `< ${balance}`
-                      : balance
+                  {balance
+                    ? balance < 0.00001
+                      ? "< 0.00001"
+                      : balance.toFixed(7)
                     : null}
                 </Text>
               </div>
@@ -87,7 +87,7 @@ const AssetList = ({
                   {symbol ? symbol : null}
                 </Text>
                 <Text as="span" size="2">
-                  {balanceToUds ? `$${balanceToUds}` : null}
+                  {balanceToUds ? `$${balanceToUds.toFixed(7)}` : null}
                 </Text>
               </div>
             </div>

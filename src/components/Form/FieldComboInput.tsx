@@ -20,7 +20,7 @@ interface Props<T extends FieldValues> {
   register?: UseFormRegister<T>
   required?: string
   placeholder?: string
-  label?: string
+  label?: string | React.ReactNode
   price?: string
   balance?: string | BigNumber
   selected?: NetworkToken
@@ -111,11 +111,7 @@ const FieldComboInput = <T extends FieldValues>({
         className && className
       )}
     >
-      {label && (
-        <span className="absolute top-4 left-5 text-sm font-medium text-secondary">
-          {label}
-        </span>
-      )}
+      {label && label}
       <input
         {...register(fieldName, option)}
         onKeyDown={handleKeyDown}

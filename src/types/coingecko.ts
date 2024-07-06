@@ -26,3 +26,32 @@ export interface CoingeckoMarkets {
   roi: null
   last_updated: Date
 }
+
+export interface CoingeckoTickers {
+  base: string
+  target: string
+  market: {
+    name: string
+    identifier: string
+    has_trading_incentive: boolean
+  }
+  last: number
+  volume: number
+  converted_last: {
+    btc: number
+    eth: number
+    usd: number
+  }
+  converted_volume: {
+    btc: number
+    eth: number
+    usd: number
+  }
+  coin_id: string
+  target_coin_id: string
+}
+
+export interface CoingeckoExchanges {
+  name: string
+  tickers: CoingeckoTickers[]
+}

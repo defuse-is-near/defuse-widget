@@ -4,28 +4,42 @@ import { useState } from "react"
 
 import { setSettings } from "@src/libs/de-sdk/settings"
 import { concurrentEstimateSwap } from "@src/libs/de-sdk"
-import { DataEstimateRequest } from "@src/libs/de-sdk/types/interfaces"
+import {
+  DataEstimateRequest,
+  SwapEstimateProviderResponse,
+} from "@src/libs/de-sdk/types/interfaces"
 
-const useSwapEstimateBot = (externalProviders: unknown[] = []) => {
+export interface SwapEstimateBotResult {
+  bestOut: string | null
+  allEstimates?: SwapEstimateProviderResponse[]
+}
+
+const useSwapEstimateBot = () => {
   const [isFetching, setFetching] = useState(false)
-  const providerIds = externalProviders.filter(
-    (provider): provider is string => typeof provider === "string"
-  )
-
-  setSettings({ providerIds })
 
   const getSwapEstimateBot = async (
     data: DataEstimateRequest
-  ): Promise<string> => {
+  ): Promise<SwapEstimateBotResult> => {
     setFetching(true)
-    console.log("getSwapEstimateBot data:", data)
+    // console.log("getSwapEstimateBot data:", data)
     const estimates = await concurrentEstimateSwap(data)
+
+    if (!estimates.length) {
+      setFetching(false)
+      return {
+        bestOut: null,
+      }
+    }
+
     const sortEstimates = estimates.sort(
-      (a, b) => Number(b.estimateOut) - Number(a.estimateOut)
+      (a, b) => Number(b.amount_out) - Number(a.amount_out)
     )
     console.log("useSwapEstimateBot: ", estimates)
     setFetching(false)
-    return sortEstimates[0].estimateOut
+    return {
+      bestOut: sortEstimates[0].amount_out,
+      allEstimates: sortEstimates[0]?.list,
+    }
   }
 
   return {

@@ -1,11 +1,13 @@
 import axios, { AxiosRequestConfig } from "axios"
 
+import { REGISTRAR_ID_REF_FINANCE } from "@src/libs/de-sdk/providers/refFinanceProvider"
+
 import {
   DataEstimateRequest,
   SwapEstimateProviderResponse,
 } from "../types/interfaces"
 
-const REGISTRAR_NAME = "coingecko"
+export const REGISTRAR_ID_COINGECKO = "coingecko"
 
 const coingeckoApiKey = process?.env?.coingeckoApiKey ?? ""
 const appOriginUrl = process.env.appUrl ?? "*"
@@ -56,12 +58,20 @@ export const getCoinsListWithMarketData = (currency = "usd") => {
 export const swapEstimateCoingeckoProvider = async (
   data: DataEstimateRequest
 ): Promise<SwapEstimateProviderResponse> => {
-  const getExchangesListResponse = await getExchangesList()
-  const getTrendingListResponse = await getTrendingList()
-  console.log(getExchangesListResponse, "getExchangesListResponse")
-  console.log(getTrendingListResponse, "getTrendingListResponse")
+  try {
+    const getExchangesListResponse = await getExchangesList()
+    const getTrendingListResponse = await getTrendingList()
+    console.log(getExchangesListResponse, "getExchangesListResponse")
+    console.log(getTrendingListResponse, "getTrendingListResponse")
 
-  return {
-    registrarName: REGISTRAR_NAME,
-  } as unknown as SwapEstimateProviderResponse
+    return {
+      registrarId: REGISTRAR_ID_COINGECKO,
+    } as unknown as SwapEstimateProviderResponse
+  } catch (e) {
+    console.log("swapEstimateRefFinanceProvider: ", e)
+    return {
+      solver_id: `${REGISTRAR_ID_REF_FINANCE}:0`,
+      amount_out: "0",
+    }
+  }
 }

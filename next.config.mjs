@@ -14,7 +14,6 @@ const nextConfig = {
   env: {
     nearChainId: process.env.NEAR_CAHIN_ID,
     nearNodeUrl: process.env.NEAR_NODE_URL,
-    nearNodeAuroraRpc: process.env.NEAR_NODE_AURORA_RPC,
     ethChainId: process.env.ETH_CHAIN_ID,
     baseChainId: process.env.BASE_CHAIN_ID,
     environment: process.env.ENVIRONMENT,

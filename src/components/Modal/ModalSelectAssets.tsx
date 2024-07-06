@@ -27,7 +27,7 @@ const ModalSelectAssets = () => {
   >([])
 
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
-  const { data, isLoading } = useTokensStore((state) => state)
+  const { data } = useTokensStore((state) => state)
   const deferredQuery = useDeferredValue(searchValue)
 
   const handleSearchClear = () => setSearchValue("")
@@ -67,15 +67,13 @@ const ModalSelectAssets = () => {
       ) {
         return
       }
-      let balanceToUnits = "0"
-      if (parseFloat(BigNumber.from(value?.balance || "0").toString())) {
-        balanceToUnits = tokenBalanceToFormatUnits({
-          balance: value.balance,
-          decimals: value.decimals as number,
+      if (value?.balance) {
+        getAssetListWithBalances.push({
+          ...value,
+          balance: value?.balance,
         })
-        getAssetListWithBalances.push({ ...value, balance: balanceToUnits })
       }
-      getAssetList.push({ ...value, balance: balanceToUnits ?? value.balance })
+      getAssetList.push(value)
     })
     setAssetList(getAssetList)
     setAssetListWithBalances(getAssetListWithBalances)
