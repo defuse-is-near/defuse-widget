@@ -21,6 +21,7 @@ export type ModalReviewSwapPayload = {
   tokenOut: string
   selectedTokenIn: NetworkToken
   selectedTokenOut: NetworkToken
+  useNative: boolean
 }
 
 const RECALCULATE_ESTIMATION_TIME_SECS = 15

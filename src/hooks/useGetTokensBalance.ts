@@ -52,7 +52,7 @@ export const useGetTokensBalance = (
 
           const getCoinIndex = (
             exchangesList as CoingeckoExchanges
-          ).tickers?.findIndex((coin) => {
+          )?.tickers?.findIndex((coin) => {
             const defuseAssetId = token?.defuse_asset_id?.split(":")
             if (defuseAssetId.length === 3) {
               return coin.base.toLowerCase() === defuseAssetId[2].toLowerCase()

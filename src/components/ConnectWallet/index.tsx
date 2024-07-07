@@ -15,17 +15,19 @@ import ConnectWalletTabs from "@src/components/ConnectWallet/ConnectWalletTabs"
 import { THEME_MODE_KEY } from "@src/constants/contracts"
 import CopyToClipboard from "@src/components/CopyToClipboard"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
 const ConnectWallet = () => {
-  const { selector, modal, accounts, accountId } = useWalletSelector()
+  const { selector, accountId } = useWalletSelector()
   const { getAccount } = useGetAccount({ accountId, selector })
   const [loading, setLoading] = useState<boolean>(false)
   const [account, setAccount] = useState<Account | null>(null)
   const { theme, setTheme } = useTheme()
   const { shortAccountId } = useShortAccountId(accountId as string)
   const { openWidget } = useHistoryStore((state) => state)
+  const { handleSignIn, handleSignOut } = useConnectWallet()
 
   useEffect(() => {
     const getThemeFromLocal = localStorage.getItem(THEME_MODE_KEY)
@@ -54,34 +56,6 @@ const ConnectWallet = () => {
       setLoading(false)
     })
   }, [accountId, getAccount])
-
-  const handleSignIn = () => {
-    modal.show()
-  }
-
-  const handleSignOut = async () => {
-    const wallet = await selector.wallet()
-
-    wallet.signOut().catch((err) => {
-      console.log("Failed to sign out")
-      console.error(err)
-    })
-  }
-
-  const handleSwitchWallet = () => {
-    modal.show()
-  }
-
-  const handleSwitchAccount = () => {
-    const currentIndex = accounts.findIndex((x) => x.accountId === accountId)
-    const nextIndex = currentIndex < accounts.length - 1 ? currentIndex + 1 : 0
-
-    const nextAccountId = accounts[nextIndex].accountId
-
-    selector.setActiveAccount(nextAccountId)
-
-    alert("Switched account to " + nextAccountId)
-  }
 
   const handleTradeHistory = () => openWidget()
 

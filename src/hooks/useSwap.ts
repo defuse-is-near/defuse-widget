@@ -53,7 +53,12 @@ export type CallRequestIntentProps = {
   clientId?: string
 }
 
+type WithSwapDepositRequest = {
+  useNative?: boolean
+}
+
 const REFERRAL_ACCOUNT = process.env.REFERRAL_ACCOUNT ?? ""
+const SWAP_DEPOSIT_SLIPPAGE_3_PERCENTAGE = 1.03
 
 export const useSwap = ({ accountId, selector }: Props) => {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -104,7 +109,8 @@ export const useSwap = ({ accountId, selector }: Props) => {
         | "clientId"
       >,
       "estimateQueue"
-    >
+    > &
+      WithSwapDepositRequest
   ): Promise<EstimateQueueTransactions> => {
     let queue = 1
     const queueTransaction = [QueueTransactions.CREATE_INTENT]
@@ -116,7 +122,8 @@ export const useSwap = ({ accountId, selector }: Props) => {
       }
     }
 
-    const { tokenIn, tokenOut, selectedTokenIn, selectedTokenOut } = inputs
+    const { tokenIn, tokenOut, selectedTokenIn, selectedTokenOut, useNative } =
+      inputs
 
     // Estimate if user did storage before in order to transfer tokens for swap
     const storageBalanceTokenIn = await getStorageBalance(
@@ -152,14 +159,13 @@ export const useSwap = ({ accountId, selector }: Props) => {
       queue++
     }
 
-    // const isExistSwapRoute = LIST_NATIVE_TOKENS.findIndex(
-    //     (token) => token.swapRoute === selectedTokenIn.address
-    // )
-    // if (isExistSwapRoute !== -1) {
-    //   // TODO compare tokenIn > selectedTokenIn.address balance then get balance of Native, and then queue++
-    //   queueTransaction.unshift(QueueTransactions.SWAP_FROM_NATIVE)
-    //   queue++
-    // }
+    if (useNative) {
+      const wNearBalance = selectedTokenIn.balance
+      if (Number(tokenIn) > Number(wNearBalance)) {
+        queueTransaction.unshift(QueueTransactions.SWAP_FROM_NATIVE)
+        queue++
+      }
+    }
 
     return {
       queueInTrack: queue,
@@ -214,10 +220,19 @@ export const useSwap = ({ accountId, selector }: Props) => {
 
     switch (currentQueue) {
       case QueueTransactions.SWAP_FROM_NATIVE:
-        // TODO If wNear user amount less than amountIn and Near user amount cover left part then do deposit
-        // if (!selectedTokenIn?.address) {
-        //   await callRequestNearDeposit(SUPPORTED_TOKENS.wNEAR, unitsSendAmount)
-        // }
+        if (selectedTokenIn?.address) {
+          const countMissingAmount =
+            (Number(tokenIn) - (selectedTokenIn?.balance ?? 0)) *
+            SWAP_DEPOSIT_SLIPPAGE_3_PERCENTAGE
+          const unitsSendAmount = parseUnits(
+            countMissingAmount.toString(),
+            selectedTokenIn?.decimals as number
+          ).toString()
+          await callRequestNearDeposit(
+            selectedTokenIn!.address as string,
+            unitsSendAmount
+          )
+        }
         break
 
       case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:

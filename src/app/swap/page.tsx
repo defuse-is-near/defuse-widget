@@ -26,6 +26,8 @@ import { useTokensStore } from "@src/providers/TokensStoreProvider"
 import { ModalConfirmSwapPayload } from "@src/components/Modal/ModalConfirmSwap"
 import { useEvaluateSwapEstimation } from "@src/hooks/useEvaluateSwapEstimation"
 import BlockEvaluatePrice from "@src/components/Block/BlockEvaluatePrice"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 
 type FormValues = {
   tokenIn: string
@@ -52,6 +54,7 @@ export default function Swap() {
   const [withNativeSupport, setWithNativeSupport] = useState<boolean>(false)
   const [nativeSupportChecked, setNativeSupportChecked] =
     useState<CheckedState>(false)
+  const { accountId } = useWalletSelector()
   const { getAccountBalance } = useAccountBalance()
   const [nativeBalance, setNativeBalance] = useState("0")
   const {
@@ -65,6 +68,7 @@ export default function Swap() {
   const { data, isFetched, isLoading } = useTokensStore((state) => state)
   const { data: evaluateSwapEstimation, getEvaluateSwapEstimate } =
     useEvaluateSwapEstimation()
+  const { handleSignIn } = useConnectWallet()
 
   const {
     handleSubmit,
@@ -110,12 +114,16 @@ export default function Swap() {
   }
 
   const onSubmit = async (values: FieldValues) => {
+    if (!accountId) {
+      return handleSignIn()
+    }
     if (!handleValidateSelectTokens()) return
     setModalType(ModalType.MODAL_REVIEW_SWAP, {
       tokenIn: values.tokenIn,
       tokenOut: values.tokenOut,
       selectedTokenIn: selectTokenIn,
       selectedTokenOut: selectTokenOut,
+      useNative: nativeSupportChecked,
     })
   }
 

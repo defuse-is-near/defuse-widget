@@ -6,7 +6,7 @@ export const smallBalanceToFormat = (balance: string): string => {
   if (isSmallBalance) {
     return "~0.00001"
   }
-  return balance.substring(0, 14)
+  return parseFloat(balance.substring(0, 14)).toString()
 }
 
 export const tokenBalanceToFormatUnits = ({

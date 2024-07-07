@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useId, useState } from "react"
-import { Text } from "@radix-ui/themes"
+import { Spinner, Text } from "@radix-ui/themes"
 import Image from "next/image"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { parseUnits } from "viem"
@@ -33,7 +33,6 @@ const ModalConfirmSwap = () => {
   const [dataFromLocal, setDataFromLocal] = useState<ModalConfirmSwapPayload>()
   const [isReadingHistory, setIsReadingHistory] = useState(false)
   const { selector, accountId } = useWalletSelector()
-  const searchParams = useSearchParams()
   const {
     callRequestCreateIntent,
     nextEstimateQueueTransactions,
@@ -45,7 +44,7 @@ const ModalConfirmSwap = () => {
   })
   const router = useRouter()
   const pathname = usePathname()
-  const { createQueryString } = useCreateQueryString()
+  const searchParams = useSearchParams()
   const { onCloseModal, payload } = useModalStore((state) => state)
   const modalPayload = payload as ModalReviewSwapPayload
   const { data: historyData, isFetched } = useHistoryStore((state) => state)
@@ -68,14 +67,22 @@ const ModalConfirmSwap = () => {
     )
   }
 
-  const handleBatchCreateSwapQuery = ({ clientId }: { clientId: string }) => {
-    const buildSwapQuery = [
-      ["modalType", ModalType.MODAL_CONFIRM_SWAP],
-      ["clientId", clientId],
-    ]
-      .map(([key, value]) => createQueryString(key, value))
-      .join("&")
-    router.replace(pathname + "?" + buildSwapQuery)
+  const handleBatchCreateSwapQuery = ({
+    clientId,
+  }: {
+    clientId: string
+  }): boolean => {
+    try {
+      const queryParams = new URLSearchParams(searchParams.toString())
+      queryParams.set("modalType", ModalType.MODAL_CONFIRM_SWAP)
+      queryParams.set("clientId", clientId)
+      const updatedQueryString = queryParams.toString()
+      router.replace(pathname + "?" + updatedQueryString)
+      return true
+    } catch (e) {
+      console.log(`ModalConfirmSwap handleBatchCreateSwapQuery: `, e)
+      return false
+    }
   }
 
   const handleEstimateQueueTransactions = async (
@@ -88,6 +95,7 @@ const ModalConfirmSwap = () => {
         selectedTokenIn: modalPayload.selectedTokenIn,
         selectedTokenOut: modalPayload.selectedTokenOut,
         clientId,
+        useNative: modalPayload.useNative,
       })
     setTransactionQueue(queueInTrack)
     return {
@@ -169,24 +177,27 @@ const ModalConfirmSwap = () => {
     }
 
     const newClientId = await sha256(v4())
-    const estimateQueue = await handleEstimateQueueTransactions(newClientId)
+    if (
+      handleBatchCreateSwapQuery({
+        clientId: newClientId,
+      })
+    ) {
+      const estimateQueue = await handleEstimateQueueTransactions(newClientId)
 
-    setIsReadingHistory(false)
+      setIsReadingHistory(false)
 
-    const inputs = {
-      tokenIn: modalPayload.tokenIn,
-      tokenOut: modalPayload.tokenOut,
-      selectedTokenIn: modalPayload.selectedTokenIn,
-      selectedTokenOut: modalPayload.selectedTokenOut,
-      clientId: newClientId,
-      estimateQueue,
+      const inputs = {
+        tokenIn: modalPayload.tokenIn,
+        tokenOut: modalPayload.tokenOut,
+        selectedTokenIn: modalPayload.selectedTokenIn,
+        selectedTokenOut: modalPayload.selectedTokenOut,
+        clientId: newClientId,
+        estimateQueue,
+      }
+
+      setSwapToLocal(inputs)
+      await callRequestCreateIntent(inputs)
     }
-
-    setSwapToLocal(inputs)
-    handleBatchCreateSwapQuery({
-      clientId: newClientId,
-    })
-    await callRequestCreateIntent(inputs)
   }
 
   useEffect(() => {
@@ -229,6 +240,9 @@ const ModalConfirmSwap = () => {
               height={14}
             />
           </button>
+        </div>
+        <div className="flex justify-center">
+          <Spinner loading={isProcessing} />
         </div>
         <div className="w-full flex flex-col text-center text-black-400 gap-1 mb-4">
           <Text size="4" weight="bold">

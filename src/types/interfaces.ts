@@ -156,6 +156,7 @@ export interface RecoverDetails {
   receive: TransferToken
   expiration: ExpirationEnum
   referral: string
+  msg?: string
 }
 
 export type JobsDetails = {

@@ -1,7 +1,8 @@
 import React from "react"
 import { BigNumber } from "ethers"
-import { Checkbox, Text } from "@radix-ui/themes"
+import { Checkbox, Text, Tooltip } from "@radix-ui/themes"
 import { CheckedState } from "@radix-ui/react-checkbox"
+import { InfoCircledIcon } from "@radix-ui/react-icons"
 
 export interface BlockMultiBalancesProps {
   balance?: string | BigNumber
@@ -31,9 +32,12 @@ const BlockMultiBalances = ({
             }
             color="orange"
           />
-          <Text size="1" className="text-gray-600">
-            Use Near balance
+          <Text size="1" className="text-gray-600 text-nowrap">
+            Use Native
           </Text>
+          <Tooltip content="Your NEAR balance will be automatically wrapped to wNEAR if your wNEAR balance isn't sufficient for the swap">
+            <InfoCircledIcon />
+          </Tooltip>
         </div>
       )}
     </div>

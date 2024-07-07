@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { Spinner, Text } from "@radix-ui/themes"
 import Link from "next/link"
+import { formatUnits } from "viem"
 
 import { HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import Button from "@src/components/Button/Button"
@@ -17,6 +18,7 @@ import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 import { useNetworkTokens } from "@src/hooks/useNetworkTokens"
 import { useSwap } from "@src/hooks/useSwap"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 const PLACEHOLDER = "XX"
@@ -118,6 +120,28 @@ const WidgetCard = ({
           title: `Storage deposit on ${details?.transaction?.receiver_id ?? PLACEHOLDER} by ${details?.transaction?.signer_id ?? PLACEHOLDER}`,
         }
 
+      case QueueTransactions.SWAP_FROM_NATIVE:
+        let title = "Wrapped complete!"
+        let subTitle = ""
+        const extractMsg = details?.recoverDetails?.msg?.split(" ")
+        if (extractMsg?.length && extractMsg.length >= 3) {
+          const [action, amount, tokenIn] = extractMsg
+          const tokenNearNative = LIST_NATIVE_TOKENS.find(
+            (token) => token.defuse_asset_id === "near:mainnet:0x1"
+          )
+          const formattedAmount = smallBalanceToFormat(
+            formatUnits(BigInt(amount), tokenNearNative!.decimals as number) ??
+              ""
+          )
+          title = `${action} complete!`
+          subTitle = `Wrapped ${formattedAmount} ${tokenIn} to ${formattedAmount} w${tokenIn}`
+        }
+
+        return {
+          title,
+          subTitle,
+        }
+
       default:
         return { title: "Unknown" }
     }
@@ -135,6 +159,9 @@ const WidgetCard = ({
     if (transaction.actions[0].FunctionCall.method_name === "storage_deposit") {
       // No matter is IN or OUT as QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
       return QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
+    }
+    if (transaction.actions[0].FunctionCall.method_name === "near_deposit") {
+      return QueueTransactions.SWAP_FROM_NATIVE
     }
   }
 
