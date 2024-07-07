@@ -66,9 +66,9 @@ export const useGetTokensBalance = (
               convertedLast: { usd: convertedLastUsd },
             })
             if (balance) {
-              const balanceToUds = balance * convertedLastUsd
+              const balanceToUsd = balance * convertedLastUsd
               Object.assign(tokenBalance, {
-                balanceToUds,
+                balanceToUsd,
               })
             }
           }

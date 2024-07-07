@@ -1,4 +1,5 @@
-import { TokenBalance } from "@src/app/wallet/page"
+import { EmptyTokenBalance } from "@src/app/wallet/page"
+import { NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 
 const CardToken = ({
   chainId,
@@ -7,7 +8,7 @@ const CardToken = ({
   symbol,
   balance,
   balanceToUsd,
-}: TokenBalance) => {
+}: NetworkTokenWithSwapRoute | EmptyTokenBalance) => {
   return (
     <div className="flex justify-between items-start gap-3 bg-gray-200 rounded-[20px] p-5">
       <div className="relative w-[35px] h-[35px] bg-gray-400 rounded-full">
@@ -17,7 +18,7 @@ const CardToken = ({
         <span>{name}</span>
         <span>{`${balance} ${symbol}`}</span>
       </div>
-      <span>{balanceToUsd}</span>
+      <span>${balanceToUsd}</span>
     </div>
   )
 }

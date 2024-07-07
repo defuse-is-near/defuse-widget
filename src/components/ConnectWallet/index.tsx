@@ -13,6 +13,8 @@ import Themes from "@src/types/themes"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import ConnectWalletTabs from "@src/components/ConnectWallet/ConnectWalletTabs"
 import { THEME_MODE_KEY } from "@src/constants/contracts"
+import CopyToClipboard from "@src/components/CopyToClipboard"
+import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
@@ -23,6 +25,7 @@ const ConnectWallet = () => {
   const [account, setAccount] = useState<Account | null>(null)
   const { theme, setTheme } = useTheme()
   const { shortAccountId } = useShortAccountId(accountId as string)
+  const { openWidget } = useHistoryStore((state) => state)
 
   useEffect(() => {
     const getThemeFromLocal = localStorage.getItem(THEME_MODE_KEY)
@@ -80,8 +83,7 @@ const ConnectWallet = () => {
     alert("Switched account to " + nextAccountId)
   }
 
-  const handleTradeHistory = () => console.log("handleTradeHistory")
-  const handleCopyAddress = () => console.log("handleCopyAddress")
+  const handleTradeHistory = () => openWidget()
 
   if (!account || TURN_OFF_APPS) {
     return (
@@ -137,15 +139,14 @@ const ConnectWallet = () => {
                 Transactions
               </Text>
             </button>
-            <button
-              onClick={handleCopyAddress}
-              className="flex justify-start items-center gap-2"
-            >
-              <CopyIcon width={16} height={16} />
-              <Text size="2" weight="medium">
-                Copy address
-              </Text>
-            </button>
+            <CopyToClipboard value={account.account_id}>
+              <div className="flex justify-start items-center gap-2">
+                <CopyIcon width={16} height={16} />
+                <Text size="2" weight="medium">
+                  Copy address
+                </Text>
+              </div>
+            </CopyToClipboard>
             <button
               onClick={handleSignOut}
               className="flex justify-start items-center gap-2"

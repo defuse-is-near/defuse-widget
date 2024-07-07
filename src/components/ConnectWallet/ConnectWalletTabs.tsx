@@ -2,9 +2,12 @@
 
 import { Box, Text, Tabs, Spinner } from "@radix-ui/themes"
 import { PropsWithChildren, useEffect, useState } from "react"
+import { formatUnits } from "viem"
 
 import LabelComingSoon from "@src/components/LabelComingSoon"
 import { useTokensStore } from "@src/providers/TokensStoreProvider"
+import { useAccountBalance } from "@src/hooks/useAccountBalance"
+import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 
 const ConnectWalletTabBox = ({ children }: PropsWithChildren) => {
   return (
@@ -17,19 +20,41 @@ const ConnectWalletTabs = () => {
   const [totalBalanceInUsd, setTotalBalanceInUsd] = useState<
     number | undefined
   >()
+  const { getAccountBalance } = useAccountBalance()
+
+  const getBalanceToUsd = async () => {
+    let balanceInUsd = 0
+    const temp = []
+    let wNearConvertedLastUsd = 0
+
+    data.forEach((token) => {
+      temp.push(token)
+      if (token?.balanceToUsd && token?.balanceToUsd > 0) {
+        balanceInUsd = Number(balanceInUsd) + Number(token!.balanceToUsd)
+        if (token.defuse_asset_id === "near:mainnet:wrap.near") {
+          wNearConvertedLastUsd = token.convertedLast!.usd
+        }
+      }
+    })
+
+    const tokenNearNative = LIST_NATIVE_TOKENS.find(
+      (token) => token.defuse_asset_id === "near:mainnet:0x1"
+    )
+
+    const { balance } = await getAccountBalance()
+    const nativeBalanceInUsd = formatUnits(
+      BigInt(balance),
+      tokenNearNative!.decimals as number
+    )
+
+    balanceInUsd += Number(nativeBalanceInUsd) * wNearConvertedLastUsd
+
+    setTotalBalanceInUsd(balanceInUsd)
+  }
 
   useEffect(() => {
     if (data.size && isFetched) {
-      let balanceInUsd = 0
-      const temp = []
-      data.forEach((token) => {
-        temp.push(token)
-        if (token?.balanceToUds && token?.balanceToUds > 0) {
-          balanceInUsd = Number(balanceInUsd) + Number(token!.balanceToUds)
-        }
-      })
-      // TODO Has to be fixed getting balances for Native and Wrap Native tokens
-      setTotalBalanceInUsd(balanceInUsd)
+      getBalanceToUsd()
     }
   }, [data, isFetched])
 
@@ -52,7 +77,7 @@ const ConnectWalletTabs = () => {
               <Spinner loading={isLoading} />
             ) : (
               <Text size="7" weight="bold">
-                ${totalBalanceInUsd ? totalBalanceInUsd?.toFixed(10) : "0.0"}
+                ${totalBalanceInUsd ? totalBalanceInUsd?.toFixed(2) : "0.00"}
               </Text>
             )}
             <Text size="2" weight="medium" className="text-gray-600">

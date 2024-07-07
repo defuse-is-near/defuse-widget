@@ -40,8 +40,6 @@ const ModalSelectAssets = () => {
       .chainName!.toLocaleUpperCase()
       .includes(deferredQuery.toLocaleUpperCase())
 
-  // TODO Add useGetTokenBalances and apply it to "Your tokens" tokens list
-
   const handleSelectToken = (token: NetworkToken) => {
     onCloseModal({
       ...(payload as { fieldName: string }),

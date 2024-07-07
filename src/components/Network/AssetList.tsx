@@ -58,7 +58,7 @@ const AssetList = ({
         </Text>
       </div>
       {assets.map(
-        ({ name, chainName, symbol, balance, balanceToUds, ...rest }, i) => (
+        ({ name, chainName, symbol, balance, balanceToUsd, ...rest }, i) => (
           <button
             key={i}
             className="flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-950"
@@ -87,7 +87,7 @@ const AssetList = ({
                   {symbol ? symbol : null}
                 </Text>
                 <Text as="span" size="2">
-                  {balanceToUds ? `$${balanceToUds.toFixed(7)}` : null}
+                  {balanceToUsd ? `$${balanceToUsd.toFixed(7)}` : null}
                 </Text>
               </div>
             </div>

@@ -1,6 +1,6 @@
-import { TokenBalance } from "@src/app/wallet/page"
+import { EmptyTokenBalance } from "@src/app/wallet/page"
 
-export const nearTokenList: TokenBalance[] = [
+export const nearTokenList: EmptyTokenBalance[] = [
   {
     name: "NEAR",
     symbol: "AURORA",
@@ -15,7 +15,7 @@ export const nearTokenList: TokenBalance[] = [
   },
 ]
 
-export const otherTokenList: TokenBalance[] = [
+export const otherTokenList: EmptyTokenBalance[] = [
   {
     name: "Avalanche",
     symbol: "AVAX",
