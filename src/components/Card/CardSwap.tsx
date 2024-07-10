@@ -37,7 +37,7 @@ const CardSwap = ({
           ${amountInToUsd}
         </Text>
       </div>
-      <div className="absolute top-[50%] left-[50%] -translate-x-2/4 -translate-y-2/4 flex justify-center items-center min-w-[77px] h-[472px]">
+      <div className="absolute top-[50%] left-[50%] -translate-x-2/4 -translate-y-2/4 flex justify-center items-center min-w-[77px] h-[472px] pointer-events-none">
         <Image
           src="/static/icons/swap_moving.svg"
           fill

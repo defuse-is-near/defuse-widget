@@ -3,6 +3,7 @@
 import { Button, Text } from "@radix-ui/themes"
 
 const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
+const SOCIAL_LINK_X = process?.env?.socialX ?? ""
 
 const Interested = () => {
   return (
@@ -33,7 +34,13 @@ const Interested = () => {
           </Button>
         </div>
         <div className="flex-1 md:min-w-[170px] w-full">
-          <Button color="orange" size="4" variant="outline" className="w-full">
+          <Button
+            onClick={() => window.open(SOCIAL_LINK_X)}
+            color="orange"
+            size="4"
+            variant="outline"
+            className="w-full cursor-pointer"
+          >
             <Text size="4" weight="medium" className="text-nowrap">
               Subscribe to updates
             </Text>

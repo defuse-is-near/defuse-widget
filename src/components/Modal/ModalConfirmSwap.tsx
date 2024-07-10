@@ -66,6 +66,12 @@ const ModalConfirmSwap = () => {
     )
   }
 
+  const handleBatchCleanupQuery = (keys: string[]) => {
+    const params = new URLSearchParams(searchParams.toString())
+    keys.forEach((key) => params.delete(key))
+    router.replace(pathname + "?" + params)
+  }
+
   const handleBatchCreateSwapQuery = ({
     clientId,
   }: {
@@ -184,6 +190,11 @@ const ModalConfirmSwap = () => {
           router.replace(pathname)
           return
         }
+
+        handleBatchCleanupQuery([
+          UseQueryCollectorKeys.CLIENT_ID,
+          UseQueryCollectorKeys.TRANSACTION_HASHS,
+        ])
 
         setSwapToLocal(inputs)
         handleBatchCreateSwapQuery({

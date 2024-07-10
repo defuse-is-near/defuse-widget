@@ -14,14 +14,15 @@ export const CONTRACTS_REGISTER =
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 export const MAX_GAS_TRANSACTION = "300" + "0".repeat(12)
 export const FT_STORAGE_DEPOSIT_GAS = "30000000000000"
+export const FT_WITHDRAW_GAS = "50000000000000"
 export const FT_MINIMUM_STORAGE_BALANCE_LARGE = "12500000000000000000000"
 export const FT_TRANSFER_GAS = ""
 export const TOKEN_TRANSFER_DEPOSIT = ""
-export const YOCTO_NEAR = 1e-24
+export const ONE_YOCTO_NEAR = "1" + "0".repeat(24)
 
 export const CONFIRM_SWAP_LOCAL_KEY = "__d_confirm_swap"
 export const NEAR_COLLECTOR_KEY = "__d_history_collector"
 
-export const CREATE_INTENT_EXPIRATION_BLOCK_BOOST = 300
+export const CREATE_INTENT_EXPIRATION_BLOCK_BOOST = 350
 
 export const THEME_MODE_KEY = "theme"

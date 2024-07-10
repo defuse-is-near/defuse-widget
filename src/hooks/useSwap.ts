@@ -141,6 +141,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
           queueTransactionsTrack: [queueTransaction],
         }
       }
+      // TODO If Token to Native then use QueueTransactions.WITHDRAW
       queueTransaction.unshift(QueueTransactions.DEPOSIT)
       queue++
     }
@@ -254,11 +255,17 @@ export const useSwap = ({ accountId, selector }: Props) => {
         IntentStruct: {
           initiator: accountId,
           send: {
-            token_id: selectedTokenIn!.address,
+            token_id:
+              selectedTokenIn!.address === "0x1"
+                ? "wrap.near"
+                : selectedTokenIn!.address,
             amount: unitsSendAmount,
           },
           receive: {
-            token_id: selectedTokenOut!.address,
+            token_id:
+              selectedTokenOut!.address === "0x1"
+                ? "wrap.near"
+                : selectedTokenOut!.address,
             amount: estimateUnitsBackAmount,
           },
           expiration: {

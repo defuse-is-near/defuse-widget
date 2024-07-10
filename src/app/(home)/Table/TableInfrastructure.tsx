@@ -70,9 +70,9 @@ const ComponentBody = ({
           <Image src={icon} alt="Group Icon" width={24} height={24} />
         )}
         {(children as string)?.length > 90 ? (
-          <Text size="2">{children}</Text>
+          <Text className="text-xs md:text-sm">{children}</Text>
         ) : (
-          <Text size="3">{children}</Text>
+          <Text className="text-sm md:text-base">{children}</Text>
         )}
       </div>
     </td>

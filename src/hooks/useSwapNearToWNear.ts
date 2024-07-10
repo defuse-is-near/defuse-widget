@@ -1,6 +1,9 @@
 import { WalletSelector } from "@near-wallet-selector/core"
 
-import { FT_STORAGE_DEPOSIT_GAS } from "@src/constants/contracts"
+import {
+  FT_STORAGE_DEPOSIT_GAS,
+  FT_WITHDRAW_GAS,
+} from "@src/constants/contracts"
 
 type Props = {
   accountId: string | null
@@ -50,8 +53,8 @@ const useSwapNearToWNear = ({ accountId, selector }: Props) => {
                 args: {
                   amount: withdraw,
                 },
-                gas: FT_STORAGE_DEPOSIT_GAS,
-                deposit: "0",
+                gas: FT_WITHDRAW_GAS,
+                deposit: "1",
               },
             },
           ],

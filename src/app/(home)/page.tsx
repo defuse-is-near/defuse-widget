@@ -1,3 +1,7 @@
+"use client"
+
+import { useEffect } from "react"
+
 import Banner from "@src/app/(home)/Banner"
 import PaperHome from "@src/app/(home)/PaperHome"
 // import InvestorLogo from "@src/app/(home)/InvestorLogo"
@@ -8,8 +12,17 @@ import Interested from "@src/app/(home)/Interested"
 import FAQ from "@src/app/(home)/FAQ"
 import CardSocial from "@src/app/(home)/Card/CardSocial"
 import TryDefuse from "@src/app/(home)/TryDefuse"
+import { THEME_MODE_KEY } from "@src/constants/contracts"
+
+const SOCIAL_LINK_X = process?.env?.socialX ?? ""
+const SOCIAL_LINK_DISCORD = process?.env?.socialDiscord ?? ""
+const LINK_DOCS = process?.env?.socialDocs ?? ""
 
 export default function Home() {
+  useEffect(() => {
+    localStorage.setItem(THEME_MODE_KEY, "light")
+  }, [])
+
   return (
     <div className="flex flex-col flex-1 justify-start item-center">
       <Banner />
@@ -30,16 +43,20 @@ export default function Home() {
           </h2>
         </div>
         <div className="w-full justify-center flex flex-wrap gap-5 px-5">
-          <CardSocial name="Follow on X" icon="/static/icons/X.svg" link="#" />
+          <CardSocial
+            name="Follow on X"
+            icon="/static/icons/X.svg"
+            link={SOCIAL_LINK_X}
+          />
           <CardSocial
             name="Join Discord"
             icon="/static/icons/discord.svg"
-            link="#"
+            link={SOCIAL_LINK_DISCORD}
           />
           <CardSocial
             name="Documentation"
             icon="/static/icons/Docs.svg"
-            link="https://docs.google.com/document/d/1yK5zjZpdA8IjiGc3JSzb7dfyt-5qsBjMMMi4KbYNHkM/edit?usp=sharing"
+            link={LINK_DOCS}
           />
         </div>
       </div>

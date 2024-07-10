@@ -63,8 +63,6 @@ export const useQueryCollector = (): CollectorHook => {
 
   const handleCleanupQuery = () => {
     cleanupQuery([
-      UseQueryCollectorKeys.CLIENT_ID,
-      UseQueryCollectorKeys.TRANSACTION_HASHS,
       UseQueryCollectorKeys.ERROR_MESSAGE,
       UseQueryCollectorKeys.ERROR_CODE,
     ])

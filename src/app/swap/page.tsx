@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { FieldValues, useForm } from "react-hook-form"
 import { formatUnits, parseUnits } from "viem"
-import { CheckedState } from "@radix-ui/react-checkbox"
 
 import Paper from "@src/components/Paper"
 import Form from "@src/components/Form"
