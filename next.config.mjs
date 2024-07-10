@@ -24,6 +24,7 @@ const nextConfig = {
     landing: process.env.NEXT_PUBLIC_LANDING_URL,
     appUrl: process.env.NEXT_PUBLIC_APP_URL,
     nearExplorer: process.env.NEXT_PUBLIC_NEAR_EXPLORER,
+    publicMail: process.env.NEXT_PUBLIC_PUBLIC_MAIL,
     // Specific [Keys] has to be below.
     NEAR_ENV: process.env.NEAR_ENV,
     SOLVER_RELAY_0_URL: process.env.SOLVER_RELAY_0_URL,

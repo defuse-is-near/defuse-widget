@@ -5,10 +5,11 @@ import Image from "next/image"
 
 import AssetComboIcon from "@src/components/Network/AssetComboIcon"
 import { NetworkToken } from "@src/types/interfaces"
+import { TokenListWithNotSelectableToken } from "@src/components/Modal/ModalSelectAssets"
 
 type Props = {
   title?: string
-  assets: NetworkToken[]
+  assets: TokenListWithNotSelectableToken[]
   emptyState?: ReactNode
   className?: string
   handleSelectToken?: (token: NetworkToken) => void
@@ -58,10 +59,24 @@ const AssetList = ({
         </Text>
       </div>
       {assets.map(
-        ({ name, chainName, symbol, balance, balanceToUsd, ...rest }, i) => (
+        (
+          {
+            name,
+            chainName,
+            symbol,
+            balance,
+            balanceToUsd,
+            isNotSelectable,
+            ...rest
+          },
+          i
+        ) => (
           <button
             key={i}
-            className="flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-950"
+            className={clsx(
+              "flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-950",
+              isNotSelectable && "opacity-50 pointer-events-none"
+            )}
             onClick={() => handleSelectToken && handleSelectToken(assets[i])}
           >
             <AssetComboIcon

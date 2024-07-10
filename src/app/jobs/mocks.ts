@@ -2,33 +2,13 @@ import { JobsDetails } from "@src/types/interfaces"
 
 export const jobsData: JobsDetails[] = [
   {
-    team: "Apps team",
-    position: "Technical Lead (Full Stack)",
-    link: "",
+    team: "BD",
+    position: "VP of Business Development",
+    link: "https://defuse.bamboohr.com/careers/23?source=aWQ9MTg%3D",
   },
   {
-    team: "Apps team",
-    position: "Software Engineer (Full Stack)",
-    link: "",
-  },
-  {
-    team: "Engineering Team",
-    position: "Software Engineer (Rust)",
-    link: "",
-  },
-  {
-    team: "Engineering Team",
-    position: "Senior Software Engineer",
-    link: "",
-  },
-  {
-    applicationLink: true,
-    position: "Technical positions",
-    link: "",
-  },
-  {
-    applicationLink: true,
-    position: "Engineer positions",
-    link: "",
+    team: "Marketing",
+    position: "Head of Marketing",
+    link: "https://defuse.bamboohr.com/careers/24?source=aWQ9MTg=",
   },
 ]

@@ -69,7 +69,11 @@ const ComponentBody = ({
         {group === ColumnGroupType.MAIN && icon && (
           <Image src={icon} alt="Group Icon" width={24} height={24} />
         )}
-        <Text size="3">{children}</Text>
+        {(children as string)?.length > 90 ? (
+          <Text size="2">{children}</Text>
+        ) : (
+          <Text size="3">{children}</Text>
+        )}
       </div>
     </td>
   )
@@ -84,9 +88,9 @@ const TableInfrastructure = ({ data, maxWidth }: Props) => {
       className={clsx("mx-auto min-w-0 -m-5 xl:m-0")}
       style={{ maxWidth: maxWidth + "px" }}
     >
-      <div className="overflow-x-auto">
+      <div className="block overflow-auto max-h-screen">
         <table className="table-fixed w-full" border={0} cellPadding="0">
-          <thead>
+          <thead className="sticky top-0">
             <tr>
               <ComponentHead>Feature</ComponentHead>
               <ComponentHead>CEX</ComponentHead>

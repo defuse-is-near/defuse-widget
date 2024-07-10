@@ -27,7 +27,8 @@ const Header = () => {
             {!TURN_OFF_APPS && (
               <>
                 <ConnectWallet />
-                <Settings />
+                {/*  TODO Wallet page has to be re-designed */}
+                {/*<Settings />*/}
               </>
             )}
             {TURN_OFF_APPS && (
@@ -41,11 +42,9 @@ const Header = () => {
                 <Link
                   href={NEXT_PUBLIC_APP_URL}
                   className={clsx(
-                    "rounded-full text-white px-4 py-2.5 text-sm",
-                    TURN_OFF_APPS
-                      ? "bg-gray-500 pointer-events-none"
-                      : "bg-primary"
+                    "rounded-full text-white px-4 py-2.5 text-sm bg-primary hover:bg-primary-200"
                   )}
+                  target="_blank"
                 >
                   <Text size="2" weight="medium" wrap="nowrap">
                     Launch App

@@ -1,3 +1,5 @@
+"use client"
+
 const Banner = () => {
   return (
     <div className="absolute w-full -top-[56px]">

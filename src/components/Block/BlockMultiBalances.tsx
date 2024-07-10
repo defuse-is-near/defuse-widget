@@ -1,8 +1,13 @@
+"use client"
+
 import React from "react"
 import { BigNumber } from "ethers"
 import { Checkbox, Text, Tooltip } from "@radix-ui/themes"
 import { CheckedState } from "@radix-ui/react-checkbox"
 import { InfoCircledIcon } from "@radix-ui/react-icons"
+import Image from "next/image"
+
+import { smallBalanceToFormat } from "@src/utils/token"
 
 export interface BlockMultiBalancesProps {
   balance?: string | BigNumber
@@ -18,9 +23,23 @@ const BlockMultiBalances = ({
 }: BlockMultiBalancesProps) => {
   return (
     <div className="absolute bottom-4 right-5 flex justify-center items-center gap-2">
-      <span className="text-sm text-gray-600">Balance:</span>
+      {Number(balance) > 0 ? (
+        <Image
+          src="/static/icons/wallet_active.svg"
+          alt={"Balance"}
+          width={16}
+          height={16}
+        />
+      ) : (
+        <Image
+          src="/static/icons/wallet_no_active.svg"
+          alt={"Balance"}
+          width={16}
+          height={16}
+        />
+      )}
       <span className="text-xs px-2 py-0.5 bg-red-100 text-red-400 rounded-full">
-        {balance?.toString()}
+        {smallBalanceToFormat(balance?.toString() ?? "", 7)}
       </span>
       {withNativeSupport && (
         <div className="absolute -top-[74px] right-0 flex justify-center items-center gap-1">

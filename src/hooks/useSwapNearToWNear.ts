@@ -33,8 +33,36 @@ const useSwapNearToWNear = ({ accountId, selector }: Props) => {
     })
   }
 
+  const callRequestNearWithdraw = async (
+    contractAddress: string,
+    withdraw: string
+  ) => {
+    const wallet = await selector!.wallet()
+    return await wallet.signAndSendTransactions({
+      transactions: [
+        {
+          receiverId: contractAddress,
+          actions: [
+            {
+              type: "FunctionCall",
+              params: {
+                methodName: "near_withdraw",
+                args: {
+                  amount: withdraw,
+                },
+                gas: FT_STORAGE_DEPOSIT_GAS,
+                deposit: "0",
+              },
+            },
+          ],
+        },
+      ],
+    })
+  }
+
   return {
     callRequestNearDeposit,
+    callRequestNearWithdraw,
   }
 }
 

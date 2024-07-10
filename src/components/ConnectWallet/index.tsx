@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Popover, Switch, Text } from "@radix-ui/themes"
+import { Popover, Spinner, Switch, Text } from "@radix-ui/themes"
 import { useTheme } from "next-themes"
 import clsx from "clsx"
 import { EnterIcon, CopyIcon, CountdownTimerIcon } from "@radix-ui/react-icons"
@@ -22,7 +22,7 @@ const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 const ConnectWallet = () => {
   const { selector, accountId } = useWalletSelector()
   const { getAccount } = useGetAccount({ accountId, selector })
-  const [loading, setLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [account, setAccount] = useState<Account | null>(null)
   const { theme, setTheme } = useTheme()
   const { shortAccountId } = useShortAccountId(accountId as string)
@@ -49,18 +49,20 @@ const ConnectWallet = () => {
       return setAccount(null)
     }
 
-    setLoading(true)
+    setIsLoading(true)
 
     getAccount().then((nextAccount) => {
       setAccount(nextAccount)
-      setLoading(false)
+      setIsLoading(false)
     })
   }, [accountId, getAccount])
 
   const handleTradeHistory = () => openWidget()
 
-  if (!account || TURN_OFF_APPS) {
-    return (
+  if (!account || TURN_OFF_APPS || isLoading) {
+    return isLoading ? (
+      <Spinner loading={isLoading} />
+    ) : (
       <button
         onClick={handleSignIn}
         className={clsx(
@@ -90,10 +92,7 @@ const ConnectWallet = () => {
         <Popover.Content className="min-w-[330px] mt-1 md:mr-[48px]">
           <ConnectWalletTabs />
           <div className="flex flex-col items-start gap-4 mt-[10px] mb-[22px]">
-            <div
-              onClick={onChangeTheme}
-              className="flex justify-between items-center gap-4"
-            >
+            <div className="flex justify-between items-center gap-4">
               <Text size="2" weight="medium">
                 Dark Mode
               </Text>

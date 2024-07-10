@@ -91,6 +91,8 @@ const config: Config = {
         primary: {
           DEFAULT: "rgba(247, 107, 21, 1)",
           100: "rgba(239, 95, 0, 1)",
+          200: "rgba(219, 95, 0, 1)",
+          300: "rgba(204, 78, 0, 1)",
         },
         secondary: "rgba(128, 128, 128, 1)",
       },
@@ -106,6 +108,8 @@ const config: Config = {
           "0px 12px 32px -16px rgba(31, 24, 0, 0.13), 0px 12px 60px 0px rgba(0, 0, 0, 0.15)",
         "card-history":
           "0px 16px 36px -20px rgba(25, 20, 0, 0.21), 0px 16px 64px 0px rgba(37, 37, 0, 0.03), 0px 12px 60px 0px rgba(0, 0, 0, 0.15)",
+        "switch-token":
+          "0px 1px 3px 0px rgba(0, 0, 0, 0.05), 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 4px 0px rgba(31, 21, 0, 0.10), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05)",
       },
       scale: {
         103: "1.03",
@@ -117,6 +121,16 @@ const config: Config = {
         "page-light": "url('/static/images/bg-light.svg')",
         "page-dark": "url('/static/images/bg-dark.svg')",
         "page-light--mobile": "url('/static/images/bg-light--mobile.svg')",
+        "card-vision-account-fi": "url(/static/images/group-account-fi.svg)",
+        "card-vision-account-fi--mobile":
+          "url(/static/images/group-account-fi--mobile.svg)",
+        "card-vision-multi-cover": "url(/static/images/group-multi-cover.svg)",
+        "card-vision-multi-cover--mobile":
+          "url(/static/images/group-multi-cover--mobile.svg)",
+        "card-vision-bringing":
+          "url(/static/images/group-account-bringing.svg)",
+        "card-vision-bringing--mobile":
+          "url(/static/images/group-account-bringing--mobile.svg)",
       },
     },
   },

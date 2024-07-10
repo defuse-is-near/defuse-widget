@@ -1,4 +1,8 @@
+"use client"
+
 import { Button, Text } from "@radix-ui/themes"
+
+const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
 
 const Interested = () => {
   return (
@@ -16,7 +20,13 @@ const Interested = () => {
       </Text>
       <div className="w-full md:max-w-[558px] flex flex-wrap justify-center items-center gap-2.5 md:gap-5 px-[24px] md:px-[51px]">
         <div className="flex-1 md:min-w-[170px] w-full">
-          <Button variant="solid" color="orange" size="4" className="w-full">
+          <Button
+            className="w-full cursor-pointer"
+            onClick={() => window.open(`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`)}
+            variant="solid"
+            color="orange"
+            size="4"
+          >
             <Text size="4" weight="medium">
               Contact us
             </Text>

@@ -10,18 +10,18 @@ import { NetworkToken } from "@src/types/interfaces"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import Button from "@src/components/Button/Button"
 import CardSwap from "@src/components/Card/CardSwap"
-import ButtonIcon from "@src/components/Button/ButtonIcon"
 import { ModalType } from "@src/stores/modalStore"
 import { useTimer } from "@src/hooks/useTimer"
 import { useTimeFormatMinutes } from "@src/hooks/useTimeFormat"
 import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
+import { smallBalanceToFormat } from "@src/utils/token"
 
 export type ModalReviewSwapPayload = {
   tokenIn: string
   tokenOut: string
   selectedTokenIn: NetworkToken
   selectedTokenOut: NetworkToken
-  useNative: boolean
+  isNativeInSwap: boolean
 }
 
 const RECALCULATE_ESTIMATION_TIME_SECS = 15
@@ -36,6 +36,13 @@ const ModalReviewSwap = () => {
   )
 
   const recalculateEstimation = async () => {
+    const pair = [
+      convertPayload.selectedTokenIn.address as string,
+      convertPayload.selectedTokenOut.address as string,
+    ]
+    // Not needed recalculation if ratio is 1:1
+    if (pair.includes("0x1") && pair.includes("wrap.near")) return
+
     const unitsTokenIn = parseUnits(
       convertPayload.tokenIn,
       convertPayload.selectedTokenIn.decimals as number
@@ -83,8 +90,8 @@ const ModalReviewSwap = () => {
           </button>
         </div>
         <CardSwap
-          amountIn={convertPayload.tokenIn.substring(0, 10)}
-          amountOut={convertPayload.tokenOut.substring(0, 10)}
+          amountIn={smallBalanceToFormat(convertPayload.tokenIn, 7)}
+          amountOut={smallBalanceToFormat(convertPayload.tokenOut, 7)}
           amountOutToUsd="~"
           amountInToUsd="~"
           selectTokenIn={convertPayload.selectedTokenIn}
@@ -114,12 +121,6 @@ const ModalReviewSwap = () => {
               Rate
             </Text>
             <div className="flex justify-center items-center gap-2">
-              <ButtonIcon
-                className="max-w-[24px] max-h-[24px] rounded-[3px] pointer-events-none"
-                iconWidth={16}
-                iconHeight={16}
-                icon="/static/icons/width.svg"
-              />
               <Text size="2" weight="medium">
                 1
               </Text>

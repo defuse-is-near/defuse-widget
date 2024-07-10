@@ -9,7 +9,7 @@ export const useTransactionScan = () => {
     const isFailureResults = tx?.receipts_outcome.map((receipt) => {
       return Boolean(
         receipt.outcome.status?.Failure?.ActionError.kind.FunctionCallError
-          .ExecutionError
+          ?.ExecutionError
       )
     })
     return {

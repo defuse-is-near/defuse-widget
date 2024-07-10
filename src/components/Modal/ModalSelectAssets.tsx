@@ -11,12 +11,16 @@ import { NetworkToken, NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
 import { useTokensStore } from "@src/providers/TokensStoreProvider"
-import { tokenBalanceToFormatUnits } from "@src/utils/token"
 
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
   token?: NetworkToken
   fieldName?: string
+}
+
+export interface TokenListWithNotSelectableToken
+  extends NetworkTokenWithSwapRoute {
+  isNotSelectable?: boolean
 }
 
 const ModalSelectAssets = () => {
@@ -52,26 +56,35 @@ const ModalSelectAssets = () => {
     if (!data.size) {
       return
     }
-    const { selectToken } = payload as {
+    const { selectToken, fieldName } = payload as {
       selectToken: NetworkTokenWithSwapRoute | undefined
+      fieldName: string
     }
 
-    const getAssetList: NetworkTokenWithSwapRoute[] = []
-    const getAssetListWithBalances: NetworkTokenWithSwapRoute[] = []
+    const getAssetList: TokenListWithNotSelectableToken[] = []
+    const getAssetListWithBalances: TokenListWithNotSelectableToken[] = []
     data.forEach((value) => {
-      if (
+      let isNotSelectable = false
+      // We do not filter "tokenIn" as give full access to tokens in first step
+      // Filtration by routes should happen only at "tokenOut"
+      const isAlreadySelected =
+        selectToken && value.defuse_asset_id === selectToken.defuse_asset_id
+      const isTokenOutAndNotSelectable =
         selectToken &&
+        fieldName === "tokenOut" &&
         !selectToken?.routes?.includes(value.defuse_asset_id)
-      ) {
-        return
+      if (isAlreadySelected || isTokenOutAndNotSelectable) {
+        isNotSelectable = true
       }
+
       if (value?.balance) {
         getAssetListWithBalances.push({
           ...value,
           balance: value?.balance,
+          isNotSelectable,
         })
       }
-      getAssetList.push(value)
+      getAssetList.push({ ...value, isNotSelectable })
     })
     setAssetList(getAssetList)
     setAssetListWithBalances(getAssetListWithBalances)

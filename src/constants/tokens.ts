@@ -223,7 +223,7 @@ const listNativeTokensMainnet = [
     chainIcon: "/static/icons/network/near.svg",
     icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg?1696510367",
     decimals: 24,
-    routes: ["near:mainnet:wrap.near"],
+    routes: ["wrap.near", "near:mainnet:wrap.near"],
   },
 ]
 

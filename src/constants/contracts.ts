@@ -17,6 +17,7 @@ export const FT_STORAGE_DEPOSIT_GAS = "30000000000000"
 export const FT_MINIMUM_STORAGE_BALANCE_LARGE = "12500000000000000000000"
 export const FT_TRANSFER_GAS = ""
 export const TOKEN_TRANSFER_DEPOSIT = ""
+export const YOCTO_NEAR = 1e-24
 
 export const CONFIRM_SWAP_LOCAL_KEY = "__d_confirm_swap"
 export const NEAR_COLLECTOR_KEY = "__d_history_collector"

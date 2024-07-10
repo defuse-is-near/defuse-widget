@@ -1,8 +1,8 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import clsx from "clsx"
-import Link from "next/link"
+import { Button } from "@radix-ui/themes"
 
 import { LINKS_HEADER, NavigationLinks } from "@src/constants/routes"
 import LabelComingSoon from "@src/components/LabelComingSoon"
@@ -15,6 +15,7 @@ type Props = {
 
 const Navbar = ({ links = LINKS_HEADER }: Props) => {
   const pathname = usePathname()
+  const router = useRouter()
   return (
     <nav className="flex justify-between items-center gap-4">
       {links!.map((route, i) => {
@@ -32,20 +33,26 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
           )
         }
         return (
-          <Link
-            href={route.href ?? ""}
-            key={i}
+          <Button
+            radius="full"
+            color="gray"
+            highContrast
+            variant={isCurrentPage ? "classic" : "soft"}
             className={clsx(
-              "relative px-3 py-1.5 rounded-full text-sm",
-              isCurrentPage &&
-                "bg-black-400 text-white dark:bg-white dark:text-black-400",
-              (TURN_OFF_APPS || route.comingSoon) &&
-                "pointer-events-none text-gray-500"
+              "relative text-sm",
+              TURN_OFF_APPS || route.comingSoon
+                ? "pointer-events-none text-gray-500"
+                : "cursor-pointer",
+              isCurrentPage
+                ? "text-white dark:text-black-400"
+                : "bg-transparent"
             )}
+            key={i}
+            onClick={() => router.push(route.href ?? "")}
           >
             {route.label}
             {route.comingSoon && !isCurrentPage && <LabelComingSoon />}
-          </Link>
+          </Button>
         )
       })}
     </nav>

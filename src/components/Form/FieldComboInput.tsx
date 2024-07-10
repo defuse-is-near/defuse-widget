@@ -128,7 +128,7 @@ const FieldComboInput = <T extends FieldValues>({
       ) : null}
       {price && errors && !errors[fieldName] ? (
         <span className="absolute bottom-4 left-5 text-sm font-medium text-secondary">
-          ~${price}
+          ~${parseFloat(price).toFixed(4)}
         </span>
       ) : null}
       <div className="flex justify-end items-center">

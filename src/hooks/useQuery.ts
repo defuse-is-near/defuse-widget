@@ -96,9 +96,14 @@ export const useQueryCollector = (): CollectorHook => {
       const errorMessage = searchParams.get(UseQueryCollectorKeys.ERROR_MESSAGE)
       const errorCode = searchParams.get(UseQueryCollectorKeys.ERROR_CODE)
 
-      if (transactionHashes) {
+      // TODO All transaction has to be added to history, not only the last in a batch [#1]
+      const isBatch = transactionHashes?.split(",") ?? []
+      const lastInTransactionHashes =
+        isBatch.length > 1 ? isBatch.at(-1) : isBatch[0]
+
+      if (lastInTransactionHashes) {
         const { result } = (await getNearTransactionDetails(
-          transactionHashes as string,
+          lastInTransactionHashes as string,
           accountId as string
         )) as Result<NearTX>
 
@@ -110,13 +115,13 @@ export const useQueryCollector = (): CollectorHook => {
           getNearBlockData = resultBlock.header.timestamp
         }
 
-        togglePreview(transactionHashes)
+        togglePreview(lastInTransactionHashes)
         handleCleanupQuery()
 
         return [
           {
             clientId: clientId as string,
-            hash: transactionHashes as string,
+            hash: lastInTransactionHashes as string,
             timestamp: getNearBlockData ?? 0,
             details: {
               receipts_outcome: result?.receipts_outcome,

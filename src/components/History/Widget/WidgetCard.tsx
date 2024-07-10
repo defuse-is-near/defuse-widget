@@ -120,7 +120,7 @@ const WidgetCard = ({
           title: `Storage deposit on ${details?.transaction?.receiver_id ?? PLACEHOLDER} by ${details?.transaction?.signer_id ?? PLACEHOLDER}`,
         }
 
-      case QueueTransactions.SWAP_FROM_NATIVE:
+      case QueueTransactions.DEPOSIT:
         let title = "Wrapped complete!"
         let subTitle = ""
         const extractMsg = details?.recoverDetails?.msg?.split(" ")
@@ -142,6 +142,24 @@ const WidgetCard = ({
           subTitle,
         }
 
+      case QueueTransactions.WITHDRAW:
+        const amount = details?.recoverDetails?.amount
+          ? details?.recoverDetails!.amount
+          : "0"
+        const tokenNearNative = LIST_NATIVE_TOKENS.find(
+          (token) => token.defuse_asset_id === "near:mainnet:0x1"
+        )
+        const formattedAmount = smallBalanceToFormat(
+          formatUnits(
+            BigInt(amount as string),
+            tokenNearNative!.decimals as number
+          ) ?? ""
+        )
+        return {
+          title: `Withdraw complete!`,
+          subTitle: `Unwrapped ${formattedAmount} w${tokenNearNative!.symbol} to ${formattedAmount} ${tokenNearNative!.symbol}`,
+        }
+
       default:
         return { title: "Unknown" }
     }
@@ -161,7 +179,10 @@ const WidgetCard = ({
       return QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
     }
     if (transaction.actions[0].FunctionCall.method_name === "near_deposit") {
-      return QueueTransactions.SWAP_FROM_NATIVE
+      return QueueTransactions.DEPOSIT
+    }
+    if (transaction.actions[0].FunctionCall.method_name === "near_withdraw") {
+      return QueueTransactions.WITHDRAW
     }
   }
 

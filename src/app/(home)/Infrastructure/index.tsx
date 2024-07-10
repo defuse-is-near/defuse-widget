@@ -46,7 +46,7 @@ const Infrastructure = () => {
             <Image
               src={
                 containerWidth <= 768
-                  ? "/static/images/Infrastructure_mob.svg"
+                  ? "/static/images/Infrastructure--mobile.svg"
                   : "/static/images/Infrastructure.svg"
               }
               alt="Defuse Infrastructure"

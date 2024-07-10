@@ -15,16 +15,15 @@ import {
   useSwap,
 } from "@src/hooks/useSwap"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import {
-  useCreateQueryString,
-  UseQueryCollectorKeys,
-} from "@src/hooks/useQuery"
+import { UseQueryCollectorKeys } from "@src/hooks/useQuery"
 import { ModalReviewSwapPayload } from "@src/components/Modal/ModalReviewSwap"
 import { ModalType } from "@src/stores/modalStore"
 import { sha256 } from "@src/actions/crypto"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 import { usePublishIntentSolver0 } from "@src/api/hooks/Intent/usePublishIntentSolver0"
 import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"
+import { smallBalanceToFormat } from "@src/utils/token"
+import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 
 export interface ModalConfirmSwapPayload extends CallRequestIntentProps {}
 
@@ -95,7 +94,7 @@ const ModalConfirmSwap = () => {
         selectedTokenIn: modalPayload.selectedTokenIn,
         selectedTokenOut: modalPayload.selectedTokenOut,
         clientId,
-        useNative: modalPayload.useNative,
+        useNative: modalPayload.isNativeInSwap,
       })
     setTransactionQueue(queueInTrack)
     return {
@@ -135,26 +134,45 @@ const ModalConfirmSwap = () => {
       if (data) {
         setDataFromLocal(data)
 
+        // TODO Linked to [#1]
         const receivedHash = searchParams.get(
           UseQueryCollectorKeys.TRANSACTION_HASHS
         )
-        if (!receivedHash) {
+
+        const isBatchHashes = receivedHash?.split(",")
+        if (!isBatchHashes) {
           console.log(
             "EstimateQueueTransactions has stopped due to the hash is missing, UseQueryCollectorKeys.TRANSACTION_HASHS"
           )
           return
         }
+        const lastInTransactionHashes =
+          isBatchHashes?.length > 1 ? isBatchHashes.at(-1) : isBatchHashes[0]
+
         const { value, done } = await nextEstimateQueueTransactions({
           estimateQueue: data.estimateQueue,
-          receivedHash: receivedHash as string,
+          receivedHash: lastInTransactionHashes as string,
         })
 
-        setIsReadingHistory(false)
+        setIsReadingHistory(true)
+
+        const isNativeTokenIn = data!.selectedTokenIn.address === "0x1"
+        const tokenNearNative = LIST_NATIVE_TOKENS.find(
+          (token) => token.defuse_asset_id === "near:mainnet:0x1"
+        )
+        const mutateSelectedTokenIn = isNativeTokenIn
+          ? {
+              ...data!.selectedTokenIn,
+              defuse_asset_id: tokenNearNative?.routes
+                ? tokenNearNative?.routes[1]
+                : "",
+            }
+          : data!.selectedTokenIn
 
         const inputs = {
           tokenIn: data!.tokenIn,
           tokenOut: data!.tokenOut,
-          selectedTokenIn: data!.selectedTokenIn,
+          selectedTokenIn: mutateSelectedTokenIn,
           selectedTokenOut: data!.selectedTokenOut,
           clientId: data.clientId,
           estimateQueue: value,
@@ -184,7 +202,7 @@ const ModalConfirmSwap = () => {
     ) {
       const estimateQueue = await handleEstimateQueueTransactions(newClientId)
 
-      setIsReadingHistory(false)
+      setIsReadingHistory(true)
 
       const inputs = {
         tokenIn: modalPayload.tokenIn,
@@ -196,7 +214,7 @@ const ModalConfirmSwap = () => {
       }
 
       setSwapToLocal(inputs)
-      await callRequestCreateIntent(inputs)
+      await callRequestCreateIntent(inputs, (mutate) => setSwapToLocal(mutate))
     }
   }
 
@@ -206,7 +224,7 @@ const ModalConfirmSwap = () => {
     }
   }, [historyData, isFetched, isProcessing])
 
-  if (isReadingHistory) {
+  if (!isReadingHistory) {
     return null
   }
 
@@ -255,7 +273,7 @@ const ModalConfirmSwap = () => {
         <div className="flex justify-center">
           <div className="flex justify-center items-center gap-1 px-2.5 py-1 bg-gray-950 rounded-full">
             <Text size="2" weight="medium" className="text-black-400">
-              {`${modalPayload?.tokenIn || dataFromLocal?.tokenIn || ""} ${modalPayload?.selectedTokenIn?.symbol || dataFromLocal?.selectedTokenIn?.symbol || ""}`}
+              {`${smallBalanceToFormat(modalPayload?.tokenIn || dataFromLocal?.tokenIn || "", 7)} ${modalPayload?.selectedTokenIn?.symbol || dataFromLocal?.selectedTokenIn?.symbol || ""}`}
             </Text>
             <Image
               src="/static/icons/arrow-right.svg"
@@ -264,7 +282,7 @@ const ModalConfirmSwap = () => {
               height={24}
             />
             <Text size="2" weight="medium" className="text-black-400">
-              {`${modalPayload?.tokenOut || dataFromLocal?.tokenOut || ""} ${modalPayload?.selectedTokenOut?.symbol || dataFromLocal?.selectedTokenOut?.symbol || ""}`}
+              {`${smallBalanceToFormat(modalPayload?.tokenOut || dataFromLocal?.tokenOut || "", 7)} ${modalPayload?.selectedTokenOut?.symbol || dataFromLocal?.selectedTokenOut?.symbol || ""}`}
             </Text>
           </div>
         </div>

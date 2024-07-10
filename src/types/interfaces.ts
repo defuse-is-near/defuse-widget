@@ -44,7 +44,8 @@ export interface NetworkTokenWithSwapRoute extends NetworkToken {
 }
 
 export enum QueueTransactions {
-  "SWAP_FROM_NATIVE" = "swapFromNative",
+  "DEPOSIT" = "deposit",
+  "WITHDRAW" = "withdraw",
   "STORAGE_DEPOSIT_TOKEN_IN" = "storageDepositTokenIn",
   "STORAGE_DEPOSIT_TOKEN_OUT" = "storageDepositTokenOut",
   "CREATE_INTENT" = "createIntent",
@@ -157,6 +158,7 @@ export interface RecoverDetails {
   expiration: ExpirationEnum
   referral: string
   msg?: string
+  amount?: string
 }
 
 export type JobsDetails = {
