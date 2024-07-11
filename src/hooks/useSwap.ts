@@ -5,7 +5,6 @@ import * as borsh from "borsh"
 import { parseUnits } from "viem"
 import { BigNumber } from "ethers"
 import { useState } from "react"
-import { Action } from "@near-js/transactions"
 
 import {
   CONTRACTS_REGISTER,

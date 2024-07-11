@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useId, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Spinner, Text } from "@radix-ui/themes"
 import Image from "next/image"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -24,6 +24,9 @@ import { usePublishIntentSolver0 } from "@src/api/hooks/Intent/usePublishIntentS
 import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"
 import { smallBalanceToFormat } from "@src/utils/token"
 import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
+import { PublishAtomicNearIntentProps } from "@src/api/intent"
+import { useNotificationStore } from "@src/providers/NotificationProvider"
+import { NotificationType } from "@src/stores/notificationStore"
 
 export interface ModalConfirmSwapPayload extends CallRequestIntentProps {}
 
@@ -47,7 +50,7 @@ const ModalConfirmSwap = () => {
   const { onCloseModal, payload } = useModalStore((state) => state)
   const modalPayload = payload as ModalReviewSwapPayload
   const { data: historyData, isFetched } = useHistoryStore((state) => state)
-  const { mutate } = usePublishIntentSolver0()
+  const { mutate, isSuccess, isError } = usePublishIntentSolver0()
 
   const getSwapFromLocal = (): ModalConfirmSwapPayload | null => {
     const getConfirmSwapFromLocal = localStorage.getItem(CONFIRM_SWAP_LOCAL_KEY)
@@ -109,28 +112,36 @@ const ModalConfirmSwap = () => {
     }
   }
 
+  const { setNotification } = useNotificationStore((state) => state)
+
   const handlePublishIntentToSolver = (
-    inputs: ModalConfirmSwapPayload
+    inputs: ModalConfirmSwapPayload,
+    receivedClientId: string | undefined,
+    receivedHash: string
   ): void => {
-    historyData.forEach((value) => {
-      if (value.clientId === inputs.clientId) {
-        mutate({
-          hash: value.hash,
-          defuseAssetIdIn: inputs.selectedTokenIn.defuse_asset_id,
-          accountId: accountId as string,
-          clientId: inputs.clientId,
-          defuseAssetIdOut: inputs.selectedTokenOut.defuse_asset_id,
-          unitsAmountIn: parseUnits(
-            inputs.tokenIn,
-            inputs.selectedTokenIn?.decimals as number
-          ).toString(),
-          unitsAmountOut: parseUnits(
-            inputs.tokenOut,
-            inputs.selectedTokenOut?.decimals as number
-          ).toString(),
-        })
-      }
-    })
+    if (!receivedClientId) {
+      setNotification({
+        id: v4(),
+        message: "Intent hasn't been published!",
+        type: NotificationType.ERROR,
+      })
+      return
+    }
+    mutate({
+      hash: receivedHash,
+      defuseAssetIdIn: inputs.selectedTokenIn.defuse_asset_id,
+      accountId: accountId,
+      clientId: receivedClientId,
+      defuseAssetIdOut: inputs.selectedTokenOut.defuse_asset_id,
+      unitsAmountIn: parseUnits(
+        inputs.tokenIn,
+        inputs.selectedTokenIn?.decimals as number
+      ).toString(),
+      unitsAmountOut: parseUnits(
+        inputs.tokenOut,
+        inputs.selectedTokenOut?.decimals as number
+      ).toString(),
+    } as PublishAtomicNearIntentProps)
   }
 
   const handleTrackSwap = async () => {
@@ -143,6 +154,9 @@ const ModalConfirmSwap = () => {
         // TODO Linked to [#1]
         const receivedHash = searchParams.get(
           UseQueryCollectorKeys.TRANSACTION_HASHS
+        )
+        const receivedClientId = searchParams.get(
+          UseQueryCollectorKeys.CLIENT_ID
         )
 
         const isBatchHashes = receivedHash?.split(",")
@@ -159,8 +173,6 @@ const ModalConfirmSwap = () => {
           estimateQueue: data.estimateQueue,
           receivedHash: lastInTransactionHashes as string,
         })
-
-        setIsReadingHistory(true)
 
         const isNativeTokenIn = data!.selectedTokenIn.address === "0x1"
         const tokenNearNative = LIST_NATIVE_TOKENS.find(
@@ -185,11 +197,15 @@ const ModalConfirmSwap = () => {
         }
 
         if (done) {
-          handlePublishIntentToSolver(inputs)
-          onCloseModal()
-          router.replace(pathname)
+          handlePublishIntentToSolver(
+            inputs,
+            receivedClientId ?? data.clientId,
+            lastInTransactionHashes as string
+          )
           return
         }
+
+        setIsReadingHistory(true)
 
         handleBatchCleanupQuery([
           UseQueryCollectorKeys.CLIENT_ID,
@@ -234,6 +250,20 @@ const ModalConfirmSwap = () => {
       handleTrackSwap()
     }
   }, [historyData, isFetched, isProcessing])
+
+  useEffect(() => {
+    if (isSuccess) {
+      onCloseModal()
+      router.replace(pathname)
+    }
+    if (isError) {
+      setNotification({
+        id: v4(),
+        message: "Intent hasn't been published!",
+        type: NotificationType.ERROR,
+      })
+    }
+  }, [isSuccess, isError])
 
   if (!isReadingHistory) {
     return null

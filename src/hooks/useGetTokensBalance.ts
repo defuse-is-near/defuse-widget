@@ -61,10 +61,12 @@ export const useGetTokensBalance = (
 
           if (getCoinIndex !== -1) {
             const convertedLastUsd = (exchangesList as CoingeckoExchanges)
-              .tickers[getCoinIndex].converted_last.usd
-            Object.assign(tokenBalance, {
-              convertedLast: { usd: convertedLastUsd },
-            })
+              ?.tickers[getCoinIndex].converted_last.usd
+            if (convertedLastUsd) {
+              Object.assign(tokenBalance, {
+                convertedLast: { usd: convertedLastUsd },
+              })
+            }
             if (balance) {
               const balanceToUsd = balance * convertedLastUsd
               Object.assign(tokenBalance, {

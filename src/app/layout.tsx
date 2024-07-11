@@ -8,6 +8,7 @@ import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
 import { ModalStoreProvider } from "@src/providers/ModalStoreProvider"
 import { TokensStoreProvider } from "@src/providers/TokensStoreProvider"
+import { NotificationStoreProvider } from "@src/providers/NotificationProvider"
 import Modal from "@src/components/Modal"
 import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
@@ -26,23 +27,25 @@ const RootLayout = ({
   return (
     <html lang="en">
       <body>
-        <QueryClientProvider client={queryClient}>
-          <WalletSelectorProvider>
-            <ThemeProvider attribute="class">
-              <Theme>
-                <HistoryStoreProvider>
-                  <TokensStoreProvider>
-                    <ModalStoreProvider>
-                      {children}
-                      <Modal />
-                    </ModalStoreProvider>
-                  </TokensStoreProvider>
-                </HistoryStoreProvider>
-              </Theme>
-            </ThemeProvider>
-          </WalletSelectorProvider>
-          {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
-        </QueryClientProvider>
+        <NotificationStoreProvider>
+          <QueryClientProvider client={queryClient}>
+            <WalletSelectorProvider>
+              <ThemeProvider attribute="class">
+                <Theme>
+                  <HistoryStoreProvider>
+                    <TokensStoreProvider>
+                      <ModalStoreProvider>
+                        {children}
+                        <Modal />
+                      </ModalStoreProvider>
+                    </TokensStoreProvider>
+                  </HistoryStoreProvider>
+                </Theme>
+              </ThemeProvider>
+            </WalletSelectorProvider>
+            {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
+          </QueryClientProvider>
+        </NotificationStoreProvider>
       </body>
     </html>
   )

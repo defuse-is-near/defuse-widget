@@ -13,7 +13,7 @@ import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
-import { NetworkToken } from "@src/types/interfaces"
+import { NetworkToken, NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 import { ModalSelectAssetsPayload } from "@src/components/Modal/ModalSelectAssets"
 import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
 import { DataEstimateRequest } from "@src/libs/de-sdk/types/interfaces"
@@ -27,6 +27,7 @@ import { useEvaluateSwapEstimation } from "@src/hooks/useEvaluateSwapEstimation"
 import BlockEvaluatePrice from "@src/components/Block/BlockEvaluatePrice"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useSwapGuard } from "@src/hooks/useSwapGuard"
 
 type FormValues = {
   tokenIn: string
@@ -81,6 +82,7 @@ export default function Swap() {
   const { getSwapEstimateBot, isFetching } = useSwapEstimateBot()
   const isProgrammaticUpdate = useRef(false)
   useModalSearchParams()
+  const { handleValidateInputs, errorMsg } = useSwapGuard()
 
   const handleResetToken = (
     token: NetworkToken,
@@ -111,6 +113,9 @@ export default function Swap() {
   }
 
   const onSubmit = async (values: FieldValues) => {
+    if (errorMsg) {
+      return
+    }
     if (!accountId) {
       return handleSignIn()
     }
@@ -163,6 +168,12 @@ export default function Swap() {
       getEvaluateSwapEstimate("tokenIn", data, allEstimates, bestOut)
       isProgrammaticUpdate.current = true
       setValue("tokenIn", bestOut ?? "0")
+
+      handleValidateInputs({
+        tokenIn: bestOut ?? "0",
+        selectTokenIn: selectTokenIn as NetworkTokenWithSwapRoute,
+        selectTokenOut: selectTokenOut as NetworkTokenWithSwapRoute,
+      })
     },
     ESTIMATE_BOT_AWAIT_500_MS
   )
@@ -217,6 +228,12 @@ export default function Swap() {
         amountIn: unitsTokenOut,
       } as DataEstimateRequest)
     }
+
+    handleValidateInputs({
+      tokenIn,
+      selectTokenIn,
+      selectTokenOut,
+    })
   }
 
   useEffect(() => {
@@ -408,8 +425,14 @@ export default function Swap() {
           errors={errors}
           errorSelect={errorSelectTokenOut}
         />
-        <Button type="submit" size="lg" fullWidth isLoading={isFetching}>
-          {isFetching ? "" : "Swap"}
+        <Button
+          type="submit"
+          size="lg"
+          fullWidth
+          isLoading={isFetching}
+          disabled={Boolean(errorMsg)}
+        >
+          {isFetching ? "" : errorMsg ? errorMsg : "Swap"}
         </Button>
       </Form>
     </Paper>

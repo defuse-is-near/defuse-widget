@@ -12,8 +12,11 @@ import NavbarMobile from "@src/components/NavbarMobile"
 import History from "@src/components/History"
 import { LINKS_HEADER } from "@src/constants/routes"
 import HistoryLastUpdate from "@src/components/History/HistoryLastUpdate"
+import Snackbar from "@src/components/Snackbar"
+import { useInterceptors } from "@src/api/api"
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
+  useInterceptors()
   const pathname = usePathname()
   const isAppsPath = LINKS_HEADER.some((route) => route.href === pathname)
 
@@ -28,6 +31,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <PageBackground />
       {isAppsPath && <History />}
       <HistoryLastUpdate />
+      <Snackbar />
     </div>
   )
 }
