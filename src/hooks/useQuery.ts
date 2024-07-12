@@ -100,15 +100,26 @@ export const useQueryCollector = (): CollectorHook => {
         isBatch.length > 1 ? isBatch.at(-1) : isBatch[0]
 
       if (lastInTransactionHashes) {
-        const { result } = (await getNearTransactionDetails(
+        const txData = (await getNearTransactionDetails(
           lastInTransactionHashes as string,
           accountId as string
         )) as Result<NearTX>
 
+        if (txData?.error?.data) {
+          // TODO Missing error handler
+          console.log(
+            "getTransactions: ",
+            txData?.error?.data,
+            ", hash:",
+            lastInTransactionHashes
+          )
+          return []
+        }
+
         let getNearBlockData = 0
-        if (result.receipts_outcome.length) {
+        if (txData.result.receipts_outcome.length) {
           const { result: resultBlock } = (await getNearBlockById(
-            result.receipts_outcome[0].block_hash
+            txData.result.receipts_outcome[0].block_hash
           )) as NearBlock
           getNearBlockData = resultBlock.header.timestamp
         }
@@ -122,8 +133,8 @@ export const useQueryCollector = (): CollectorHook => {
             hash: lastInTransactionHashes as string,
             timestamp: getNearBlockData ?? 0,
             details: {
-              receipts_outcome: result?.receipts_outcome,
-              transaction: result?.transaction,
+              receipts_outcome: txData.result?.receipts_outcome,
+              transaction: txData.result?.transaction,
               ...getTryToExtractDataFromLocal(clientId as string),
             },
           },

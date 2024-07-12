@@ -23,7 +23,6 @@ const Snackbar = () => {
   }, [data])
 
   const handleOpenChange = (id: string) => {
-    debugger
     setOpenNotifications((prev) => {
       deleteNotification(id)
       return prev.filter((notification) => notification.id !== id)

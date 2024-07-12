@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Spinner, Text } from "@radix-ui/themes"
 import Image from "next/image"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
@@ -49,8 +49,13 @@ const ModalConfirmSwap = () => {
   const searchParams = useSearchParams()
   const { onCloseModal, payload } = useModalStore((state) => state)
   const modalPayload = payload as ModalReviewSwapPayload
-  const { data: historyData, isFetched } = useHistoryStore((state) => state)
+  const {
+    data: historyData,
+    updateOneHistory,
+    isFetched,
+  } = useHistoryStore((state) => state)
   const { mutate, isSuccess, isError } = usePublishIntentSolver0()
+  const hardTrackRef = useRef(false)
 
   const getSwapFromLocal = (): ModalConfirmSwapPayload | null => {
     const getConfirmSwapFromLocal = localStorage.getItem(CONFIRM_SWAP_LOCAL_KEY)
@@ -145,7 +150,7 @@ const ModalConfirmSwap = () => {
   }
 
   const handleTrackSwap = async () => {
-    if (!modalPayload) {
+    if (!modalPayload || hardTrackRef.current) {
       const data = getSwapFromLocal()
 
       if (data) {
@@ -241,7 +246,29 @@ const ModalConfirmSwap = () => {
       }
 
       setSwapToLocal(inputs)
-      await callRequestCreateIntent(inputs, (mutate) => setSwapToLocal(mutate))
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const callResult: any = await callRequestCreateIntent(inputs, (mutate) =>
+        setSwapToLocal(mutate)
+      )
+      if (callResult?.length) {
+        const queryParams = new URLSearchParams(searchParams.toString())
+        queryParams.set(
+          UseQueryCollectorKeys.TRANSACTION_HASHS,
+          callResult[0].transaction.hash
+        )
+        const updatedQueryString = queryParams.toString()
+        router.replace(pathname + "?" + updatedQueryString)
+
+        // Intentionally run function to validate queue of execution
+        hardTrackRef.current = true
+        updateOneHistory({
+          clientId: inputs.clientId as string,
+          hash: callResult[0].transaction.hash as string,
+          timestamp: Number(`${new Date().getTime()}` + "0".repeat(6)),
+        })
+        await handleTrackSwap()
+      }
     }
   }
 

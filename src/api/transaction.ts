@@ -19,6 +19,7 @@ export const getNearTransactionDetails = (
       },
     })
     .then((resp) => resp.data)
+    .catch((resp) => resp.error)
 
 export const getNearFinalBlock = () =>
   axios

@@ -14,13 +14,15 @@ export interface GetAccountBalanceResult {
   balance: string
 }
 
+const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
+
 export const useAccountBalance = () => {
   const { selector, accountId } = useWalletSelector()
 
   const getAccountBalance = async (): Promise<GetAccountBalanceResult> => {
     try {
-      const { network } = selector.options
-      const provider = new providers.JsonRpcProvider({ url: network.nodeUrl })
+      // const { network } = selector.options
+      const provider = new providers.JsonRpcProvider({ url: NEAR_NODE_URL })
 
       const { amount } = await provider.query<AccountView>({
         request_type: "view_account",

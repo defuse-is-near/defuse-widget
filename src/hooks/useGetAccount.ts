@@ -11,6 +11,8 @@ type Props = {
   selector: WalletSelector | null
 }
 
+const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
+
 export const useGetAccount = ({ accountId, selector }: Props) => {
   const { getAccountBalance } = useAccountBalance()
 
@@ -19,8 +21,8 @@ export const useGetAccount = ({ accountId, selector }: Props) => {
       return null
     }
 
-    const { network } = selector.options
-    const provider = new providers.JsonRpcProvider({ url: network.nodeUrl })
+    // const { network } = selector.options
+    const provider = new providers.JsonRpcProvider({ url: NEAR_NODE_URL })
 
     const { hasBalance } = await getAccountBalance()
 

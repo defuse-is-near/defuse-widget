@@ -41,7 +41,6 @@ const useSwapNearToWNear = ({ selector }: Props) => {
     amount: string
   ) => {
     const wallet = await selector!.wallet()
-    debugger
     return await wallet.signAndSendTransactions({
       transactions: [
         {

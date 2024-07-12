@@ -53,9 +53,11 @@ export enum QueueTransactions {
 
 export interface Result<T> {
   result: T
+  error?: NearTXError
 }
 
 export interface NearTXTransaction {
+  hash: string
   actions: {
     FunctionCall: {
       method_name: string
@@ -89,6 +91,11 @@ export type NearTxReceiptsOutcome = {
     }
   }
 }[]
+
+export type NearTXError = {
+  message: string
+  data: string
+}
 
 export type NearTX = {
   transaction: NearTXTransaction

@@ -225,7 +225,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
   const callRequestCreateIntent = async (
     inputs: CallRequestIntentProps,
     mutate?: (input: CallRequestIntentProps) => void
-  ) => {
+  ): Promise<NearTX[] | void> => {
     if (!isValidInputs(inputs) && !isValidEstimateQueue(inputs?.estimateQueue))
       return
     const {
@@ -279,6 +279,10 @@ export const useSwap = ({ accountId, selector }: Props) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const msgBorsh = borsh.serialize(swapSchema as any, msg)
 
+    // TODO Update type to NearTX[] | void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let transactionResult: any | void = undefined
+
     if (estimateQueue?.queueTransactionsTrack?.length === 1) {
       const currentQueue: QueueTransactions =
         estimateQueue!.queueTransactionsTrack[0]
@@ -290,7 +294,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
               tokenIn.toString(),
               selectedTokenIn?.decimals as number
             ).toString()
-            await callRequestNearDeposit(
+            transactionResult = await callRequestNearDeposit(
               selectedTokenOut!.address as string,
               unitsSendAmount
             )
@@ -303,7 +307,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
               tokenIn.toString(),
               selectedTokenIn?.decimals as number
             ).toString()
-            await callRequestNearWithdraw(
+            transactionResult = await callRequestNearWithdraw(
               selectedTokenIn!.address as string,
               unitsSendAmount
             )
@@ -319,7 +323,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
             selectedTokenIn?.address &&
             !Number(storageBalanceTokenIn?.toString() || "0")
           ) {
-            await setStorageDeposit(
+            transactionResult = await setStorageDeposit(
               selectedTokenIn!.address as string,
               accountId as string
             )
@@ -335,7 +339,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
             selectedTokenOut?.address &&
             !Number(storageBalanceTokenOut?.toString() || "0")
           ) {
-            await setStorageDeposit(
+            transactionResult = await setStorageDeposit(
               selectedTokenOut!.address as string,
               accountId as string
             )
@@ -344,7 +348,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
 
         case QueueTransactions.CREATE_INTENT:
           const wallet = await selector!.wallet()
-          await wallet.signAndSendTransactions({
+          transactionResult = await wallet.signAndSendTransactions({
             transactions: [
               {
                 receiverId: selectedTokenIn!.address as string,
@@ -369,6 +373,9 @@ export const useSwap = ({ accountId, selector }: Props) => {
           })
           break
       }
+
+      setIsProcessing(false)
+      return transactionResult
     }
 
     const isNativeTokenIn = selectedTokenIn!.address === "0x1"
@@ -503,11 +510,12 @@ export const useSwap = ({ accountId, selector }: Props) => {
       })
 
     const wallet = await selector!.wallet()
-    await wallet.signAndSendTransactions({
+    transactionResult = await wallet.signAndSendTransactions({
       transactions: transactions.filter((tx) => tx.actions.length),
     })
 
     setIsProcessing(false)
+    return transactionResult
   }
 
   const callRequestRollbackIntent = async (inputs: { id: string }) => {

@@ -23,6 +23,7 @@ jobs:
         with:
           coingecko_api_key: ${{ secrets.COINGECKO_API_KEY }}
           near_node_url: ${{ secrets.NEAR_NODE_URL }}
+          wallet_connect_project_id: ${{ secrets.WALLET_CONNECT_PROJECT_ID }}
 
       - name: Test
         uses: ./.github/actions/test
