@@ -2,10 +2,8 @@
 
 import type {
   AccountState,
-  NetworkId,
   Wallet,
   WalletSelector,
-  WalletSelectorParams,
 } from "@near-wallet-selector/core"
 import { setupWalletSelector } from "@near-wallet-selector/core"
 import type { WalletSelectorModal } from "@near-wallet-selector/modal-ui"
@@ -58,10 +56,6 @@ interface WalletSelectorContextValue {
 import { Loading } from "@src/components/Loading"
 import { CONTRACTS_REGISTER } from "@src/constants/contracts"
 
-interface ExtendedWalletSelectorParams extends WalletSelectorParams {
-  nodeUrl?: string
-}
-
 const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
 const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
 const WALLET_CONNECT_PROJECT_ID = process.env.walletConnectProjectId ?? ""
@@ -79,8 +73,14 @@ export const WalletSelectorProvider: React.FC<{
 
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
-      nodeUrl: NEAR_NODE_URL,
-      network: NEAR_ENV as NetworkId,
+      network: {
+        networkId: NEAR_ENV,
+        nodeUrl: NEAR_NODE_URL,
+        helperUrl: "",
+        explorerUrl: "https://nearblocks.io",
+        indexerUrl:
+          "postgres://public_readonly:nearprotocol@mainnet.db.explorer.indexer.near.dev/mainnet_explorer",
+      },
       debug: true,
       modules: [
         setupMyNearWallet(),
@@ -117,7 +117,7 @@ export const WalletSelectorProvider: React.FC<{
           contractId: "", // Example guest-book.testnet
         }) as WalletModuleFactory<Wallet>,
       ],
-    } as ExtendedWalletSelectorParams)
+    })
     const _modal = setupModal(_selector, {
       contractId: CONTRACTS_REGISTER.INTENT,
     })
