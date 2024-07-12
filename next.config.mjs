@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs"
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config) => {
@@ -58,4 +59,13 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+const sentryConfig = {
+  org: "aurora-k2",
+  project: "defuse",
+  silent: true,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+}
+
+export default withSentryConfig(nextConfig, sentryConfig)

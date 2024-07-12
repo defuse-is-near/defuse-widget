@@ -2,6 +2,7 @@ import { Theme } from "@radix-ui/themes"
 import { ThemeProvider } from "next-themes"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 import queryClient from "@src/constants/queryClient"
 import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
@@ -47,6 +48,7 @@ const RootLayout = ({
           </QueryClientProvider>
         </NotificationStoreProvider>
       </body>
+      <GoogleAnalytics gaId="G-WNE3NB46KM" />
     </html>
   )
 }
