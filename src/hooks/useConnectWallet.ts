@@ -16,12 +16,13 @@ export const useConnectWallet = (): ConnectWalletAction => {
   }
 
   const handleSignOut = async () => {
-    const wallet = await selector.wallet()
-
-    wallet.signOut().catch((err) => {
+    try {
+      const wallet = await selector.wallet()
+      await wallet.signOut()
+    } catch (e) {
       console.log("Failed to sign out")
-      console.error(err)
-    })
+      console.error(e)
+    }
   }
 
   const handleSwitchWallet = () => {

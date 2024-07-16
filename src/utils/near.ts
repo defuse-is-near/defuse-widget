@@ -53,7 +53,6 @@ export async function nep141Balance(
 ): Promise<string | null> {
   try {
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
-
     const nearProvider = getNearProvider()
     const storageBalance = await nearProvider.query<CodeResult>({
       request_type: "call_function",

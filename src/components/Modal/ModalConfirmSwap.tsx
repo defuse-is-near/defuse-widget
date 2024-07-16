@@ -27,6 +27,8 @@ import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 import { PublishAtomicNearIntentProps } from "@src/api/intent"
 import { useNotificationStore } from "@src/providers/NotificationProvider"
 import { NotificationType } from "@src/stores/notificationStore"
+import { getNearBlockById } from "@src/api/transaction"
+import { NearBlock, NearTX, QueueTransactions } from "@src/types/interfaces"
 
 export interface ModalConfirmSwapPayload extends CallRequestIntentProps {}
 
@@ -56,6 +58,7 @@ const ModalConfirmSwap = () => {
   } = useHistoryStore((state) => state)
   const { mutate, isSuccess, isError } = usePublishIntentSolver0()
   const hardTrackRef = useRef(false)
+  const { togglePreview } = useHistoryStore((state) => state)
 
   const getSwapFromLocal = (): ModalConfirmSwapPayload | null => {
     const getConfirmSwapFromLocal = localStorage.getItem(CONFIRM_SWAP_LOCAL_KEY)
@@ -247,27 +250,51 @@ const ModalConfirmSwap = () => {
 
       setSwapToLocal(inputs)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const callResult: any = await callRequestCreateIntent(inputs, (mutate) =>
-        setSwapToLocal(mutate)
+      const callResult: NearTX[] | void = await callRequestCreateIntent(
+        inputs,
+        (mutate) => setSwapToLocal(mutate)
       )
       if (callResult?.length) {
-        const queryParams = new URLSearchParams(searchParams.toString())
-        queryParams.set(
-          UseQueryCollectorKeys.TRANSACTION_HASHS,
-          callResult[0].transaction.hash
+        const timestamps = await Promise.all(
+          callResult.map(async (result) => {
+            const { result: resultBlock } = (await getNearBlockById(
+              result.transaction.hash as string
+            )) as NearBlock
+            return resultBlock.header.timestamp
+          })
         )
-        const updatedQueryString = queryParams.toString()
-        router.replace(pathname + "?" + updatedQueryString)
 
-        // Intentionally run function to validate queue of execution
-        hardTrackRef.current = true
-        updateOneHistory({
-          clientId: inputs.clientId as string,
-          hash: callResult[0].transaction.hash as string,
-          timestamp: Number(`${new Date().getTime()}` + "0".repeat(6)),
+        callResult.reverse().forEach((result, i) => {
+          updateOneHistory({
+            clientId: inputs.clientId as string,
+            hash: result.transaction.hash as string,
+            timestamp: timestamps[i] ?? 0,
+            details: {
+              tokenIn: modalPayload.tokenIn,
+              tokenOut: modalPayload.tokenOut,
+              selectedTokenIn: modalPayload.selectedTokenIn,
+              selectedTokenOut: modalPayload.selectedTokenOut,
+            },
+          })
+          // Toggle preview for the main transaction in batch
+          if (i === callResult.length - 1) {
+            togglePreview(result.transaction.hash as string)
+            if (
+              estimateQueue.queueTransactionsTrack.includes(
+                QueueTransactions.CREATE_INTENT
+              )
+            ) {
+              handlePublishIntentToSolver(
+                inputs,
+                inputs.clientId,
+                result.transaction.hash as string
+              )
+            } else {
+              onCloseModal()
+              router.replace(pathname)
+            }
+          }
         })
-        await handleTrackSwap()
       }
     }
   }

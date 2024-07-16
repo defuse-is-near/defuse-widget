@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import * as Toast from "@radix-ui/react-toast"
-import { Button, Text } from "@radix-ui/themes"
+import { Text } from "@radix-ui/themes"
 import Image from "next/image"
 
 import { useNotificationStore } from "@src/providers/NotificationProvider"
-import { Notification, NotificationState } from "@src/stores/notificationStore"
+import { Notification } from "@src/stores/notificationStore"
 
 const Snackbar = () => {
   const { data, deleteNotification } = useNotificationStore((state) => state)
@@ -23,10 +23,10 @@ const Snackbar = () => {
   }, [data])
 
   const handleOpenChange = (id: string) => {
-    setOpenNotifications((prev) => {
-      deleteNotification(id)
-      return prev.filter((notification) => notification.id !== id)
-    })
+    setOpenNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id)
+    )
+    deleteNotification(id)
   }
 
   return (

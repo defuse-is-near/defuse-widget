@@ -31,7 +31,7 @@ const ModalSelectAssets = () => {
   >([])
 
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
-  const { data } = useTokensStore((state) => state)
+  const { data, isLoading } = useTokensStore((state) => state)
   const deferredQuery = useDeferredValue(searchValue)
 
   const handleSearchClear = () => setSearchValue("")
@@ -53,7 +53,7 @@ const ModalSelectAssets = () => {
   }
 
   useEffect(() => {
-    if (!data.size) {
+    if (!data.size && !isLoading) {
       return
     }
     const { selectToken, fieldName } = payload as {
@@ -88,7 +88,7 @@ const ModalSelectAssets = () => {
     })
     setAssetList(getAssetList)
     setAssetListWithBalances(getAssetListWithBalances)
-  }, [data])
+  }, [data, isLoading])
 
   return (
     <ModalDialog>

@@ -11,13 +11,38 @@ import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"
 
 const IS_DISABLED_ALL_TABS = true
 
-const ConnectWalletTabBox = ({ children }: PropsWithChildren) => {
+const WalletTabBox = ({ children }: PropsWithChildren) => {
   return (
     <div className="pt-[22px] pb-[26px] flex flex-col gap-2">{children}</div>
   )
 }
 
-const ConnectWalletTabs = () => {
+const TabTotalBalance = ({
+  totalBalanceInUsd,
+  isLoading,
+}: {
+  totalBalanceInUsd: number | undefined
+  isLoading: boolean
+}) => {
+  return (
+    <WalletTabBox>
+      {isLoading ? (
+        <div className="h-[36px]">
+          <Spinner loading={isLoading} />
+        </div>
+      ) : (
+        <Text size="7" weight="bold">
+          ${totalBalanceInUsd ? totalBalanceInUsd?.toFixed(2) : "0.00"}
+        </Text>
+      )}
+      <Text size="2" weight="medium" className="text-gray-600">
+        Total balance
+      </Text>
+    </WalletTabBox>
+  )
+}
+
+const WalletTabs = () => {
   const [isLoading, setIsLoading] = useState(false)
   const { data, isFetched } = useTokensStore((state) => state)
   const [totalBalanceInUsd, setTotalBalanceInUsd] = useState<
@@ -61,29 +86,13 @@ const ConnectWalletTabs = () => {
     if (data.size && isFetched) {
       getBalanceToUsd()
     }
-  }, [data, isFetched])
-
-  const TabTotalBalance = () => {
-    return (
-      <ConnectWalletTabBox>
-        {isLoading ? (
-          <div className="h-[36px]">
-            <Spinner loading={isLoading} />
-          </div>
-        ) : (
-          <Text size="7" weight="bold">
-            ${totalBalanceInUsd ? totalBalanceInUsd?.toFixed(2) : "0.00"}
-          </Text>
-        )}
-        <Text size="2" weight="medium" className="text-gray-600">
-          Total balance
-        </Text>
-      </ConnectWalletTabBox>
-    )
-  }
+  }, [data.size, isFetched])
 
   return IS_DISABLED_ALL_TABS ? (
-    <TabTotalBalance />
+    <TabTotalBalance
+      totalBalanceInUsd={totalBalanceInUsd}
+      isLoading={isLoading}
+    />
   ) : (
     <Tabs.Root defaultValue="account">
       <Tabs.List color="orange">
@@ -98,17 +107,20 @@ const ConnectWalletTabs = () => {
 
       <Box pt="3" className="border-b-[1px] border-white-900 -mx-4 px-4">
         <Tabs.Content value="available">
-          <TabTotalBalance />
+          <TabTotalBalance
+            totalBalanceInUsd={totalBalanceInUsd}
+            isLoading={isLoading}
+          />
         </Tabs.Content>
 
         <Tabs.Content value="deposited">
-          <ConnectWalletTabBox>
+          <WalletTabBox>
             <Text size="2">Deposited</Text>
-          </ConnectWalletTabBox>
+          </WalletTabBox>
         </Tabs.Content>
       </Box>
     </Tabs.Root>
   )
 }
 
-export default ConnectWalletTabs
+export default WalletTabs

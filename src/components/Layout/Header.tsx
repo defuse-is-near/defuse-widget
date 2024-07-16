@@ -7,7 +7,7 @@ import { Text } from "@radix-ui/themes"
 
 import Logo from "@src/components/Logo"
 import Navbar from "@src/components/Navbar"
-import ConnectWallet from "@src/components/ConnectWallet"
+import ConnectWallet from "@src/components/Wallet"
 import Settings from "@src/components/Settings"
 import { Navigation } from "@src/constants/routes"
 

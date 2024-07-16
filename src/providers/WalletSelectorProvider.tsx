@@ -114,7 +114,7 @@ export const WalletSelectorProvider: React.FC<{
         }),
         setupNearMobileWallet(),
         setupMintbaseWallet({
-          contractId: "", // Example guest-book.testnet
+          contractId: CONTRACTS_REGISTER.INTENT,
         }) as WalletModuleFactory<Wallet>,
       ],
     })

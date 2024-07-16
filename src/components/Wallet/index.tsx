@@ -11,7 +11,7 @@ import type { Account } from "@src/types/interfaces"
 import { useGetAccount } from "@src/hooks/useGetAccount"
 import Themes from "@src/types/themes"
 import useShortAccountId from "@src/hooks/useShortAccountId"
-import ConnectWalletTabs from "@src/components/ConnectWallet/ConnectWalletTabs"
+import WalletTabs from "@src/components/Wallet/WalletTabs"
 import { THEME_MODE_KEY } from "@src/constants/contracts"
 import CopyToClipboard from "@src/components/CopyToClipboard"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
@@ -90,7 +90,7 @@ const ConnectWallet = () => {
           </button>
         </Popover.Trigger>
         <Popover.Content className="min-w-[330px] mt-1 md:mr-[48px]">
-          <ConnectWalletTabs />
+          <WalletTabs />
           <div className="flex flex-col items-start gap-4 mt-[10px] mb-[22px]">
             <div className="flex justify-between items-center gap-4">
               <Text size="2" weight="medium">

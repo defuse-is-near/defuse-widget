@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { formatUnits } from "viem"
 
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
@@ -20,7 +20,7 @@ export const useGetTokensBalance = (
   const { activePreview } = useHistoryStore((state) => state)
   const { data: exchangesList, isFetched } = useGetCoingeckoExchangesList()
 
-  const getTokensBalance = useCallback(async () => {
+  const getTokensBalance = async () => {
     try {
       setIsFetching(true)
       const dataWithBalances = await Promise.all(
@@ -34,7 +34,7 @@ export const useGetTokensBalance = (
           const tokenBalance: TokenBalance = {}
 
           let balance: number | undefined = undefined
-          if (accountId && token?.address) {
+          if (accountId && token?.address && token.address !== "0x1") {
             const getBalance = await nep141Balance(
               accountId as string,
               token.address as string
@@ -89,13 +89,26 @@ export const useGetTokensBalance = (
       setIsError(true)
       setIsFetching(false)
     }
-  }, [tokensList, exchangesList])
+  }
+
+  const clearTokensBalance = () => {
+    const dataCleanBalances = data.map(
+      ({ balance, balanceToUsd, convertedLast, ...rest }) => ({ ...rest })
+    )
+    setData(dataCleanBalances)
+  }
 
   useEffect(() => {
     if (tokensList || activePreview || isFetched) {
       getTokensBalance()
     }
-  }, [tokensList, activePreview, isFetched])
+  }, [accountId, tokensList, activePreview, isFetched])
+
+  useEffect(() => {
+    if (!accountId) {
+      clearTokensBalance()
+    }
+  }, [accountId])
 
   return {
     data,

@@ -10,6 +10,8 @@ const useShortAccountId = (address: string) => {
       setShortAccountId(
         `${address.substring(0, 4)}...${address.substring(address.length - 5, address.length)}`
       )
+    } else {
+      setShortAccountId(address)
     }
   }, [address])
 

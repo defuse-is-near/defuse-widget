@@ -1215,34 +1215,44 @@
   dependencies:
     "@near-wallet-selector/core" "^8.2.0"
 
-"@near-wallet-selector/account-export@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/account-export/-/account-export-8.9.7.tgz#5afe850e7275ad02720568f806fd4c83d7d45e7c"
-  integrity sha512-ZLYFC/gbWYhPDu2j6tTPr7AkAB8qI19JypfePNurEZE4/h616LpbgLg804rwFWG2iMVc36UoP/DFx5GTVSyPaw==
+"@near-wallet-selector/account-export@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/account-export/-/account-export-8.9.10.tgz#b1553161d9bbe4a3d2b9fc88a1188eecdf16779b"
+  integrity sha512-WL4Xp5Rzwv2tCCg3wr7f1M+3HxlBbtFK1hblabMX3NsLDNLFMDcnNG6CEtXYEPd8mbyLiRZOR0HN0HDe3EtuIA==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     bn.js "5.2.1"
     react "18.2.0"
     react-dom "18.2.0"
     tweetnacl "1.0.3"
     tweetnacl-util "0.15.1"
 
-"@near-wallet-selector/bitget-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/bitget-wallet/-/bitget-wallet-8.9.7.tgz#37d743d7e8df31665e3dc6d58a0ad9083d2c6f98"
-  integrity sha512-miGl48lRYpJqFcdwRiuHcnLp/e2l7NgcV+MgSIiR192UGu5cIfP90sSz4yFNg+WXBVVVjt1ArL1gcQwaSMKcEg==
+"@near-wallet-selector/bitget-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/bitget-wallet/-/bitget-wallet-8.9.10.tgz#a771f8a682aa458ca7a7a1ff525dc5a840463b4b"
+  integrity sha512-Ab8LrQfW1g902bW/vcMjlORiguu7sVoyShDXhOUJBwEfnKs7sNTSggYb0Q5urQAyaKMM4DrHjmWQ9pnnbxr2AA==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/coin98-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/coin98-wallet/-/coin98-wallet-8.9.7.tgz#d5ef0ffc4b2981b2c8eecc30401e9d153ec670f4"
-  integrity sha512-l+aNKUoRWW5w3c26u/REJhNAWuyo9kZxUoHfS/gz2Efuukm2//B7mieHRakK+iWVo6ZUF3yDe0gjquUSIhrryg==
+"@near-wallet-selector/coin98-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/coin98-wallet/-/coin98-wallet-8.9.10.tgz#72b921ec633fc399c2a06a2a1b586635b35e6a35"
+  integrity sha512-G03KSXDcyTaZAinH2PtXK2L2Oe5+o0xE81E+pXRSTGokoEhnIAO/tHYbBhQkj2N0pwYxV8LjpvmjDYq2ZzPHLw==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
     is-mobile "4.0.0"
+
+"@near-wallet-selector/core@8.9.10", "@near-wallet-selector/core@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.9.10.tgz#0e19b22bbe69208c9e82b149682be37f6f9b76c5"
+  integrity sha512-do+DDahRHPzr5VKiFS7NWKyNbspXu64/w7CuSBi8IUDsDsclmV7Os6Hp5HcVAq+X3Whi//NxKGX6mPMb+SRPqw==
+  dependencies:
+    borsh "0.7.0"
+    events "3.3.0"
+    js-sha256 "0.9.0"
+    rxjs "7.8.1"
 
 "@near-wallet-selector/core@8.9.5":
   version "8.9.5"
@@ -1254,7 +1264,7 @@
     js-sha256 "0.9.0"
     rxjs "7.8.1"
 
-"@near-wallet-selector/core@8.9.7", "@near-wallet-selector/core@^8.2.0", "@near-wallet-selector/core@^8.9.7":
+"@near-wallet-selector/core@8.9.7", "@near-wallet-selector/core@^8.2.0":
   version "8.9.7"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.9.7.tgz#d55cb97b8d4932f1bd786805c3365205cd084b61"
   integrity sha512-WFAtNrA/w7gnobKmHGEqV4r/RtDM1QTf33TF0Kaf/1nK5jBNNyoYldyAPnbP08t1S+IbbVJ9NcWW3P7hdXe4Lg==
@@ -1271,155 +1281,163 @@
   dependencies:
     rxjs "^7.8.0"
 
-"@near-wallet-selector/here-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/here-wallet/-/here-wallet-8.9.7.tgz#d29129a70c581fb5ed321170fc9b760fa825088b"
-  integrity sha512-4SoyQ84314Rzu/jspUnKR/C8JnjphMxSnxiXCiw2OLRs2AuGaQ3xEu9yABBCZ1NPQwaMYOqDMvTi9HgvqkLClQ==
+"@near-wallet-selector/here-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/here-wallet/-/here-wallet-8.9.10.tgz#7113baf4e758f223aa7495a2822534c685e94e7a"
+  integrity sha512-LhVb8gfHTxa4ALtjzDkhIImcM+r7lqcj03OEEu7sQHXDnTgRSTXwqE47Y0CLlczCIY445K9ZCRqsEbm2noUGww==
   dependencies:
     "@here-wallet/core" "1.6.6"
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     bn.js "5.2.1"
 
-"@near-wallet-selector/ledger@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/ledger/-/ledger-8.9.7.tgz#94aeeec93ee8931cb2f85369c913eb180514c041"
-  integrity sha512-Bv5Sn6CpWObnwyy/ezfdHxPXSsNmC47qSI5J9RToFqQhxAA8Ehp/w4/hbUBZgLR7A5I5JWPHqvakJaYtFAA30A==
+"@near-wallet-selector/ledger@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/ledger/-/ledger-8.9.10.tgz#582717e5567db9aa714d75fd7b4822d4a687f34a"
+  integrity sha512-XMgFTEuP+p0GY6AxYKLug3boZIYkmP7YA/23WUjwjErPtZ+8dDEJJontqtI8x/jIlZiHSfh1vGVZxabt9TgZeg==
   dependencies:
     "@ledgerhq/hw-transport" "6.30.3"
     "@ledgerhq/hw-transport-webhid" "6.28.3"
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
     bn.js "5.2.1"
     is-mobile "4.0.0"
     ts-essentials "7.0.3"
 
-"@near-wallet-selector/math-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/math-wallet/-/math-wallet-8.9.7.tgz#045fd89e3f07ca9107fb2029c597d4e56f599b9a"
-  integrity sha512-36ne1qvvEcJtPyxTI70Sevd3yRU0J/uEuRgreIxQmKRBnkHxHrkrWXkLgZXD+rdpZzZLZPuUMbzpC2sn0vpBpA==
+"@near-wallet-selector/math-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/math-wallet/-/math-wallet-8.9.10.tgz#ae719a0e8c2558e9c01c4e24a8f7509428425c7c"
+  integrity sha512-Mbu6R90c+YP9Udt6EC1yMSMjVq8Dph+PAqrzQHBdnJoAIo/VL/6KBtDM3s10YBgaZ0rFX6Olk8kO5hPfA6eusA==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/meteor-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/meteor-wallet/-/meteor-wallet-8.9.7.tgz#ff3266e40cff5db3ef1df5860182a06ff1167149"
-  integrity sha512-8jWhUZAj1YTMeHYUnDkB00BdF7x+awDbb4bFSMcOFsqGuhp6qvAIp/Uo57kF11bntrb3Xrj8NNpsEhvC+Tx1EA==
+"@near-wallet-selector/meteor-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/meteor-wallet/-/meteor-wallet-8.9.10.tgz#022198c526082639b0dae77b56dcfcc9f4c27755"
+  integrity sha512-zznOGUq+qj4pyebc8OJ7HvCchrp4EZtWO+Bwa+c7hngqYzqu0Kwk+yLbk4Xq/ANta7qI7/qydaU1pFYza3GGmw==
   dependencies:
     "@meteorwallet/sdk" "1.0.9"
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
 
-"@near-wallet-selector/mintbase-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/mintbase-wallet/-/mintbase-wallet-8.9.7.tgz#4db309713144774d8f061675620797870b488a79"
-  integrity sha512-j6+8kLxSSVIUAEbn3cnoiWFam6jWPZZNUdJ6eksvVoKRERznM/nlSa/Z+3lj6qVRoSZr5U4QeeLoSVDPNnUSGg==
+"@near-wallet-selector/mintbase-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/mintbase-wallet/-/mintbase-wallet-8.9.10.tgz#c3a2d5ea2b4a188627e70fedf998b5d9a3f50c62"
+  integrity sha512-OtkHhAN5cDGFPaW9ahvtZpZv07RO4pe0NoVx2B2sXlfMUDXggPfrCugdFboQ5nWQFMn89bfKuUOwhIXXx56nWQ==
   dependencies:
     "@mintbase-js/wallet" "0.6.0-beta.3"
 
-"@near-wallet-selector/modal-ui@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/modal-ui/-/modal-ui-8.9.7.tgz#543009d606b02d4c16502a5f7dc1b09955e27884"
-  integrity sha512-mE5jbJFxR2qbGRPP6Ca3ifdvmSlEKCPMDeU5H8SpofqMpKmiBXZPwJbGrpziuBbtdSfpBOfQ+8a+RMQf1nz+nA==
+"@near-wallet-selector/modal-ui@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/modal-ui/-/modal-ui-8.9.10.tgz#3f9eba088614b194a927d6317bd7f343637def04"
+  integrity sha512-Ob846m4Q4UTFBpTvpCh9iGGxRsFS4IY3m73e9FKQoQyTf5v3Bu9+cIsBH6hfbHG1KCWHYh6bobCiZS+0faEGuw==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     copy-to-clipboard "3.3.3"
     qrcode "1.5.3"
     react "18.2.0"
     react-dom "18.2.0"
 
-"@near-wallet-selector/my-near-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/my-near-wallet/-/my-near-wallet-8.9.7.tgz#0107e51010339a1bf0f6e6b5b1a8844f1b3140db"
-  integrity sha512-bAoVTWxRyU1km8v7e6yjUgnPVZ9QpcM+lAl9oQWc1mEh0Jz+97PCymgBJH5NamGopmFfcaE1yGIri5ra9SWuyA==
+"@near-wallet-selector/my-near-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/my-near-wallet/-/my-near-wallet-8.9.10.tgz#ae8f7991e3a3f5a9be919662e6e2155afb892201"
+  integrity sha512-LIBrTwmWjpwg6LaXq8Sg1iDYYF64UcBtK79SFUgKfktnFRYZa+RHPRaNIvno0O6xNTIUVkY3h0mCPe85H18yCw==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
 
-"@near-wallet-selector/narwallets@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/narwallets/-/narwallets-8.9.7.tgz#057386517eb48ae6e88cd9d893593b91686f4049"
-  integrity sha512-9hhBuB8q4lx0rouS35edjrOGrcbvpmY3IDZy52opI789dh5173aJ9FLhPLXg4pSYD2XBmb/WZ6h5MBrHt88eCA==
+"@near-wallet-selector/narwallets@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/narwallets/-/narwallets-8.9.10.tgz#0c1cdf173921e1bc50b8ce8474c61d48b720fe22"
+  integrity sha512-2QK5u0PCeb2SN0FDdpv9yfZ/76pwyY4qjNPRG4CSmXuYde4gafgoIBAf1/MBBsW+oADGxMWWrsF2WJsYfWABBA==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/near-mobile-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-mobile-wallet/-/near-mobile-wallet-8.9.7.tgz#68f2520dd188760502d4e73d3fc9e79e3018ddb4"
-  integrity sha512-Fc0yzaCAdhOM5nSDTfsqT2EXyu3SZ3ZymnxiJHfeyT8WUnXWQWYnNLPZZT1oh6Btjc0RaS/hKTDkh70x3In9xA==
+"@near-wallet-selector/near-mobile-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-mobile-wallet/-/near-mobile-wallet-8.9.10.tgz#4aee029d4b4da93837bc4b4b71efc12848d64a4a"
+  integrity sha512-sWUjWx2VD92kPhBTBsoYYT1whXeWxWmnAxG5/Ed44sVs267atr0YtUpGvx0X4XEAgnhBZBQ86fUxvykh6ObeBA==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     "@peersyst/near-mobile-signer" "1.0.11"
 
-"@near-wallet-selector/near-snap@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-snap/-/near-snap-8.9.7.tgz#fc2c4cc8613ff03f75d079298b5d9634b6f5418e"
-  integrity sha512-rLSi2JWRaFx7NkWiU1/rcMYpC7pSjSvmYl0qiU0/W8RjdQpNXMsRDTAh0cnMAT2pZ1ZEegghe4BU8nZyTPW9ig==
+"@near-wallet-selector/near-snap@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-snap/-/near-snap-8.9.10.tgz#1a151987a1ec0c2c24407d5d84e6b322d78a2450"
+  integrity sha512-teYiCKn62+CeDvqXwVA2gCR4Kfsnmi6nyupqiY5odShewCL1iJ24iOt3hGMQVKh+GVGoEbLKeyuaEXvmhTcUHA==
   dependencies:
     "@near-snap/sdk" "0.6.0"
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/nearfi@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/nearfi/-/nearfi-8.9.7.tgz#b44f005bc7b4b091fcc7cee70100e23f1a80889b"
-  integrity sha512-dctY7w4Xv6k41TF+09nHWzWKNcD0Juegfadji5k9HuG/edxuAQeWKiC15cqF57uH+QwSqG73gS0oBw5hyi6hHQ==
+"@near-wallet-selector/nearfi@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/nearfi/-/nearfi-8.9.10.tgz#d1ae36d8f1f811e48baaa89db8f042da6020cecf"
+  integrity sha512-AVmr42/D4QZ4Mf4KV/wB5s/9m3R4mOnVbl0WD3xK3BtWpp7ucXn6zR7iNyFu0lmz7mU8osDDs3Jd7/qF6OpDlQ==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/neth@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/neth/-/neth-8.9.7.tgz#f1b164a909e4f0141b15727b2a4ebd8f874dbb87"
-  integrity sha512-NEcjX/5M6tb3h9P4hr/dnQjyBjp+xUjyVJyuqBDcXYx6tJWeV+/UDVuph0rCTlhLeah/DEHlyyAVrb9MO9eyYQ==
+"@near-wallet-selector/neth@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/neth/-/neth-8.9.10.tgz#8ab3fd895c7e61c6d0ff32fcbf6fd55867e06332"
+  integrity sha512-LZ73GNxqaMVDj0kpHBUUxUqoyhusGAtuSOF1+WJA8nb70ydqeB3NCqtzPKZVI4s6ukL5GizkUY28Q2y/xuIFeg==
   dependencies:
     "@metamask/detect-provider" "2.0.0"
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     bn.js "5.2.1"
     ethers "5.7.2"
     is-mobile "4.0.0"
     near-seed-phrase "0.2.0"
 
-"@near-wallet-selector/nightly@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/nightly/-/nightly-8.9.7.tgz#3f9a761a6eabd4599409aace93d1112f72e1959a"
-  integrity sha512-Kbd6bpvOpHla2ctYzsOZ+Uj9IrkbumCAxz3RSXtemSPToAe9Vv0tGUDLTi3p76IAI1RkXBwhfRcPaoNKWbvuYg==
+"@near-wallet-selector/nightly@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/nightly/-/nightly-8.9.10.tgz#654605e10d25c2d90d8e955fce643daa05ac8774"
+  integrity sha512-dRTxr4qJCOdXC1ercoGrsfyh3N82xHN3+Iqjm2RshDwlOiDMJO5WHNy9xlrxu6thgFDt/JFe9WEAq9aZ5qM8nQ==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/ramper-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/ramper-wallet/-/ramper-wallet-8.9.7.tgz#f7c751fdd0f9b015050b96d1d75f8cd1301667b6"
-  integrity sha512-mtVmdRdKvGjRClXjSJFKOsHG01K1GXx7U23fm9uvWExfhLbS5f0nDDFMngprXDbUKLP0y952pJjBgk0fbOYOBQ==
+"@near-wallet-selector/ramper-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/ramper-wallet/-/ramper-wallet-8.9.10.tgz#9df09c1bb3757fbde4e853769302288dd601ae23"
+  integrity sha512-cNhLPSbIcOYmpiWwPNLMxWCVZUhkYv3kes7uzJbpCWXUYFOMsPLSFSZ8UGmzUSlw/mNH3pOT84ASwtHkxOyjVw==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
     "@ramper/near" "0.0.30"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/sender@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/sender/-/sender-8.9.7.tgz#871f418204b9584595307fb627a90f964954ddba"
-  integrity sha512-n2xEr99UjzDRdfRKsX20F8JiSd8BYyjly4OUCQaaq9POBH8b/wIpdRz35xl8LC7td0xii4mYuL2QyphFPcqPHA==
+"@near-wallet-selector/sender@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/sender/-/sender-8.9.10.tgz#da3af4133d6c965cc1a321dc67eaae9bb02b6e4a"
+  integrity sha512-OxlOpiwu1oAcAav4/ZT73+lod/PRyZ7rCrOz0Md1N2FcrRbAILbyeborOAJbADisRmlOSqgOupegBu44BFprOA==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/wallet-connect@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-connect/-/wallet-connect-8.9.7.tgz#bb9258ecc719af919b6988adfe10689a1d180c2b"
-  integrity sha512-4sGGLvBBDLkh8t4lGXim+6SlVUWZKBDxCItmFlVC/BUhpvE9EuC0B7Ik8M3EIdAh9tkDeSuhbc92CdBkE5dS6A==
+"@near-wallet-selector/wallet-connect@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-connect/-/wallet-connect-8.9.10.tgz#9a1e049358a0e208675a504b218116a84d666f24"
+  integrity sha512-w/XHkBaJFEVFsJWbNQarBR4AaNtcSQsP3KWlmy1AFdHX5lI1Dk4080KEfne+fRSKbztdj+Za+L4bd/Wt4VGIwQ==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
     "@walletconnect/modal" "2.6.2"
     "@walletconnect/sign-client" "2.11.0"
     "@walletconnect/types" "2.11.0"
 
-"@near-wallet-selector/wallet-utils@8.9.7", "@near-wallet-selector/wallet-utils@^8.9.5":
+"@near-wallet-selector/wallet-utils@8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-8.9.10.tgz#1e6d97464d995cccb4ec34314a1dd90e63901c39"
+  integrity sha512-Jq00IUAMvltaH8lvkaI8SRP6JWhqE4c0427ODSv+X10NwlkM8WKul9ZNZMxeCTC2ncZH23kDyaA+3MiYTX+DUg==
+  dependencies:
+    "@near-wallet-selector/core" "8.9.10"
+    bn.js "5.2.1"
+
+"@near-wallet-selector/wallet-utils@^8.9.5":
   version "8.9.7"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-8.9.7.tgz#8a0d8f611820301a758ebb5321ba83b4812f42e9"
   integrity sha512-hVNF8z2EK8FPMaH2V2RIpJRT3CSIo8Epq6ysRRHVPFCXnqDjHfTWe39WYi4uAZldeCMCLQeRm5y8YL5QiAL3ig==
@@ -1427,21 +1445,21 @@
     "@near-wallet-selector/core" "8.9.7"
     bn.js "5.2.1"
 
-"@near-wallet-selector/welldone-wallet@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/welldone-wallet/-/welldone-wallet-8.9.7.tgz#011288cd603901ab9193fed68fff9f91584e660b"
-  integrity sha512-5aonqqBf2g0VomAJuAOfz0hLw3bFwEyBBjNAZR6Ez94oI8eno8uLjc6Ijj+BeNXrVg1VVyifeVtPqULgnj1reg==
+"@near-wallet-selector/welldone-wallet@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/welldone-wallet/-/welldone-wallet-8.9.10.tgz#29176f48b3396baae2916c9094acc68f9165e7e5"
+  integrity sha512-jWB8lkixAC7L0jsByPgZ1JK5rIDQxksFfdoBwPx3JdBD/69PCUY7FWn421dvbQCSVNn3dqhcVIsokpmpwSOELQ==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
-    "@near-wallet-selector/wallet-utils" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
+    "@near-wallet-selector/wallet-utils" "8.9.10"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/xdefi@^8.9.7":
-  version "8.9.7"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/xdefi/-/xdefi-8.9.7.tgz#d8572f1ac55313bd4dce485b603e3ac15aad8250"
-  integrity sha512-xtKIuABqL30GymOoYB+S/JQyo9IPuWVMpQpkQni1eO9g5fVHe5xSAurSzV0we8lzX6ZAsF3FCiwSj/dnYPlOrQ==
+"@near-wallet-selector/xdefi@^8.9.10":
+  version "8.9.10"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/xdefi/-/xdefi-8.9.10.tgz#ddd58ccae0892f95973f09ebb18f9b622a0b14ce"
+  integrity sha512-Mwhowd7iEEBHabrQgOXJ9VVt5sSRiZHaOuLzzmMWf9DX3/9rE/5I3PZDHslC8rSEG5Vss05Xab1zcHfY8QiKRA==
   dependencies:
-    "@near-wallet-selector/core" "8.9.7"
+    "@near-wallet-selector/core" "8.9.10"
     is-mobile "4.0.0"
 
 "@next/env@14.2.3":

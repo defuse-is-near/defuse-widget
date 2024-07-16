@@ -245,8 +245,17 @@ export default function Swap() {
         const parsedData: { data: ModalConfirmSwapPayload } = JSON.parse(
           getConfirmSwapFromLocal
         )
-        setSelectTokenIn(parsedData.data.selectedTokenIn)
-        setSelectTokenOut(parsedData.data.selectedTokenOut)
+        const cleanBalance = {
+          balance: 0,
+          balanceToUsd: 0,
+          convertedLast: 0,
+        }
+        setSelectTokenIn(
+          Object.assign(parsedData.data.selectedTokenIn, cleanBalance)
+        )
+        setSelectTokenOut(
+          Object.assign(parsedData.data.selectedTokenOut, cleanBalance)
+        )
         return
       }
       if (data.size) {
@@ -262,17 +271,12 @@ export default function Swap() {
       }
     }
     // Do evaluate usd select tokens prices
-    if (
-      data.size &&
-      !isLoading &&
-      (!selectTokenIn?.convertedLast?.usd ||
-        !selectTokenOut?.convertedLast?.usd)
-    ) {
+    if (data.size && !isLoading) {
       data.forEach((token) => {
-        if (selectTokenIn?.address === token.address) {
+        if (selectTokenIn?.defuse_asset_id === token.defuse_asset_id) {
           setSelectTokenIn(token)
         }
-        if (selectTokenOut?.address === token.address) {
+        if (selectTokenOut?.defuse_asset_id === token.defuse_asset_id) {
           setSelectTokenOut(token)
         }
       })

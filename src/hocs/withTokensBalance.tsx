@@ -21,8 +21,7 @@ export function withTokensBalance<T extends React.ComponentType>(
     ...rest
   }) => {
     const { data: dataTokenList } = useCombinedTokensListAdapter()
-    const { data: dataTokensBalance, isFetching } =
-      useGetTokensBalance(dataTokenList)
+    const { data: dataTokensBalance } = useGetTokensBalance(dataTokenList)
     const { onLoad, updateTokens } = useTokensStore((state) => state)
     const { getAccountBalance } = useAccountBalance()
 
@@ -79,7 +78,6 @@ export function withTokensBalance<T extends React.ComponentType>(
 
     const handleUpdateDataTokenList = async () => {
       const getNativeListWithBalance = await handlePrepareNativeTokenList()
-      onLoad()
       updateTokens([
         ...handleInjectPlatformWNativeToNativeSupport(dataTokensBalance),
         ...getNativeListWithBalance,
@@ -87,10 +85,12 @@ export function withTokensBalance<T extends React.ComponentType>(
     }
 
     useEffect(() => {
-      if (!isFetching && dataTokensBalance) {
-        handleUpdateDataTokenList()
+      if (!dataTokensBalance) {
+        return
       }
-    }, [dataTokensBalance, isFetching])
+      onLoad()
+      handleUpdateDataTokenList()
+    }, [dataTokensBalance])
 
     return (
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -19,7 +19,6 @@ import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useTransactionScan } from "@src/hooks/useTransactionScan"
 import { swapSchema } from "@src/utils/schema"
 
-const SCHEDULER_3_MIN = 180000
 const SCHEDULER_30_SEC = 30000
 const SCHEDULER_5_SEC = 5000
 
@@ -34,8 +33,6 @@ export const useHistoryLatest = () => {
   })
 
   const runHistoryMonitoring = async (data: HistoryData[]): Promise<void> => {
-    setIsHistoryWorkerSleeping(false)
-
     const validHistoryStatuses = [
       HistoryStatus.COMPLETED,
       HistoryStatus.ROLLED_BACK,
@@ -127,6 +124,14 @@ export const useHistoryLatest = () => {
                   },
                 },
               })
+
+              const getIntentStatus = (await intentStatus(
+                CONTRACTS_REGISTER.INTENT,
+                historyData.clientId
+              )) as NearIntentStatus | null
+              if (getIntentStatus?.status) {
+                Object.assign(historyData, { status: getIntentStatus?.status })
+              }
               break
 
             case "rollback_intent":
@@ -179,6 +184,12 @@ export const useHistoryLatest = () => {
                 },
               })
               break
+
+            case "storage_deposit":
+              Object.assign(historyData, {
+                status: HistoryStatus.COMPLETED,
+              })
+              break
           }
         }
 
@@ -189,14 +200,6 @@ export const useHistoryLatest = () => {
           historyCompletion.push(true)
           Object.assign(historyData, { status: HistoryStatus.FAILED })
           return historyData
-        }
-
-        const getIntentStatus = (await intentStatus(
-          CONTRACTS_REGISTER.INTENT,
-          historyData.clientId
-        )) as NearIntentStatus | null
-        if (getIntentStatus?.status) {
-          Object.assign(historyData, { status: getIntentStatus?.status })
         }
 
         return historyData
@@ -211,6 +214,7 @@ export const useHistoryLatest = () => {
         ...isMonitoringComplete,
         done: true,
       })
+      return
     }
 
     setTimeout(() => {
@@ -224,6 +228,7 @@ export const useHistoryLatest = () => {
   }
 
   const runHistoryUpdate = (data: HistoryData[]): void => {
+    setIsHistoryWorkerSleeping(false)
     runHistoryMonitoring(data)
   }
 

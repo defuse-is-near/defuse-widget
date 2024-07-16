@@ -26,7 +26,6 @@ export interface EvaluateSwapEstimationResult {
   }[]
 }
 
-const HIGH_REQUEST = 1000
 const ESTIMATE_DIFFERENCE_PERCENTAGE = 2
 
 export const useEvaluateSwapEstimation = () => {
@@ -53,16 +52,7 @@ export const useEvaluateSwapEstimation = () => {
     dataEstimate: DataEstimateRequest,
     bestOut: SwapEstimateBotResult["bestOut"]
   ): Promise<void> => {
-    const token = findTokenByName(
-      fieldName === "tokenIn" ? dataEstimate.tokenIn : dataEstimate.tokenOut
-    )
-
-    const isHighRequest =
-      bestOut &&
-      token?.convertedLast?.usd &&
-      Number(bestOut) * token?.convertedLast?.usd > HIGH_REQUEST
-
-    if (!isHighRequest && !IS_DISABLE_QUOTING_FROM_REF) {
+    if (!IS_DISABLE_QUOTING_FROM_REF) {
       const result = await swapEstimateRefFinanceProvider(dataEstimate)
       if (parseFloat(result.amount_out) && bestOut) {
         if (bestOut > result.amount_out) {
@@ -128,5 +118,6 @@ export const useEvaluateSwapEstimation = () => {
     data,
     cleanEvaluateSwapEstimate,
     getEvaluateSwapEstimate,
+    isFetched,
   }
 }
