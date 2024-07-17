@@ -51,7 +51,7 @@ export const useInterceptors = () => {
 
   axios.interceptors.response.use(
     (response) => {
-      if (validateNext(response.request.responseURL)) {
+      if (validateNext(response.request?.responseURL)) {
         validateAndPushNotification(
           response.config.data,
           NotificationType.SUCCESS
@@ -60,7 +60,7 @@ export const useInterceptors = () => {
       return response
     },
     (error) => {
-      if (validateNext(error.request.responseURL)) {
+      if (validateNext(error.request?.responseURL)) {
         validateAndPushNotification(error.config.data, NotificationType.ERROR)
       }
       return Promise.reject(error)
@@ -86,7 +86,7 @@ export const useInterceptors = () => {
     this._body = body
 
     this.addEventListener("load", function () {
-      if (validateNext(this.responseURL)) {
+      if (validateNext(this?.responseURL)) {
         if (this.status >= 200 && this.status < 300) {
           validateAndPushNotification(this._body, NotificationType.SUCCESS)
         } else {
@@ -96,7 +96,7 @@ export const useInterceptors = () => {
     })
 
     this.addEventListener("error", function () {
-      if (validateNext(this.responseURL)) {
+      if (validateNext(this?.responseURL)) {
         validateAndPushNotification(this._body, NotificationType.ERROR)
       }
     })

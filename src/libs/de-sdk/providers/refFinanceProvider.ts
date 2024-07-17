@@ -8,7 +8,6 @@ import {
   getStablePools,
   SwapOptions,
   init_env,
-  getPoolByIds,
 } from "@ref-finance/ref-sdk"
 import { formatUnits } from "viem"
 
@@ -33,12 +32,10 @@ export const swapEstimateRefFinanceProvider = async (
     const stablePoolsDetail: StablePool[] = await getStablePools(stablePools)
 
     const options: SwapOptions = {
-      enableSmartRouting: true,
+      enableSmartRouting: false,
       stablePools,
       stablePoolsDetail,
     }
-
-    const pools = await getPoolByIds([1, 2, 20])
 
     const tokenInWithMeta = await ftGetTokenMetadata(data.tokenIn)
     const tokenOutWithMeta = await ftGetTokenMetadata(data.tokenOut)
@@ -53,6 +50,7 @@ export const swapEstimateRefFinanceProvider = async (
       tokenOut: tokenOutWithMeta,
       amountIn: formattedAmountOut,
       simplePools,
+      options,
     })
 
     if (!swapTodos.length) {

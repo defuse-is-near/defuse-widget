@@ -48,7 +48,7 @@ export const useHistoryCollector = (collectorHooks: CollectorHook[]) => {
 
       const isHistoryNotComplete = history.some(
         (history) =>
-          !history!.errorMessage?.length &&
+          !history?.errorMessage?.length &&
           history.status !== HistoryStatus.COMPLETED &&
           history.status !== HistoryStatus.ROLLED_BACK &&
           history.status !== HistoryStatus.EXPIRED

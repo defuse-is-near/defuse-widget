@@ -226,194 +226,225 @@ export const useSwap = ({ accountId, selector }: Props) => {
     inputs: CallRequestIntentProps,
     mutate?: (input: CallRequestIntentProps) => void
   ): Promise<NearTX[] | void> => {
-    if (!isValidInputs(inputs) && !isValidEstimateQueue(inputs?.estimateQueue))
-      return
-    const {
-      tokenIn,
-      tokenOut,
-      selectedTokenIn,
-      selectedTokenOut,
-      clientId,
-      estimateQueue,
-    } = inputs
+    try {
+      if (
+        !isValidInputs(inputs) &&
+        !isValidEstimateQueue(inputs?.estimateQueue)
+      )
+        return
+      const {
+        tokenIn,
+        tokenOut,
+        selectedTokenIn,
+        selectedTokenOut,
+        clientId,
+        estimateQueue,
+      } = inputs
 
-    setIsProcessing(true)
+      setIsProcessing(true)
 
-    const unitsSendAmount = parseUnits(
-      tokenIn,
-      selectedTokenIn?.decimals as number
-    ).toString()
-    const estimateUnitsBackAmount = parseUnits(
-      tokenOut,
-      selectedTokenOut?.decimals as number
-    ).toString()
-    const getBlock = await getNearBlock()
-    const msg = {
-      CreateIntent: {
-        id: clientId,
-        IntentStruct: {
-          initiator: accountId,
-          send: {
-            token_id:
-              selectedTokenIn!.address === "0x1"
-                ? "wrap.near"
-                : selectedTokenIn!.address,
-            amount: unitsSendAmount,
-          },
-          receive: {
-            token_id:
-              selectedTokenOut!.address === "0x1"
-                ? "wrap.near"
-                : selectedTokenOut!.address,
-            amount: estimateUnitsBackAmount,
-          },
-          expiration: {
-            Block: getBlock.height + CREATE_INTENT_EXPIRATION_BLOCK_BOOST,
-          },
-          referral: {
-            Some: REFERRAL_ACCOUNT,
+      const unitsSendAmount = parseUnits(
+        tokenIn,
+        selectedTokenIn?.decimals as number
+      ).toString()
+      const estimateUnitsBackAmount = parseUnits(
+        tokenOut,
+        selectedTokenOut?.decimals as number
+      ).toString()
+      const getBlock = await getNearBlock()
+      const msg = {
+        CreateIntent: {
+          id: clientId,
+          IntentStruct: {
+            initiator: accountId,
+            send: {
+              token_id:
+                selectedTokenIn!.address === "0x1"
+                  ? "wrap.near"
+                  : selectedTokenIn!.address,
+              amount: unitsSendAmount,
+            },
+            receive: {
+              token_id:
+                selectedTokenOut!.address === "0x1"
+                  ? "wrap.near"
+                  : selectedTokenOut!.address,
+              amount: estimateUnitsBackAmount,
+            },
+            expiration: {
+              Block: getBlock.height + CREATE_INTENT_EXPIRATION_BLOCK_BOOST,
+            },
+            referral: {
+              Some: REFERRAL_ACCOUNT,
+            },
           },
         },
-      },
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const msgBorsh = borsh.serialize(swapSchema as any, msg)
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const msgBorsh = borsh.serialize(swapSchema as any, msg)
 
-    // TODO Update type to NearTX[] | void
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let transactionResult: any | void = undefined
+      // TODO Update type to NearTX[] | void
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let transactionResult: any | void = undefined
 
-    if (estimateQueue?.queueTransactionsTrack?.length === 1) {
-      const currentQueue: QueueTransactions =
-        estimateQueue!.queueTransactionsTrack[0]
+      if (estimateQueue?.queueTransactionsTrack?.length === 1) {
+        const currentQueue: QueueTransactions =
+          estimateQueue!.queueTransactionsTrack[0]
 
-      switch (currentQueue) {
-        case QueueTransactions.DEPOSIT:
-          if (selectedTokenIn?.address) {
-            const unitsSendAmount = parseUnits(
-              tokenIn.toString(),
-              selectedTokenIn?.decimals as number
-            ).toString()
-            transactionResult = await callRequestNearDeposit(
-              selectedTokenOut!.address as string,
-              unitsSendAmount
-            )
-          }
-          break
+        switch (currentQueue) {
+          case QueueTransactions.DEPOSIT:
+            if (selectedTokenIn?.address) {
+              const unitsSendAmount = parseUnits(
+                tokenIn.toString(),
+                selectedTokenIn?.decimals as number
+              ).toString()
+              transactionResult = await callRequestNearDeposit(
+                selectedTokenOut!.address as string,
+                unitsSendAmount
+              )
+            }
+            break
 
-        case QueueTransactions.WITHDRAW:
-          if (selectedTokenIn?.address) {
-            const unitsSendAmount = parseUnits(
-              tokenIn.toString(),
-              selectedTokenIn?.decimals as number
-            ).toString()
-            transactionResult = await callRequestNearWithdraw(
-              selectedTokenIn!.address as string,
-              unitsSendAmount
-            )
-          }
-          break
+          case QueueTransactions.WITHDRAW:
+            if (selectedTokenIn?.address) {
+              const unitsSendAmount = parseUnits(
+                tokenIn.toString(),
+                selectedTokenIn?.decimals as number
+              ).toString()
+              transactionResult = await callRequestNearWithdraw(
+                selectedTokenIn!.address as string,
+                unitsSendAmount
+              )
+            }
+            break
 
-        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
-          const storageBalanceTokenIn = await getStorageBalance(
-            selectedTokenIn!.address as string,
-            accountId as string
-          )
-          if (
-            selectedTokenIn?.address &&
-            !Number(storageBalanceTokenIn?.toString() || "0")
-          ) {
-            transactionResult = await setStorageDeposit(
+          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
+            const storageBalanceTokenIn = await getStorageBalance(
               selectedTokenIn!.address as string,
               accountId as string
             )
-          }
-          break
+            if (
+              selectedTokenIn?.address &&
+              !Number(storageBalanceTokenIn?.toString() || "0")
+            ) {
+              transactionResult = await setStorageDeposit(
+                selectedTokenIn!.address as string,
+                accountId as string
+              )
+            }
+            break
 
-        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
-          const storageBalanceTokenOut = await getStorageBalance(
-            selectedTokenOut!.address as string,
-            accountId as string
-          )
-          if (
-            selectedTokenOut?.address &&
-            !Number(storageBalanceTokenOut?.toString() || "0")
-          ) {
-            transactionResult = await setStorageDeposit(
+          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
+            const storageBalanceTokenOut = await getStorageBalance(
               selectedTokenOut!.address as string,
               accountId as string
             )
-          }
-          break
+            if (
+              selectedTokenOut?.address &&
+              !Number(storageBalanceTokenOut?.toString() || "0")
+            ) {
+              transactionResult = await setStorageDeposit(
+                selectedTokenOut!.address as string,
+                accountId as string
+              )
+            }
+            break
 
-        case QueueTransactions.CREATE_INTENT:
-          const wallet = await selector!.wallet()
-          transactionResult = await wallet.signAndSendTransactions({
-            transactions: [
-              {
-                receiverId: selectedTokenIn!.address as string,
+          case QueueTransactions.CREATE_INTENT:
+            const wallet = await selector!.wallet()
+            transactionResult = await wallet.signAndSendTransactions({
+              transactions: [
+                {
+                  receiverId: selectedTokenIn!.address as string,
+                  actions: [
+                    {
+                      type: "FunctionCall",
+                      params: {
+                        methodName: "ft_transfer_call",
+                        args: {
+                          receiver_id: CONTRACTS_REGISTER.INTENT,
+                          amount: unitsSendAmount,
+                          memo: "Execute intent: NEP-141 to NEP-141",
+                          msg: Buffer.from(msgBorsh).toString("base64"),
+                        },
+                        gas: MAX_GAS_TRANSACTION,
+                        deposit: "1",
+                      },
+                    },
+                  ],
+                },
+              ],
+            })
+            break
+        }
+
+        setIsProcessing(false)
+        return transactionResult
+      }
+
+      const isNativeTokenIn = selectedTokenIn!.address === "0x1"
+      const tokenNearNative = LIST_NATIVE_TOKENS.find(
+        (token) => token.defuse_asset_id === "near:mainnet:0x1"
+      )
+
+      // Batches transactions and actions
+      // TODO Move single and batch to separate functions
+      const receiverIdIn = isNativeTokenIn
+        ? tokenNearNative!.routes
+          ? tokenNearNative!.routes[0]
+          : ""
+        : (selectedTokenIn!.address as string)
+      const receiverIdOut = selectedTokenOut!.address as string
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const transactions: { receiverId: string; actions: any }[] = []
+      const mutateEstimateQueue = inputs.estimateQueue
+      let tempQueueTransactionsTrack = []
+
+      estimateQueue.queueTransactionsTrack.forEach((queueTransaction) => {
+        switch (queueTransaction) {
+          case QueueTransactions.DEPOSIT:
+            if (selectedTokenIn?.address) {
+              const unitsSendAmount = parseUnits(
+                tokenIn.toString(),
+                selectedTokenIn?.decimals as number
+              ).toString()
+              transactions.push({
+                receiverId: receiverIdIn,
                 actions: [
                   {
                     type: "FunctionCall",
                     params: {
-                      methodName: "ft_transfer_call",
-                      args: {
-                        receiver_id: CONTRACTS_REGISTER.INTENT,
-                        amount: unitsSendAmount,
-                        memo: "Execute intent: NEP-141 to NEP-141",
-                        msg: Buffer.from(msgBorsh).toString("base64"),
-                      },
-                      gas: MAX_GAS_TRANSACTION,
-                      deposit: "1",
+                      methodName: "near_deposit",
+                      args: {},
+                      gas: FT_STORAGE_DEPOSIT_GAS,
+                      deposit: unitsSendAmount,
                     },
                   },
                 ],
-              },
-            ],
-          })
-          break
-      }
-
-      setIsProcessing(false)
-      return transactionResult
-    }
-
-    const isNativeTokenIn = selectedTokenIn!.address === "0x1"
-    const tokenNearNative = LIST_NATIVE_TOKENS.find(
-      (token) => token.defuse_asset_id === "near:mainnet:0x1"
-    )
-
-    // Batches transactions and actions
-    // TODO Move single and batch to separate functions
-    const receiverIdIn = isNativeTokenIn
-      ? tokenNearNative!.routes
-        ? tokenNearNative!.routes[0]
-        : ""
-      : (selectedTokenIn!.address as string)
-    const receiverIdOut = selectedTokenOut!.address as string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const transactions: { receiverId: string; actions: any }[] = []
-    const mutateEstimateQueue = inputs.estimateQueue
-    let tempQueueTransactionsTrack = []
-
-    estimateQueue.queueTransactionsTrack.forEach((queueTransaction) => {
-      switch (queueTransaction) {
-        case QueueTransactions.DEPOSIT:
-          if (selectedTokenIn?.address) {
-            const unitsSendAmount = parseUnits(
-              tokenIn.toString(),
-              selectedTokenIn?.decimals as number
-            ).toString()
+              })
+              mutateEstimateQueue.queueInTrack--
+              tempQueueTransactionsTrack =
+                mutateEstimateQueue.queueTransactionsTrack.filter(
+                  (queue) => queue !== QueueTransactions.DEPOSIT
+                )
+              mutateEstimateQueue.queueTransactionsTrack =
+                tempQueueTransactionsTrack
+            }
+            break
+          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
             transactions.push({
               receiverId: receiverIdIn,
               actions: [
                 {
                   type: "FunctionCall",
                   params: {
-                    methodName: "near_deposit",
-                    args: {},
+                    methodName: "storage_deposit",
+                    args: {
+                      account_id: accountId as string,
+                      registration_only: true,
+                    },
                     gas: FT_STORAGE_DEPOSIT_GAS,
-                    deposit: unitsSendAmount,
+                    deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
                   },
                 },
               ],
@@ -421,101 +452,77 @@ export const useSwap = ({ accountId, selector }: Props) => {
             mutateEstimateQueue.queueInTrack--
             tempQueueTransactionsTrack =
               mutateEstimateQueue.queueTransactionsTrack.filter(
-                (queue) => queue !== QueueTransactions.DEPOSIT
+                (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
               )
             mutateEstimateQueue.queueTransactionsTrack =
               tempQueueTransactionsTrack
-          }
-          break
-        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
-          transactions.push({
-            receiverId: receiverIdIn,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: accountId as string,
-                    registration_only: true,
+            break
+          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
+            transactions.push({
+              receiverId: receiverIdOut,
+              actions: [
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "storage_deposit",
+                    args: {
+                      account_id: accountId as string,
+                      registration_only: true,
+                    },
+                    gas: FT_STORAGE_DEPOSIT_GAS,
+                    deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
                   },
-                  gas: FT_STORAGE_DEPOSIT_GAS,
-                  deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
                 },
-              },
-            ],
-          })
-          mutateEstimateQueue.queueInTrack--
-          tempQueueTransactionsTrack =
-            mutateEstimateQueue.queueTransactionsTrack.filter(
-              (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
-            )
-          mutateEstimateQueue.queueTransactionsTrack =
-            tempQueueTransactionsTrack
-          break
-        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
-          transactions.push({
-            receiverId: receiverIdOut,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: {
-                    account_id: accountId as string,
-                    registration_only: true,
+              ],
+            })
+            mutateEstimateQueue.queueInTrack--
+            tempQueueTransactionsTrack =
+              mutateEstimateQueue.queueTransactionsTrack.filter(
+                (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
+              )
+            mutateEstimateQueue.queueTransactionsTrack =
+              tempQueueTransactionsTrack
+            break
+          case QueueTransactions.CREATE_INTENT:
+            transactions.push({
+              receiverId: receiverIdIn,
+              actions: [
+                {
+                  type: "FunctionCall",
+                  params: {
+                    methodName: "ft_transfer_call",
+                    args: {
+                      receiver_id: CONTRACTS_REGISTER.INTENT,
+                      amount: unitsSendAmount,
+                      memo: "Execute intent: NEP-141 to NEP-141",
+                      msg: Buffer.from(msgBorsh).toString("base64"),
+                    },
+                    gas: MAX_GAS_TRANSACTION,
+                    deposit: "1",
                   },
-                  gas: FT_STORAGE_DEPOSIT_GAS,
-                  deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
                 },
-              },
-            ],
-          })
-          mutateEstimateQueue.queueInTrack--
-          tempQueueTransactionsTrack =
-            mutateEstimateQueue.queueTransactionsTrack.filter(
-              (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
-            )
-          mutateEstimateQueue.queueTransactionsTrack =
-            tempQueueTransactionsTrack
-          break
-        case QueueTransactions.CREATE_INTENT:
-          transactions.push({
-            receiverId: receiverIdIn,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "ft_transfer_call",
-                  args: {
-                    receiver_id: CONTRACTS_REGISTER.INTENT,
-                    amount: unitsSendAmount,
-                    memo: "Execute intent: NEP-141 to NEP-141",
-                    msg: Buffer.from(msgBorsh).toString("base64"),
-                  },
-                  gas: MAX_GAS_TRANSACTION,
-                  deposit: "1",
-                },
-              },
-            ],
-          })
-          break
-      }
-    })
-
-    mutate &&
-      mutate({
-        ...inputs,
-        estimateQueue: mutateEstimateQueue,
+              ],
+            })
+            break
+        }
       })
 
-    const wallet = await selector!.wallet()
-    transactionResult = await wallet.signAndSendTransactions({
-      transactions: transactions.filter((tx) => tx.actions.length),
-    })
+      mutate &&
+        mutate({
+          ...inputs,
+          estimateQueue: mutateEstimateQueue,
+        })
 
-    setIsProcessing(false)
-    return transactionResult
+      const wallet = await selector!.wallet()
+      transactionResult = await wallet.signAndSendTransactions({
+        transactions: transactions.filter((tx) => tx.actions.length),
+      })
+
+      setIsProcessing(false)
+      return transactionResult
+    } catch (e) {
+      throw new Error(e as string)
+    }
   }
 
   const callRequestRollbackIntent = async (inputs: { id: string }) => {

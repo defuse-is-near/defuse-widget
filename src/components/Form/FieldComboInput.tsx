@@ -111,7 +111,6 @@ const FieldComboInput = <T extends FieldValues>({
         className && className
       )}
     >
-      {label && label}
       <input
         {...register(fieldName, option)}
         onKeyDown={handleKeyDown}
@@ -127,8 +126,9 @@ const FieldComboInput = <T extends FieldValues>({
         </span>
       ) : null}
       {price && errors && !errors[fieldName] ? (
-        <span className="absolute bottom-4 left-5 text-sm font-medium text-secondary">
-          ~${parseFloat(price).toFixed(4)}
+        <span className="absolute flex flex-nowrap items-center gap-2 bottom-4 left-5 text-sm font-medium text-secondary">
+          ~${parseFloat(price).toFixed(2)}
+          {label && label}
         </span>
       ) : null}
       <div className="flex justify-end items-center">

@@ -6,6 +6,7 @@ import { Checkbox, Text, Tooltip } from "@radix-ui/themes"
 import { CheckedState } from "@radix-ui/react-checkbox"
 import { InfoCircledIcon } from "@radix-ui/react-icons"
 import Image from "next/image"
+import clsx from "clsx"
 
 import { smallBalanceToFormat } from "@src/utils/token"
 
@@ -38,7 +39,14 @@ const BlockMultiBalances = ({
           height={16}
         />
       )}
-      <span className="text-xs px-2 py-0.5 bg-red-100 text-red-400 rounded-full">
+      <span
+        className={clsx(
+          "text-xs px-2 py-0.5 rounded-full",
+          Number(balance) > 0
+            ? "bg-red-100 text-red-400"
+            : "bg-white-200 text-gray-600"
+        )}
+      >
         {smallBalanceToFormat(balance?.toString() ?? "", 7)}
       </span>
       {withNativeSupport && (

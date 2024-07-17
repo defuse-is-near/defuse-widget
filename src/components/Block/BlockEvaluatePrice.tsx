@@ -16,37 +16,36 @@ const BlockEvaluatePrice = ({
   priceResults,
 }: EvaluateSwapEstimationResult) => {
   return (
-    <div className="absolute top-4 left-5 flex flex-nowrap gap-2 items-center text-sm font-medium text-secondary">
+    <span className="flex flex-nowrap gap-2 items-center text-sm font-medium text-secondary">
       {priceEvaluation && (
         <span
           className={clsx(
-            "px-2 py-0.5 rounded-full text-xs",
+            "flex flex-nowrap items-center gap-1 p-1.5 py-0.5 rounded-full text-xs",
             priceEvaluation === EvaluateResultEnum.BEST &&
-              "bg-green text-white",
-            priceEvaluation === EvaluateResultEnum.LOW &&
-              "bg-red-100 text-red-400"
+              "bg-green-800 text-black",
+            priceEvaluation === EvaluateResultEnum.LOW && "bg-pink text-white"
           )}
         >
           {priceEvaluation}
+          {priceResults?.length && (
+            <Tooltip
+              content={
+                <span className="flex flex-col gap-1">
+                  {priceResults.map((result, i) => (
+                    <span key={i}>
+                      Rate {smallBalanceToFormat(result.amount_out)} from{" "}
+                      {result.solver_id}
+                    </span>
+                  ))}
+                </span>
+              }
+            >
+              <InfoCircledIcon />
+            </Tooltip>
+          )}
         </span>
       )}
-      {priceResults?.length && (
-        <Tooltip
-          content={
-            <span className="flex flex-col gap-1">
-              {priceResults.map((result, i) => (
-                <span key={i}>
-                  Rate {smallBalanceToFormat(result.amount_out)} from{" "}
-                  {result.solver_id}
-                </span>
-              ))}
-            </span>
-          }
-        >
-          <InfoCircledIcon />
-        </Tooltip>
-      )}
-    </div>
+    </span>
   )
 }
 

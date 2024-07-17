@@ -202,6 +202,7 @@ export const useHistoryLatest = () => {
           return historyData
         }
 
+        historyCompletion.push(false)
         return historyData
       })
     )
@@ -229,7 +230,7 @@ export const useHistoryLatest = () => {
 
   const runHistoryUpdate = (data: HistoryData[]): void => {
     setIsHistoryWorkerSleeping(false)
-    runHistoryMonitoring(data)
+    void runHistoryMonitoring(data)
   }
 
   return {
