@@ -12,6 +12,9 @@ export enum HistoryStatus {
   ROLLED_BACK = "RolledBack",
   EXPIRED = "Expired",
   FAILED = "Failed", // Internal status
+  WITHDRAW = "Withdraw", // Internal status
+  DEPOSIT = "Deposit", // Internal status
+  STORAGE_DEPOSIT = "Storage Deposit", // Internal status
 }
 
 export type HistoryData = {

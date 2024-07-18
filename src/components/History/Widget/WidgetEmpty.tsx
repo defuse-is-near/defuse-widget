@@ -2,7 +2,7 @@ import { Text } from "@radix-ui/themes"
 
 const WidgetEmpty = () => {
   return (
-    <div className="shadow-lg bg-white p-5 rounded-2xl">
+    <div className="block">
       <div className="mt-2 mb-[26px]">
         <Text size="4" weight="bold">
           Transactions

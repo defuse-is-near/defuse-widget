@@ -47,6 +47,7 @@ const ModalConfirmSwap = () => {
     nextEstimateQueueTransactions,
     getEstimateQueueTransactions,
     isProcessing,
+    isError: isErrorSwap,
   } = useSwap({
     selector,
     accountId,
@@ -358,6 +359,19 @@ const ModalConfirmSwap = () => {
       })
     }
   }, [isSuccess, isError])
+
+  useEffect(() => {
+    if (isErrorSwap) {
+      onCloseModal()
+      ongoingPublishingRef.current = false
+      router.replace(pathname)
+      setNotification({
+        id: "418",
+        message: isErrorSwap,
+        type: NotificationType.ERROR,
+      })
+    }
+  }, [isErrorSwap])
 
   if (!isReadingHistory) {
     return null

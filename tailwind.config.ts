@@ -47,6 +47,7 @@ const config: Config = {
           DEFAULT: "rgba(253, 253, 252, 1)",
           900: "rgba(226, 225, 222, 1)",
           200: "rgba(32, 16, 0, 0.06)",
+          100: "rgba(255, 255, 255, 1)",
         },
         black: {
           DEFAULT: "#041417",
@@ -81,6 +82,8 @@ const config: Config = {
           300: "#101d46",
         },
         red: {
+          600: "rgba(206, 44, 49, 1)",
+          500: "rgba(229, 72, 77, 1)",
           400: "rgba(204, 78, 0, 0.77)",
           100: "rgba(255, 156, 0, 0.16)",
         },
@@ -89,6 +92,7 @@ const config: Config = {
         },
         green: {
           800: "rgba(134, 234, 212, 1)",
+          400: "rgba(33, 131, 88, 1)",
           100: "rgba(0, 164, 51, 0.1)",
           DEFAULT: "rgba(0, 113, 63, 0.87)",
         },
@@ -137,6 +141,7 @@ const config: Config = {
           "url(/static/images/group-account-bringing--mobile.svg)",
       },
     },
+    display: ["group-hover"],
   },
   plugins: [
     forms,
