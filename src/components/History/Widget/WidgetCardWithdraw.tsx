@@ -11,8 +11,8 @@ import useShortAccountId from "@src/hooks/useShortAccountId"
 
 type Props = {
   accountId: string
-  tokenIn: string
-  selectedTokenIn: NetworkTokenWithSwapRoute
+  tokenOut: string
+  selectedTokenOut: NetworkTokenWithSwapRoute
   hash: string
 }
 
@@ -20,8 +20,8 @@ const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 
 const WidgetCardWithdraw = ({
   accountId,
-  tokenIn,
-  selectedTokenIn,
+  tokenOut,
+  selectedTokenOut,
   hash,
 }: Props) => {
   const [isActive, setIsActive] = useState(false)
@@ -37,7 +37,7 @@ const WidgetCardWithdraw = ({
       className="relative flex flex-nowrap justify-between items-center p-2.5 gap-3 hover:bg-gray-950 cursor-pointer"
     >
       <div className="flex-none w-[40px] h-[36px]">
-        <AssetComboIcon {...selectedTokenIn} />
+        <AssetComboIcon {...selectedTokenOut} />
       </div>
       <div className="shrink grow flex flex-col justify-between items-start">
         <Text size="2" weight="medium" className="text-black-400">
@@ -64,11 +64,11 @@ const WidgetCardWithdraw = ({
             Completed
           </Text>
           <span className="flex gap-1">
-            <Text size="1" weight="medium" className="text-red-600">
-              -{smallBalanceToFormat(tokenIn, 7)}
+            <Text size="1" weight="medium" className="text-green-400">
+              +{smallBalanceToFormat(tokenOut, 7)}
             </Text>
-            <Text size="1" weight="medium" className="text-red-600">
-              {selectedTokenIn.symbol}
+            <Text size="1" weight="medium" className="text-green-400">
+              {selectedTokenOut.symbol}
             </Text>
           </span>
         </div>

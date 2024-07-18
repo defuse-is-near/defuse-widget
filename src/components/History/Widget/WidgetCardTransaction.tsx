@@ -110,9 +110,9 @@ const WidgetCardTransaction = ({
       return (
         <WidgetCardWithdraw
           accountId={details?.transaction.signer_id as string}
-          tokenIn={details!.tokenIn as string}
-          selectedTokenIn={
-            details!.selectedTokenIn as NetworkTokenWithSwapRoute
+          tokenOut={details!.tokenOut as string}
+          selectedTokenOut={
+            details!.selectedTokenOut as NetworkTokenWithSwapRoute
           }
           hash={hash}
         />
@@ -125,9 +125,9 @@ const WidgetCardTransaction = ({
       return (
         <WidgetCardDeposit
           accountId={details?.transaction.signer_id as string}
-          tokenOut={details!.tokenOut as string}
-          selectedTokenOut={
-            details!.selectedTokenOut as NetworkTokenWithSwapRoute
+          tokenIn={details!.tokenIn as string}
+          selectedTokenIn={
+            details!.selectedTokenIn as NetworkTokenWithSwapRoute
           }
           hash={hash}
         />
