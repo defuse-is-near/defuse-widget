@@ -146,9 +146,9 @@ export const useSwap = ({ accountId, selector }: Props) => {
 
       if (useNative) {
         const pair = [selectedTokenIn!.address, selectedTokenOut!.address]
-        if (pair.includes("0x1") && pair.includes("wrap.near")) {
+        if (pair.includes("native") && pair.includes("wrap.near")) {
           const queueTransaction =
-            selectedTokenIn!.address === "0x1"
+            selectedTokenIn!.address === "native"
               ? QueueTransactions.DEPOSIT
               : QueueTransactions.WITHDRAW
           return {
@@ -161,9 +161,9 @@ export const useSwap = ({ accountId, selector }: Props) => {
         queue++
       }
 
-      const isNativeTokenIn = selectedTokenIn!.address === "0x1"
+      const isNativeTokenIn = selectedTokenIn!.address === "native"
       const tokenNearNative = LIST_NATIVE_TOKENS.find(
-        (token) => token.defuse_asset_id === "near:mainnet:0x1"
+        (token) => token.defuse_asset_id === "near:mainnet:native"
       )
       const storageBalanceTokenInAddress = isNativeTokenIn
         ? tokenNearNative!.routes
@@ -290,14 +290,14 @@ export const useSwap = ({ accountId, selector }: Props) => {
             initiator: accountId,
             send: {
               token_id:
-                selectedTokenIn!.address === "0x1"
+                selectedTokenIn!.address === "native"
                   ? "wrap.near"
                   : selectedTokenIn!.address,
               amount: unitsSendAmount,
             },
             receive: {
               token_id:
-                selectedTokenOut!.address === "0x1"
+                selectedTokenOut!.address === "native"
                   ? "wrap.near"
                   : selectedTokenOut!.address,
               amount: estimateUnitsBackAmount,
@@ -413,9 +413,9 @@ export const useSwap = ({ accountId, selector }: Props) => {
         return transactionResult
       }
 
-      const isNativeTokenIn = selectedTokenIn!.address === "0x1"
+      const isNativeTokenIn = selectedTokenIn!.address === "native"
       const tokenNearNative = LIST_NATIVE_TOKENS.find(
-        (token) => token.defuse_asset_id === "near:mainnet:0x1"
+        (token) => token.defuse_asset_id === "near:mainnet:native"
       )
 
       // Batches transactions and actions

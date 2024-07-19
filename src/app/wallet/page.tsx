@@ -35,7 +35,7 @@ export default function Wallet() {
 
   useEffect(() => {
     const tokenNearNative = LIST_NATIVE_TOKENS.find(
-      (token) => token.defuse_asset_id === "near:mainnet:0x1"
+      (token) => token.defuse_asset_id === "near:mainnet:native"
     )
 
     ;(async () => {

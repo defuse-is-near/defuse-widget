@@ -68,7 +68,7 @@ export function withTokensBalance<T extends React.ComponentType>(
             const nearRoutes = token?.routes ?? []
             return {
               ...token,
-              routes: [...nearRoutes, "near:mainnet:0x1"],
+              routes: [...nearRoutes, "near:mainnet:native"],
             }
           default:
             return token

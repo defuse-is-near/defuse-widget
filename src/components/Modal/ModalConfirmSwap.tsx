@@ -162,7 +162,7 @@ const ModalConfirmSwap = () => {
     selectedToken: NetworkTokenWithSwapRoute
   ) => {
     const tokenNearNative = LIST_NATIVE_TOKENS.find(
-      (token) => token.defuse_asset_id === "near:mainnet:0x1"
+      (token) => token.defuse_asset_id === "near:mainnet:native"
     )
     return {
       ...selectedToken,
@@ -209,7 +209,7 @@ const ModalConfirmSwap = () => {
           receivedHash: lastInTransactionHashes as string,
         })
 
-        const isNativeTokenIn = data!.selectedTokenIn.address === "0x1"
+        const isNativeTokenIn = data!.selectedTokenIn.address === "native"
         const mutateSelectedTokenIn = isNativeTokenIn
           ? handleMutateTokenToNativeSupport(data!.selectedTokenIn)
           : data!.selectedTokenIn
@@ -314,7 +314,7 @@ const ModalConfirmSwap = () => {
               )
             ) {
               const isNativeTokenIn =
-                modalPayload!.selectedTokenIn.address === "0x1"
+                modalPayload!.selectedTokenIn.address === "native"
               const mutateSelectedTokenIn = isNativeTokenIn
                 ? handleMutateTokenToNativeSupport(
                     modalPayload!.selectedTokenIn

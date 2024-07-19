@@ -67,7 +67,7 @@ const WalletTabs = () => {
     })
 
     const tokenNearNative = LIST_NATIVE_TOKENS.find(
-      (token) => token.defuse_asset_id === "near:mainnet:0x1"
+      (token) => token.defuse_asset_id === "near:mainnet:native"
     )
 
     const { balance } = await getAccountBalance()

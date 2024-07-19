@@ -198,11 +198,11 @@ export const LIST_NETWORKS_TOKENS: NetworkToken[] =
 
 const listNativeTokensTestnet = [
   {
-    defuse_asset_id: "near:testnet:0x1",
+    defuse_asset_id: "near:testnet:native",
     blockchain: "near",
     chainName: "NEAR",
     chainId: "1313161554",
-    address: "0x1",
+    address: "native",
     name: "NEAR",
     symbol: "NEAR",
     chainIcon: "/static/icons/network/near.svg",
@@ -213,11 +213,11 @@ const listNativeTokensTestnet = [
 ]
 const listNativeTokensMainnet = [
   {
-    defuse_asset_id: "near:mainnet:0x1",
+    defuse_asset_id: "near:mainnet:native",
     blockchain: "near",
     chainName: "NEAR",
     chainId: "1313161554",
-    address: "0x1",
+    address: "native",
     name: "NEAR",
     symbol: "NEAR",
     chainIcon: "/static/icons/network/near.svg",

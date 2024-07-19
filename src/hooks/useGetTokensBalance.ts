@@ -34,7 +34,7 @@ export const useGetTokensBalance = (
           const tokenBalance: TokenBalance = {}
 
           let balance: number | undefined = undefined
-          if (accountId && token?.address && token.address !== "0x1") {
+          if (accountId && token?.address && token.address !== "native") {
             const getBalance = await nep141Balance(
               accountId as string,
               token.address as string

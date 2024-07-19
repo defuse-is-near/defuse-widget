@@ -41,7 +41,7 @@ const ModalReviewSwap = () => {
       convertPayload.selectedTokenOut.address as string,
     ]
     // Not needed recalculation if ratio is 1:1
-    if (pair.includes("0x1") && pair.includes("wrap.near")) return
+    if (pair.includes("native") && pair.includes("wrap.near")) return
 
     const unitsTokenIn = parseUnits(
       convertPayload.tokenIn,

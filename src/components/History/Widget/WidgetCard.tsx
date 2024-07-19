@@ -127,7 +127,7 @@ const WidgetCard = ({
         if (extractMsg?.length && extractMsg.length >= 3) {
           const [action, amount, tokenIn] = extractMsg
           const tokenNearNative = LIST_NATIVE_TOKENS.find(
-            (token) => token.defuse_asset_id === "near:mainnet:0x1"
+            (token) => token.defuse_asset_id === "near:mainnet:native"
           )
           const formattedAmount = smallBalanceToFormat(
             formatUnits(BigInt(amount), tokenNearNative!.decimals as number) ??
@@ -147,7 +147,7 @@ const WidgetCard = ({
           ? details?.recoverDetails!.amount
           : "0"
         const tokenNearNative = LIST_NATIVE_TOKENS.find(
-          (token) => token.defuse_asset_id === "near:mainnet:0x1"
+          (token) => token.defuse_asset_id === "near:mainnet:native"
         )
         const formattedAmount = smallBalanceToFormat(
           formatUnits(

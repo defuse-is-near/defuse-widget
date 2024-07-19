@@ -126,7 +126,7 @@ export default function Swap() {
       tokenOut: values.tokenOut,
       selectedTokenIn: selectTokenIn,
       selectedTokenOut: selectTokenOut,
-      isNativeInSwap: pair.includes("0x1"),
+      isNativeInSwap: pair.includes("native"),
     })
   }
 
@@ -196,7 +196,7 @@ export default function Swap() {
 
     // Do not use any estimation of swap between Native and Token if ratio is 1:1
     const pair = [selectTokenIn.address, selectTokenOut.address]
-    if (pair.includes("0x1") && pair.includes("wrap.near")) {
+    if (pair.includes("native") && pair.includes("wrap.near")) {
       isProgrammaticUpdate.current = true
       return setValue(
         name === "tokenIn" ? "tokenOut" : "tokenIn",
@@ -214,7 +214,7 @@ export default function Swap() {
     ).toString()
 
     const wTokenIn =
-      selectTokenIn!.address === "0x1" ? "wrap.near" : selectTokenIn!.address
+      selectTokenIn!.address === "native" ? "wrap.near" : selectTokenIn!.address
     if (name === "tokenIn") {
       debouncedGetSwapEstimateBot({
         tokenIn: wTokenIn,
