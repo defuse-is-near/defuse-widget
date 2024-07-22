@@ -3344,10 +3344,10 @@
   resolved "https://registry.yarnpkg.com/@react-icons/all-files/-/all-files-4.1.0.tgz#477284873a0821928224b6fc84c62d2534d6650b"
   integrity sha512-hxBI2UOuVaI3O/BhQfhtb4kcGn9ft12RWAFVMUeNjqqhLsHvFtzIkFaptBJpFDANTKoDfdVoHTKZDlwKCACbMQ==
 
-"@ref-finance/ref-sdk@^1.3.7":
-  version "1.3.7"
-  resolved "https://registry.yarnpkg.com/@ref-finance/ref-sdk/-/ref-sdk-1.3.7.tgz#fbfdf63062dcbe464f108682543c191c310babbb"
-  integrity sha512-9SG4fNwjRogm6mHCLtjUhaEYYrjzrZB1Xj1PYnSyq2m7ezO7h3TpWz1kd06HCCTlGbHVLctLegXydsZgardY0w==
+"@ref-finance/ref-sdk@^1.3.8":
+  version "1.3.8"
+  resolved "https://registry.yarnpkg.com/@ref-finance/ref-sdk/-/ref-sdk-1.3.8.tgz#4fa38cf91e57e31f99a73a67b1cbab62656aaf58"
+  integrity sha512-PxgpLBCq91hX/fjtg+tt5mDFVxSBnJOaORjEHV4UuMZshI7ghrVqemo6kDWl4c7QpJw0oTW95rFH4ytFHHyubQ==
   dependencies:
     "@near-wallet-selector/core" "^7.0.0"
     "@react-icons/all-files" "^4.1.0"
