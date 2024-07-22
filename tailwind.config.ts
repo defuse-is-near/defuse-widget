@@ -51,6 +51,9 @@ const config: Config = {
         },
         black: {
           DEFAULT: "#041417",
+          950: "rgba(42, 42, 40, 1)",
+          900: "rgba(25, 25, 24, 1)",
+          800: "rgba(17, 17, 16, 1)",
           700: "rgba(24, 25, 26, 1)",
           600: "rgba(22, 22, 21, 1)",
           500: "rgba(28, 32, 36, 1)",
@@ -62,12 +65,13 @@ const config: Config = {
         gray: {
           ...colors.gray,
           DEFAULT: "rgba(249, 249, 248, 1)",
+          1000: "rgba(251, 251, 235, 0.14)",
           950: "rgba(241, 240, 239, 1)",
           900: "rgba(141, 141, 141, 1)",
           800: "rgba(249, 249, 249, 1)",
           700: "rgba(100, 100, 100, 1)",
           600: "rgba(99, 99, 94, 1)",
-          500: "rgba(187, 187, 187, 1)",
+          500: "rgba(181, 179, 173, 1)",
           400: "rgba(217, 217, 217, 1)",
           300: "rgba(228, 228, 228, 1)",
           200: "rgba(241, 241, 241, 1)",
@@ -85,6 +89,7 @@ const config: Config = {
           600: "rgba(206, 44, 49, 1)",
           500: "rgba(229, 72, 77, 1)",
           400: "rgba(204, 78, 0, 0.77)",
+          200: "rgba(251, 106, 0, 0.15)",
           100: "rgba(255, 156, 0, 0.16)",
         },
         pink: {
@@ -98,19 +103,24 @@ const config: Config = {
         },
         primary: {
           DEFAULT: "rgba(247, 107, 21, 1)",
-          100: "rgba(239, 95, 0, 1)",
-          200: "rgba(219, 95, 0, 1)",
+          400: "rgba(255, 160, 87, 1)",
           300: "rgba(204, 78, 0, 1)",
+          200: "rgba(219, 95, 0, 1)",
+          100: "rgba(239, 95, 0, 1)",
         },
         secondary: "rgba(128, 128, 128, 1)",
       },
       boxShadow: {
         paper:
           "0px 8px 40px 0px rgba(0, 0, 0, 0.05), 0px 12px 32px -16px rgba(32, 16, 0, 0.06);",
+        "paper-dark":
+          "0px 12px 32px -16px rgba(246, 246, 245, 0.07), 0px 8px 40px 0px rgba(0, 0, 0, 0.05)",
         widget:
           "0px 12px 62px 0px rgba(0, 0, 0, 0.15), 0px 12px 32px -16px rgba(31, 24, 0, 0.13)",
         "select-token":
           "0px 0px 0px 0.5px rgba(0, 0, 0, 0.05), 0px 1px 4px 0px rgba(31, 21, 0, 0.1), 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 3px 0px rgba(0, 0, 0, 0.05)",
+        "select-token-dark":
+          "0px 1px 3px 0px rgba(0, 0, 0, 0.05), 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 4px 0px rgba(254, 254, 243, 0.11), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05)",
         "home-paper": "0px -28px 40px 0px rgba(0, 0, 0, 0.08)",
         "card-multi":
           "0px 12px 32px -16px rgba(31, 24, 0, 0.13), 0px 12px 60px 0px rgba(0, 0, 0, 0.15)",
@@ -118,6 +128,8 @@ const config: Config = {
           "0px 16px 36px -20px rgba(25, 20, 0, 0.21), 0px 16px 64px 0px rgba(37, 37, 0, 0.03), 0px 12px 60px 0px rgba(0, 0, 0, 0.15)",
         "switch-token":
           "0px 1px 3px 0px rgba(0, 0, 0, 0.05), 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 4px 0px rgba(31, 21, 0, 0.10), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05)",
+        "switch-token-dark":
+          "0px 1px 3px 0px rgba(255, 255, 255, 0.05), 0px 2px 1px -1px rgba(255, 255, 255, 0.05), 0px 1px 4px 0px rgba(224, 234, 255, 0.10), 0px 0px 0px 0.5px rgba(255, 255, 255, 0.05)",
       },
       scale: {
         103: "1.03",
@@ -126,9 +138,10 @@ const config: Config = {
         "4xl": "1.875rem",
       },
       backgroundImage: {
-        "page-light": "url('/static/images/bg-light.svg')",
-        "page-dark": "url('/static/images/bg-dark.svg')",
-        "page-light--mobile": "url('/static/images/bg-light--mobile.svg')",
+        "page-light": "url(/static/images/bg-light.svg)",
+        "page-dark": "url(/static/images/bg-dark.svg)",
+        "page-light--mobile": "url(/static/images/bg-light--mobile.svg)",
+        "page-dark--mobile": "url(/static/images/bg-dark--mobile.svg)",
         "card-vision-account-fi": "url(/static/images/group-account-fi.svg)",
         "card-vision-account-fi--mobile":
           "url(/static/images/group-account-fi--mobile.svg)",

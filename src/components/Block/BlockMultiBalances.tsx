@@ -43,7 +43,7 @@ const BlockMultiBalances = ({
         className={clsx(
           "text-xs px-2 py-0.5 rounded-full",
           Number(balance) > 0
-            ? "bg-red-100 text-red-400"
+            ? "bg-red-100 text-red-400 dark:bg-red-200 dark:text-primary-400"
             : "bg-white-200 text-gray-600"
         )}
       >

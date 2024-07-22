@@ -12,10 +12,12 @@ const Paper = ({ children, title, description }: Props) => {
         <div className="flex flex-col mb-8 text-center">
           {title && <h1 className="mb-3 font-black">{title}</h1>}
           {description && (
-            <span className="text-sm text-gray-600">{description}</span>
+            <span className="text-sm text-gray-600 dark:text-gray-500">
+              {description}
+            </span>
           )}
         </div>
-        <div className="rounded-[1rem] p-5 shadow-paper bg-white">
+        <div className="rounded-[1rem] p-5 shadow-paper bg-white dark:shadow-paper-dark dark:bg-black-800">
           {children}
         </div>
       </div>

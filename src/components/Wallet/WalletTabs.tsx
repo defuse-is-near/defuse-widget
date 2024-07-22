@@ -35,7 +35,11 @@ const TabTotalBalance = ({
           ${totalBalanceInUsd ? totalBalanceInUsd?.toFixed(2) : "0.00"}
         </Text>
       )}
-      <Text size="2" weight="medium" className="text-gray-600">
+      <Text
+        size="2"
+        weight="medium"
+        className="text-gray-600 dark:text-gray-500"
+      >
         Total balance
       </Text>
     </WalletTabBox>

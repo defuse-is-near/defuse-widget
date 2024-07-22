@@ -1,5 +1,5 @@
 import React from "react"
-import Image from "next/image"
+import { CaretDownIcon } from "@radix-ui/react-icons"
 
 import { NetworkToken } from "@src/types/interfaces"
 import AssetComboIcon from "@src/components/Network/AssetComboIcon"
@@ -23,7 +23,7 @@ const SelectAssets = ({ selected, handleSelect }: Props) => {
   return (
     <button
       onClick={handleAssetsSelect}
-      className="max-w-[148px] md:max-w-[210px] bg-white shadow-select-token rounded-full flex justify-between items-center p-1 gap-2.5"
+      className="max-w-[148px] md:max-w-[210px] bg-white shadow-select-token rounded-full flex justify-between items-center p-1 gap-2.5 dark:bg-black-800 dark:shadow-select-token-dark"
     >
       {selected?.icon ? (
         <AssetComboIcon
@@ -38,12 +38,7 @@ const SelectAssets = ({ selected, handleSelect }: Props) => {
       <span className="text-sm uppercase truncate">
         {selected?.name || "select token"}
       </span>
-      <Image
-        src="/static/icons/caret-down.svg"
-        width={25}
-        height={25}
-        alt="caret-down"
-      />
+      <CaretDownIcon width={25} height={25} />
     </button>
   )
 }

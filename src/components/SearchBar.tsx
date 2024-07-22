@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { MagnifyingGlassIcon, Cross1Icon } from "@radix-ui/react-icons"
 
 type Props = {
   query: string
@@ -15,14 +15,9 @@ const SearchBar = ({
 }: Props) => {
   return (
     <div className="flex justify-between items-center gap-4">
-      <Image
-        src="/static/icons/search.svg"
-        alt="Search Icon"
-        width={18}
-        height={18}
-      />
+      <MagnifyingGlassIcon width={18} height={18} />
       <input
-        className="flex-1 border-transparent focus:border-transparent focus:ring-0 dark:bg-black-700 dark:text-white"
+        className="flex-1 border-transparent focus:border-transparent focus:ring-0 dark:bg-black-800 dark:text-white"
         placeholder={placeholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
@@ -32,12 +27,7 @@ const SearchBar = ({
           handleOverrideCancel ? handleOverrideCancel() : setQuery("")
         }}
       >
-        <Image
-          src="/static/icons/close.svg"
-          alt="Search Icon"
-          width={14}
-          height={14}
-        />
+        <Cross1Icon width={14} height={14} />
       </button>
     </div>
   )

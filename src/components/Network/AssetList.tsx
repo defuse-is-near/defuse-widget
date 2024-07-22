@@ -53,8 +53,13 @@ const AssetList = ({
   }
   return (
     <div className={clsx("flex flex-col", className && className)}>
-      <div className="sticky top-0 z-10 px-5 h-[46px] flex items-center bg-white dark:bg-black-700 dark:text-white">
-        <Text as="p" size="1" weight="medium" className="pt-2.5 text-gray-600">
+      <div className="sticky top-0 z-10 px-5 h-[46px] flex items-center bg-white dark:bg-black-800 dark:text-white">
+        <Text
+          as="p"
+          size="1"
+          weight="medium"
+          className="pt-2.5 text-gray-600 dark:text-gray-500"
+        >
           {title}
         </Text>
       </div>
@@ -74,7 +79,7 @@ const AssetList = ({
           <button
             key={i}
             className={clsx(
-              "flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-950",
+              "flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-950 dark:hover:bg-black-950",
               isNotSelectable && "opacity-50 pointer-events-none"
             )}
             onClick={() => handleSelectToken && handleSelectToken(assets[i])}
@@ -97,7 +102,7 @@ const AssetList = ({
                     : null}
                 </Text>
               </div>
-              <div className="flex justify-between items-center text-gray-600">
+              <div className="flex justify-between items-center text-gray-600 dark:text-gray-500">
                 <Text as="span" size="2">
                   {symbol ? symbol : null}
                 </Text>
