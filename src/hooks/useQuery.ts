@@ -101,6 +101,13 @@ export const useQueryCollector = (): CollectorHook => {
       }
 
       const transactionBatch = transactionHashes?.split(",") ?? []
+      if (!transactionBatch.length) {
+        console.log(
+          "getTransactions has stopped due to the hash is missing, UseQueryCollectorKeys.TRANSACTION_HASHS"
+        )
+        return []
+      }
+
       const txDatas = await Promise.all(
         transactionBatch.map(async (hash) => {
           const txData = (await getNearTransactionDetails(

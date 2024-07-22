@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { FieldValues, useForm } from "react-hook-form"
 import { formatUnits, parseUnits } from "viem"
 
@@ -152,18 +152,18 @@ export default function Swap() {
     setModalType(ModalType.MODAL_SELECT_ASSETS, { fieldName, selectToken })
   }
 
-  const debouncedGetSwapEstimateBot = debounce(
-    async (data: DataEstimateRequest) => {
+  const debouncedGetSwapEstimateBot = useCallback(
+    debounce(async (data: DataEstimateRequest) => {
       const { bestOut, allEstimates } = await getSwapEstimateBot(data)
       getEvaluateSwapEstimate("tokenOut", data, allEstimates, bestOut)
       isProgrammaticUpdate.current = true
       setValue("tokenOut", bestOut ?? "0")
-    },
-    ESTIMATE_BOT_AWAIT_500_MS
+    }, ESTIMATE_BOT_AWAIT_500_MS),
+    []
   )
 
-  const debouncedGetSwapEstimateBotReverse = debounce(
-    async (data: DataEstimateRequest) => {
+  const debouncedGetSwapEstimateBotReverse = useCallback(
+    debounce(async (data: DataEstimateRequest) => {
       const { bestOut, allEstimates } = await getSwapEstimateBot(data)
       getEvaluateSwapEstimate("tokenIn", data, allEstimates, bestOut)
       isProgrammaticUpdate.current = true
@@ -174,8 +174,8 @@ export default function Swap() {
         selectTokenIn: selectTokenIn as NetworkTokenWithSwapRoute,
         selectTokenOut: selectTokenOut as NetworkTokenWithSwapRoute,
       })
-    },
-    ESTIMATE_BOT_AWAIT_500_MS
+    }, ESTIMATE_BOT_AWAIT_500_MS),
+    []
   )
 
   const handleEstimateSwap = ({
