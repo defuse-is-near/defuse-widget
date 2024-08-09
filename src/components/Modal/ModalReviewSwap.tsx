@@ -33,38 +33,50 @@ const ModalReviewSwap = () => {
   const { onCloseModal, setModalType, payload } = useModalStore(
     (state) => state
   )
-  const { getSwapEstimateBot, isFetching } = useSwapEstimateBot()
+  const [isFetching, setIsFetching] = useState(false)
+  const { getSwapEstimateBot } = useSwapEstimateBot()
   const [convertPayload, setConvertPayload] = useState<ModalReviewSwapPayload>(
     payload as ModalReviewSwapPayload
   )
 
   const recalculateEstimation = async () => {
-    const pair = [
-      convertPayload.selectedTokenIn.address as string,
-      convertPayload.selectedTokenOut.address as string,
-    ]
-    // Not needed recalculation if ratio is 1:1
-    if (pair.includes("native") && pair.includes("wrap.near")) return
+    try {
+      setIsFetching(true)
+      const pair = [
+        convertPayload.selectedTokenIn.address as string,
+        convertPayload.selectedTokenOut.address as string,
+      ]
+      // Not needed recalculation if ratio is 1:1
+      if (pair.includes("native") && pair.includes("wrap.near")) return
 
-    const unitsTokenIn = parseUnits(
-      convertPayload.tokenIn,
-      convertPayload.selectedTokenIn.decimals as number
-    ).toString()
+      const unitsTokenIn = parseUnits(
+        convertPayload.tokenIn,
+        convertPayload.selectedTokenIn.decimals as number
+      ).toString()
 
-    const { bestEstimate } = await getSwapEstimateBot({
-      tokenIn: convertPayload.selectedTokenIn.defuse_asset_id,
-      tokenOut: convertPayload.selectedTokenOut.defuse_asset_id,
-      amountIn: unitsTokenIn,
-    })
-    if (bestEstimate === null) return
-    const formattedOut =
-      bestEstimate !== null
-        ? formatUnits(
-            BigInt(bestEstimate.amount_out),
-            convertPayload.selectedTokenOut.decimals!
-          )
-        : "0"
-    setConvertPayload({ ...convertPayload, tokenOut: formattedOut })
+      const { bestEstimate } = await getSwapEstimateBot({
+        tokenIn: convertPayload.selectedTokenIn.defuse_asset_id,
+        tokenOut: convertPayload.selectedTokenOut.defuse_asset_id,
+        amountIn: unitsTokenIn,
+      })
+      // ToDo: Here we need to handle the issue when all of a sudden there is no quotes
+      if (bestEstimate === null) return
+      const formattedOut =
+        bestEstimate !== null
+          ? formatUnits(
+              BigInt(bestEstimate.amount_out),
+              convertPayload.selectedTokenOut.decimals!
+            )
+          : "0"
+      setConvertPayload({ ...convertPayload, tokenOut: formattedOut })
+    } catch (e) {
+      console.error(
+        "Failed to recalculate swap estimation in Modal Review Swap",
+        e
+      )
+    } finally {
+      setIsFetching(false)
+    }
   }
 
   const { timeLeft } = useTimer(

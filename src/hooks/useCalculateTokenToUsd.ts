@@ -9,7 +9,10 @@ export const useCalculateTokenToUsd = () => {
     amount: string,
     selectToken: NetworkToken | undefined
   ) => {
-    if (!selectToken || !parseFloat(amount)) return
+    if (!selectToken || !parseFloat(amount)) {
+      setPriceToUsd("0")
+      return
+    }
     const convertPrice = selectToken?.convertedLast?.usd
     const amountToUsd = convertPrice
       ? (Number(amount) * convertPrice).toString()

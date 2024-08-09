@@ -12,7 +12,7 @@ import ButtonSwitch from "@src/components/Button/ButtonSwitch"
 import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"
 import { useModalStore } from "@src/providers/ModalStoreProvider"
 import { ModalType } from "@src/stores/modalStore"
-import { NetworkToken } from "@src/types/interfaces"
+import { NetworkToken, NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 import { ModalSelectAssetsPayload } from "@src/components/Modal/ModalSelectAssets"
 import useSwapEstimateBot from "@src/hooks/useSwapEstimateBot"
 import { debounce } from "@src/utils/debounce"
@@ -24,7 +24,6 @@ import { useEvaluateSwapEstimation } from "@src/hooks/useEvaluateSwapEstimation"
 import BlockEvaluatePrice from "@src/components/Block/BlockEvaluatePrice"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import { useSwapGuard } from "@src/hooks/useSwapGuard"
 
 type FormValues = {
   tokenIn: string
@@ -39,6 +38,12 @@ type EstimateSwap = {
   name: string
   selectTokenIn: SelectToken
   selectTokenOut: SelectToken
+}
+
+enum ErrorEnum {
+  INSUFFICIENT_BALANCE = "Insufficient Balance",
+  NOT_AVAILABLE_SWAP = "Not Available Swap",
+  NO_QUOTES = "No Quotes",
 }
 
 const ESTIMATE_BOT_AWAIT_MS = 500
@@ -69,17 +74,18 @@ export default function Swap() {
     setValue,
     getValues,
     trigger,
+    clearErrors,
     formState: { errors },
-  } = useForm<FormValues>()
+  } = useForm<FormValues>({ reValidateMode: "onSubmit" })
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
   )
-  const { bestEstimate, allEstimates, getSwapEstimateBot, isFetching } =
+  const { bestEstimate, allEstimates, getSwapEstimateBot } =
     useSwapEstimateBot()
   const isProgrammaticUpdate = useRef(false)
   useModalSearchParams()
-  const { handleValidateInputs, errorMsg } = useSwapGuard()
-
+  const [errorMsg, setErrorMsg] = useState<ErrorEnum>()
+  const [isFetching, setIsFetching] = useState(false)
   const handleResetToken = (
     token: NetworkToken,
     checkToken: NetworkToken,
@@ -170,30 +176,37 @@ export default function Swap() {
         tokenOut: NetworkToken,
         amountIn: string
       ) => {
-        const data = {
-          tokenIn: tokenIn.defuse_asset_id,
-          tokenOut: tokenOut.defuse_asset_id,
-          amountIn: parseUnits(amountIn, tokenIn?.decimals ?? 0).toString(),
-        }
-        const { bestEstimate } = await getSwapEstimateBot(data)
-        if (bestEstimate === null) {
+        try {
+          const data = {
+            tokenIn: tokenIn.defuse_asset_id,
+            tokenOut: tokenOut.defuse_asset_id,
+            amountIn: parseUnits(amountIn, tokenIn?.decimals ?? 0).toString(),
+          }
+          const { bestEstimate } = await getSwapEstimateBot(data)
+          if (bestEstimate === null) {
+            isProgrammaticUpdate.current = true
+            setValue("tokenOut", "")
+            setErrorMsg(ErrorEnum.NO_QUOTES)
+            return
+          }
+          getEvaluateSwapEstimate(
+            tokenIn,
+            tokenOut,
+            amountIn,
+            bestEstimate.amount_out
+          )
           isProgrammaticUpdate.current = true
-          setValue("tokenOut", "")
-          return
+          const formattedOut =
+            bestEstimate.amount_out !== null
+              ? formatUnits(BigInt(bestEstimate.amount_out), tokenOut.decimals!)
+              : "0"
+          setValue("tokenOut", formattedOut)
+          trigger("tokenOut")
+        } catch (e) {
+          console.error("Failed to estimate price", e)
+        } finally {
+          setIsFetching(false)
         }
-        getEvaluateSwapEstimate(
-          tokenIn,
-          tokenOut,
-          amountIn,
-          bestEstimate.amount_out
-        )
-        isProgrammaticUpdate.current = true
-        const formattedOut =
-          bestEstimate.amount_out !== null
-            ? formatUnits(BigInt(bestEstimate.amount_out), tokenOut.decimals!)
-            : "0"
-        setValue("tokenOut", formattedOut)
-        trigger("tokenOut")
       },
       ESTIMATE_BOT_AWAIT_MS
     ),
@@ -207,11 +220,30 @@ export default function Swap() {
     selectTokenIn,
     selectTokenOut,
   }: EstimateSwap) => {
+    setErrorMsg(undefined)
+    clearErrors()
+    const parsedTokeinIn = parseFloat(tokenIn)
     if (
-      (name === "tokenIn" && !parseFloat(tokenIn)) ||
+      (name === "tokenIn" && !parsedTokeinIn) ||
       !selectTokenIn ||
       !selectTokenOut
     ) {
+      isProgrammaticUpdate.current = true
+      setValue("tokenOut", "")
+      return
+    }
+    if (parsedTokeinIn > (selectTokenIn?.balance ?? 0)) {
+      setErrorMsg(ErrorEnum.INSUFFICIENT_BALANCE)
+    }
+
+    if (
+      !(selectTokenIn as NetworkTokenWithSwapRoute).routes?.includes(
+        selectTokenOut.defuse_asset_id
+      )
+    ) {
+      setErrorMsg(ErrorEnum.NOT_AVAILABLE_SWAP)
+      isProgrammaticUpdate.current = true
+      setValue("tokenOut", "")
       return
     }
 
@@ -225,13 +257,8 @@ export default function Swap() {
       )
     }
 
+    setIsFetching(true)
     debouncedGetSwapEstimateBot(selectTokenIn, selectTokenOut, tokenIn)
-
-    handleValidateInputs({
-      tokenIn,
-      selectTokenIn,
-      selectTokenOut,
-    })
   }
 
   useEffect(() => {

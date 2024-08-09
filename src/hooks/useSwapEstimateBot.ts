@@ -21,7 +21,6 @@ type PriceData = {
 }
 
 const useSwapEstimateBot = () => {
-  const [isFetching, setFetching] = useState(false)
   const [{ allEstimates, bestEstimate }, setPrices] = useState<{
     allEstimates: SwapEstimateProviderResponse[] | null
     bestEstimate: SolverQuoteData | null
@@ -31,7 +30,6 @@ const useSwapEstimateBot = () => {
   ): Promise<PriceData> => {
     try {
       setPrices(DEFAULT_ESTIMATES_VALUE)
-      setFetching(true)
       const estimates = await concurrentEstimateSwap(data)
       const sorted = estimates
         .map((estimatesItem) => {
@@ -55,13 +53,10 @@ const useSwapEstimateBot = () => {
     } catch (error) {
       console.error(error)
       return DEFAULT_ESTIMATES_VALUE
-    } finally {
-      setFetching(false)
     }
   }
 
   return {
-    isFetching,
     getSwapEstimateBot,
     allEstimates,
     bestEstimate,
