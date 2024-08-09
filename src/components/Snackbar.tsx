@@ -34,7 +34,7 @@ const Snackbar = () => {
       {openNotifications.map(({ id, message }) => (
         <Toast.Root
           key={id}
-          className="ToastRoot"
+          className="ToastRoot dark:bg-black-800"
           open={Boolean(id) || false}
           onOpenChange={() => handleOpenChange(id)}
         >

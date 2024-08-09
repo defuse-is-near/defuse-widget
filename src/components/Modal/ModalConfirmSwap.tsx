@@ -117,7 +117,6 @@ const ModalConfirmSwap = () => {
         selectedTokenIn: modalPayload.selectedTokenIn,
         selectedTokenOut: modalPayload.selectedTokenOut,
         clientId,
-        useNative: modalPayload.isNativeInSwap,
       })
     setTransactionQueue(queueInTrack)
     return {
@@ -271,6 +270,9 @@ const ModalConfirmSwap = () => {
         selectedTokenOut: modalPayload.selectedTokenOut,
         clientId: newClientId,
         estimateQueue,
+        accountFrom: modalPayload?.accountFrom,
+        accountTo: modalPayload?.accountTo,
+        solverId: modalPayload?.solverId,
       }
 
       setSwapToLocal(inputs)

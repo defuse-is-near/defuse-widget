@@ -29,5 +29,5 @@ export const tokenBalanceToFormatUnits = ({
     decimals
   ).toString()
 
-  return smallBalanceToFormat(balanceToUnits)
+  return smallBalanceToFormat(balanceToUnits, 7)
 }

@@ -2,49 +2,69 @@
 
 import { useState } from "react"
 
-import { setSettings } from "@src/libs/de-sdk/settings"
 import { concurrentEstimateSwap } from "@src/libs/de-sdk"
 import {
   DataEstimateRequest,
+  SolverQuoteData,
   SwapEstimateProviderResponse,
 } from "@src/libs/de-sdk/types/interfaces"
+import sortBigIntDesc from "@src/utils/sortBigIntDesc"
 
-export interface SwapEstimateBotResult {
-  bestOut: string | null
-  allEstimates?: SwapEstimateProviderResponse[]
+const DEFAULT_ESTIMATES_VALUE = {
+  allEstimates: null,
+  bestEstimate: null,
+}
+
+type PriceData = {
+  allEstimates: SwapEstimateProviderResponse[] | null
+  bestEstimate: SolverQuoteData | null
 }
 
 const useSwapEstimateBot = () => {
   const [isFetching, setFetching] = useState(false)
-
+  const [{ allEstimates, bestEstimate }, setPrices] = useState<{
+    allEstimates: SwapEstimateProviderResponse[] | null
+    bestEstimate: SolverQuoteData | null
+  }>(DEFAULT_ESTIMATES_VALUE)
   const getSwapEstimateBot = async (
     data: DataEstimateRequest
-  ): Promise<SwapEstimateBotResult> => {
-    setFetching(true)
-    // console.log("getSwapEstimateBot data:", data)
-    const estimates = await concurrentEstimateSwap(data)
+  ): Promise<PriceData> => {
+    try {
+      setPrices(DEFAULT_ESTIMATES_VALUE)
+      setFetching(true)
+      const estimates = await concurrentEstimateSwap(data)
+      const sorted = estimates
+        .map((estimatesItem) => {
+          return estimatesItem.sort((a, b) =>
+            sortBigIntDesc(a.amount_out, b.amount_out)
+          )
+        })
+        .sort((a, b) => sortBigIntDesc(a[0].amount_out, b[0].amount_out))
 
-    if (!estimates.length) {
-      setFetching(false)
-      return {
-        bestOut: null,
+      const bestOffers = sorted[0]
+      if (bestOffers.length === 0) return DEFAULT_ESTIMATES_VALUE
+
+      console.log("useSwapEstimateBot: ", sorted)
+
+      const result = {
+        allEstimates: sorted,
+        bestEstimate: bestOffers[0],
       }
-    }
-
-    const sortEstimates = estimates.sort(
-      (a, b) => Number(b.amount_out) - Number(a.amount_out)
-    )
-    console.log("useSwapEstimateBot: ", estimates)
-    setFetching(false)
-    return {
-      bestOut: sortEstimates[0].amount_out,
-      allEstimates: sortEstimates[0]?.list,
+      setPrices(result)
+      return result
+    } catch (error) {
+      console.error(error)
+      return DEFAULT_ESTIMATES_VALUE
+    } finally {
+      setFetching(false)
     }
   }
 
   return {
     isFetching,
     getSwapEstimateBot,
+    allEstimates,
+    bestEstimate,
   }
 }
 

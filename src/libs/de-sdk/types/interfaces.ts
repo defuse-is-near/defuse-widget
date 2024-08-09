@@ -9,9 +9,7 @@ export interface SolverQuoteData {
   amount_out: string
 }
 
-export interface SwapEstimateProviderResponse extends SolverQuoteData {
-  list?: SolverQuoteData[]
-}
+export type SwapEstimateProviderResponse = SolverQuoteData[]
 
 export type EstimateProvider = (
   data: DataEstimateRequest

@@ -72,6 +72,6 @@ export const swapEstimateCoingeckoProvider = async (
     return {
       solver_id: `${REGISTRAR_ID_REF_FINANCE}:0`,
       amount_out: "0",
-    }
+    } as unknown as SwapEstimateProviderResponse
   }
 }

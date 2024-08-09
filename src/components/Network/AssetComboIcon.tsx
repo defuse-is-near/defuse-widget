@@ -20,7 +20,7 @@ const AssetComboIcon = ({
           }}
         />
       </div>
-      <div className="absolute bottom-0 -right-[7px] flex justify-center items-center p-1 bg-black-300 rounded-full border-2 border-white dark:border-black-950">
+      <div className="absolute bottom-0 -right-[7px] flex justify-center items-center p-1 bg-black-300 rounded-full border-2 border-white dark:border-black-950 w-[18px] h-[18px]">
         <Image
           src={chainIcon ?? ""}
           alt={chainName || "Network Logo"}

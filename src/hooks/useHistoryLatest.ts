@@ -6,11 +6,9 @@ import * as borsh from "borsh"
 import { HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 import { intentStatus } from "@src/utils/near"
+import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"
 import {
-  CONFIRM_SWAP_LOCAL_KEY,
-  CONTRACTS_REGISTER,
-} from "@src/constants/contracts"
-import {
+  NearIntent1Create,
   NearIntentCreate,
   NearIntentStatus,
   NearTX,
@@ -25,6 +23,15 @@ import { ModalConfirmSwapPayload } from "@src/components/Modal/ModalConfirmSwap"
 
 const SCHEDULER_30_SEC = 30000
 const SCHEDULER_5_SEC = 5000
+
+function isValidJSON(str: string): boolean {
+  try {
+    JSON.parse(str)
+    return true
+  } catch (e) {
+    return false
+  }
+}
 
 export const useHistoryLatest = () => {
   const { accountId } = useWalletSelector()
@@ -97,20 +104,44 @@ export const useHistoryLatest = () => {
               )
               args = JSON.parse(argsJson)
               msgBase64 = (args as { msg: string }).msg
-              msgBuffer = Buffer.from(msgBase64, "base64")
+              let recoverData: unknown
+              if (isValidJSON(msgBase64)) {
+                recoverData = JSON.parse(msgBase64)
+              }
+              if (recoverData === undefined) {
+                msgBuffer = Buffer.from(msgBase64, "base64")
+                const msgBorshDeserialize = borsh.deserialize(
+                  swapSchema as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+                  msgBuffer
+                )
+                recoverData = msgBorshDeserialize
+              }
 
-              const msgBorshDeserialize = borsh.deserialize(
-                swapSchema as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-                msgBuffer
-              )
-              const recoverData = msgBorshDeserialize as NearIntentCreate
-              const clientId = recoverData.CreateIntent?.id
-              const recoverDetails = recoverData.CreateIntent?.IntentStruct
-
-              const sendAmount = recoverDetails?.send.amount.toString()
-              const receiveAmount = recoverDetails?.receive.amount.toString()
+              const clientId =
+                (recoverData as NearIntentCreate)?.CreateIntent?.id ||
+                (recoverData as NearIntent1Create)?.id
+              const recoverDetails =
+                (recoverData as NearIntentCreate).CreateIntent ||
+                (recoverData as NearIntent1Create)
+              const sendAmount =
+                (
+                  recoverDetails as NearIntentCreate["CreateIntent"]
+                )?.IntentStruct?.send?.amount.toString() ||
+                (args as { amount: string })?.amount
+              const receiveAmount =
+                (
+                  recoverDetails as unknown as NearIntentCreate["CreateIntent"]
+                )?.IntentStruct?.receive?.amount.toString() ||
+                (recoverDetails as unknown as NearIntent1Create)?.asset_out
+                  ?.amount
               const expiration = {
-                Block: recoverDetails?.expiration.Block.toString(),
+                Block:
+                  (
+                    recoverDetails as unknown as NearIntentCreate["CreateIntent"]
+                  )?.IntentStruct?.expiration?.Block.toString() ||
+                  (
+                    recoverDetails as unknown as NearIntent1Create
+                  )?.expiration?.block_number.toString(),
               }
 
               Object.assign(historyData, {
@@ -120,24 +151,31 @@ export const useHistoryLatest = () => {
                   recoverDetails: {
                     ...recoverDetails,
                     send: {
-                      ...(recoverDetails as RecoverDetails).send,
+                      ...(recoverDetails as unknown as RecoverDetails).send,
                       amount: sendAmount,
                     },
                     receive: {
-                      ...(recoverDetails as RecoverDetails).receive,
+                      ...(recoverDetails as unknown as RecoverDetails).receive,
                       amount: receiveAmount,
                     },
                     expiration,
+                    receiverId: (args as { receiver_id: string })?.receiver_id,
                   },
                 },
               })
 
               const getIntentStatus = (await intentStatus(
-                CONTRACTS_REGISTER.INTENT,
+                (args as { receiver_id: string }).receiver_id,
                 historyData.clientId
               )) as NearIntentStatus | null
               if (getIntentStatus?.status) {
-                Object.assign(historyData, { status: getIntentStatus?.status })
+                const statusAdapter =
+                  getIntentStatus?.status === HistoryStatus.INTENT_1_AVAILABLE
+                    ? HistoryStatus.AVAILABLE
+                    : getIntentStatus?.status
+                Object.assign(historyData, {
+                  status: statusAdapter as HistoryStatus,
+                })
               }
               break
 

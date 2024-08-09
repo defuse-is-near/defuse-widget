@@ -6,9 +6,12 @@ import { NearTX, NetworkToken, RecoverDetails } from "@src/types/interfaces"
 import { NEAR_COLLECTOR_KEY } from "@src/constants/contracts"
 
 export enum HistoryStatus {
+  INTENT_1_AVAILABLE = "available",
   AVAILABLE = "Available",
   PROCESSING = "Processing",
   COMPLETED = "Completed",
+  INTENT_1_EXECUTED = "executed",
+  INTENT_1_ROLLED_BACK = "rolled_back",
   ROLLED_BACK = "RolledBack",
   EXPIRED = "Expired",
   FAILED = "Failed", // Internal status
@@ -67,7 +70,9 @@ const helperHistoryLocalStore = (data: HistoryState["data"]): void => {
   data.forEach((value) => getHistoryFromStore.push(value))
   localStorage.setItem(
     NEAR_COLLECTOR_KEY,
-    JSON.stringify({ data: getHistoryFromStore })
+    JSON.stringify({ data: getHistoryFromStore }, (key, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    )
   )
 }
 

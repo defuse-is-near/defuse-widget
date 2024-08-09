@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios"
 import { v4 } from "uuid"
-import { formatUnits } from "viem"
 
 import {
   DataEstimateRequest,
@@ -38,28 +37,6 @@ export interface SolverQuoteResponse {
   amount_out: string
 }
 
-const convertTokenToTokenSolver = (
-  data: string
-): Promise<SolverBaseResponse & SolverResult<SolverTokenList>> => {
-  const config: AxiosRequestConfig = {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }
-  return axios
-    .post(
-      "https://solver-relay.chaindefuser.com/rpc",
-      {
-        id: v4(),
-        jsonrpc: "2.0",
-        method: "discover_defuse_assets",
-        params: [data],
-      },
-      config
-    )
-    .then((resp) => resp.data)
-}
-
 const quoteAssetPrices = (
   data: SolverQuoteRequest
 ): Promise<SolverBaseResponse & SolverResult<SolverQuoteResponse[]>> => {
@@ -82,40 +59,25 @@ const quoteAssetPrices = (
     .then((resp) => resp.data)
 }
 
+function prepareQuoteData(defuseId: string) {
+  if (defuseId === "near:mainnet:native") return "near:mainnet:wrap.near"
+  return defuseId
+}
+
 export const swapEstimateSolver0Provider = async (
   data: DataEstimateRequest
 ): Promise<SwapEstimateProviderResponse> => {
-  const getTokenInToFormat = await convertTokenToTokenSolver(data.tokenIn)
-  const getTokenOutToFormat = await convertTokenToTokenSolver(data.tokenOut)
-
   const getQuoteAssetPrices = await quoteAssetPrices({
-    defuse_asset_identifier_in:
-      getTokenInToFormat.result.tokens[0].defuse_asset_id,
-    defuse_asset_identifier_out:
-      getTokenOutToFormat.result.tokens[0].defuse_asset_id,
+    defuse_asset_identifier_in: prepareQuoteData(data.tokenIn),
+    defuse_asset_identifier_out: prepareQuoteData(data.tokenOut),
     amount_in: data.amountIn,
   })
-  console.log("Solver0 getQuoteAssetPrices: ", getQuoteAssetPrices)
+
   if (!getQuoteAssetPrices.result?.length) {
-    return {
-      solver_id: `${REGISTRAR_ID}:`,
-      amount_out: "0",
-    } as SwapEstimateProviderResponse
+    return []
   }
 
-  const getSortedList = getQuoteAssetPrices.result.sort(
-    (a, b) => Number(b.amount_out) - Number(a.amount_out)
-  )
-  console.log("swapEstimateSolver0Provider:", getSortedList)
-
-  return {
-    solver_id: `${REGISTRAR_ID}:${getSortedList[0].solver_id}`,
-    amount_out: formatUnits(
-      BigInt(getSortedList[0].amount_out),
-      getTokenOutToFormat.result.tokens[0].decimals
-    ).toString(),
-    list: getSortedList,
-  } as SwapEstimateProviderResponse
+  return getQuoteAssetPrices.result
 }
 
 const getSupportTokenList = (): Promise<

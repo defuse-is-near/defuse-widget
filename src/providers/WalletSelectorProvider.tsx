@@ -54,7 +54,7 @@ interface WalletSelectorContextValue {
 }
 
 import { Loading } from "@src/components/Loading"
-import { CONTRACTS_REGISTER } from "@src/constants/contracts"
+import { CONTRACTS_REGISTER, INDEXER } from "@src/constants/contracts"
 
 const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
 const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
@@ -114,12 +114,12 @@ export const WalletSelectorProvider: React.FC<{
         }),
         setupNearMobileWallet(),
         setupMintbaseWallet({
-          contractId: CONTRACTS_REGISTER.INTENT,
+          contractId: "",
         }) as WalletModuleFactory<Wallet>,
       ],
     })
     const _modal = setupModal(_selector, {
-      contractId: CONTRACTS_REGISTER.INTENT,
+      contractId: "",
     })
     const state = _selector.store.getState()
     setAccounts(state.accounts)

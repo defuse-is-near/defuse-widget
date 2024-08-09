@@ -1,9 +1,16 @@
-enum CONTRACTS_MAINNET {
-  INTENT = "esufed.near",
+export enum INDEXER {
+  INTENT_0,
+  INTENT_1,
 }
 
-enum CONTRACTS_TESTNET {
-  INTENT = "dintent.testnet",
+const CONTRACTS_MAINNET = {
+  [INDEXER.INTENT_0]: "esufed.near",
+  [INDEXER.INTENT_1]: "swap-defuse.near",
+}
+
+const CONTRACTS_TESTNET = {
+  [INDEXER.INTENT_0]: "dintent.testnet",
+  [INDEXER.INTENT_1]: "",
 }
 
 export const CONTRACTS_REGISTER =

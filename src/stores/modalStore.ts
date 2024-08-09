@@ -6,6 +6,7 @@ export enum ModalType {
   MODAL_SELECT_ASSETS = "modalSelectAssets",
   MODAL_REVIEW_SWAP = "modalReviewSwap",
   MODAL_CONFIRM_SWAP = "modalConfirmSwap",
+  MODAL_CONNECT_NETWORKS = "modalConnectNetworks",
 }
 
 export type ModalState = {

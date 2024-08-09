@@ -3,7 +3,7 @@
 import { Text } from "@radix-ui/themes"
 import Image from "next/image"
 import React, { useState } from "react"
-import { parseUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
 
 import ModalDialog from "@src/components/Modal/ModalDialog"
 import { NetworkToken } from "@src/types/interfaces"
@@ -22,6 +22,9 @@ export type ModalReviewSwapPayload = {
   selectedTokenIn: NetworkToken
   selectedTokenOut: NetworkToken
   isNativeInSwap: boolean
+  accountFrom?: string
+  accountTo?: string
+  solverId?: string
 }
 
 const RECALCULATE_ESTIMATION_TIME_SECS = 15
@@ -48,12 +51,20 @@ const ModalReviewSwap = () => {
       convertPayload.selectedTokenIn.decimals as number
     ).toString()
 
-    const { bestOut } = await getSwapEstimateBot({
-      tokenIn: convertPayload.selectedTokenIn.address as string,
-      tokenOut: convertPayload.selectedTokenOut.address as string,
+    const { bestEstimate } = await getSwapEstimateBot({
+      tokenIn: convertPayload.selectedTokenIn.defuse_asset_id,
+      tokenOut: convertPayload.selectedTokenOut.defuse_asset_id,
       amountIn: unitsTokenIn,
     })
-    setConvertPayload({ ...convertPayload, tokenOut: bestOut ?? "0" })
+    if (bestEstimate === null) return
+    const formattedOut =
+      bestEstimate !== null
+        ? formatUnits(
+            BigInt(bestEstimate.amount_out),
+            convertPayload.selectedTokenOut.decimals!
+          )
+        : "0"
+    setConvertPayload({ ...convertPayload, tokenOut: formattedOut })
   }
 
   const { timeLeft } = useTimer(
@@ -71,7 +82,7 @@ const ModalReviewSwap = () => {
       <div className="flex flex-col min-h-[256px] max-h-[680px] h-full p-5">
         <div className="flex justify-between items-center mb-[44px]">
           <div className="relative w-full shrink text-center text-black-400">
-            <Text size="4" weight="bold">
+            <Text size="4" weight="bold" className="dark:text-gray-500">
               Review swap
             </Text>
             <div className="absolute top-[30px] left-[50%] -translate-x-2/4 text-gray-600">

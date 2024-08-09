@@ -25,7 +25,8 @@ type Props = {
   tokenOut: string
   selectedTokenIn: NetworkTokenWithSwapRoute
   selectedTokenOut: NetworkTokenWithSwapRoute
-  handleCloseIntent: ({ id }: { id: string }) => void
+  handleCloseIntent: ({ id }: { id: string; receiverId?: string }) => void
+  receiverId?: string
 }
 
 const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
@@ -40,15 +41,18 @@ const WidgetCardSwap = ({
   selectedTokenOut,
   selectedTokenIn,
   handleCloseIntent,
+  receiverId,
 }: Props) => {
   const [isActive, setIsActive] = useState(false)
 
   let cardStatus: CardSwapStatusEnum | null = null
   switch (status) {
     case HistoryStatus.AVAILABLE:
+    case HistoryStatus.INTENT_1_AVAILABLE:
       cardStatus = CardSwapStatusEnum.PENDING
       break
     case HistoryStatus.COMPLETED:
+    case HistoryStatus.INTENT_1_EXECUTED:
       cardStatus = CardSwapStatusEnum.COMPLETED
       break
   }
@@ -113,7 +117,7 @@ const WidgetCardSwap = ({
                 color="red"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleCloseIntent({ id: clientId })
+                  handleCloseIntent({ id: clientId, receiverId })
                 }}
                 className="relative w-[32px] h-[32px] cursor-pointer"
               >

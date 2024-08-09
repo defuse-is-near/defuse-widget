@@ -5,16 +5,20 @@ import { InfoCircledIcon } from "@radix-ui/react-icons"
 import { Tooltip } from "@radix-ui/themes"
 import clsx from "clsx"
 
-import { smallBalanceToFormat } from "@src/utils/token"
-import {
-  EvaluateResultEnum,
-  EvaluateSwapEstimationResult,
-} from "@src/hooks/useEvaluateSwapEstimation"
+import { EvaluateResultEnum } from "@src/hooks/useEvaluateSwapEstimation"
+import { SwapEstimateProviderResponse } from "@src/libs/de-sdk/types/interfaces"
+import { NetworkToken } from "@src/types/interfaces"
+import { tokenBalanceToFormatUnits } from "@src/utils/token"
 
 const BlockEvaluatePrice = ({
   priceEvaluation,
   priceResults,
-}: EvaluateSwapEstimationResult) => {
+  tokenOut,
+}: {
+  priceEvaluation?: EvaluateResultEnum
+  priceResults: SwapEstimateProviderResponse[] | null
+  tokenOut?: NetworkToken
+}) => {
   return (
     <span className="flex flex-nowrap gap-2 items-center text-sm font-medium text-secondary">
       {priceEvaluation && (
@@ -27,16 +31,24 @@ const BlockEvaluatePrice = ({
           )}
         >
           {priceEvaluation}
-          {priceResults?.length && (
+          {tokenOut && priceResults?.length && (
             <Tooltip
               content={
                 <span className="flex flex-col gap-1">
-                  {priceResults.map((result, i) => (
-                    <span key={i}>
-                      Rate {smallBalanceToFormat(result.amount_out)} from{" "}
-                      {result.solver_id}
-                    </span>
-                  ))}
+                  {priceResults.map((providers, i) =>
+                    providers.map((result) => {
+                      return (
+                        <span key={i}>
+                          Rate{" "}
+                          {tokenBalanceToFormatUnits({
+                            balance: result.amount_out,
+                            decimals: tokenOut.decimals!,
+                          })}{" "}
+                          from {result.solver_id}
+                        </span>
+                      )
+                    })
+                  )}
                 </span>
               }
             >

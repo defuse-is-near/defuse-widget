@@ -158,6 +158,30 @@ export interface NearIntentCreate {
   }
 }
 
+enum Status {
+  "Available",
+  "available",
+}
+
+export interface NearIntent1Create {
+  type: "create"
+  id: string
+  asset_out: {
+    type: "cross_chain"
+    oracle: string
+    asset: string
+    amount: string
+    account: string
+  }
+  lockup_until: {
+    block_number: number
+  }
+  expiration: {
+    block_number: number
+  }
+  referral: string
+}
+
 export interface RecoverDetails {
   initiator: string
   send: TransferToken
@@ -166,6 +190,7 @@ export interface RecoverDetails {
   referral: string
   msg?: string
   amount?: string
+  receiverId?: string
 }
 
 export type JobsDetails = {
